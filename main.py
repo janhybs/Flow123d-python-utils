@@ -1,8 +1,7 @@
 import sys
 import json
 import datetime
-from ProfilerFormatter import ProfilerFormatter
-from SimpleTableFormatter import SimpleTableFormatter
+
 
 
 __author__ = 'Jan Hybs'
@@ -38,6 +37,13 @@ def default(obj):
 def parseDate (str):
     return datetime.datetime.strptime(str, "%m/%d/%y %H:%M:%S")
 
+
+def getClassInstance (cls):
+    module = __import__(cls)
+    class_ = getattr(module, cls)
+    instance = class_()
+    return instance
+
 def convertFieldsTo (obj, fields, fun, rec=True) :
     for field in fields :
         for prop in obj :
@@ -59,6 +65,6 @@ if __name__ == "__main__" :
     json.dump (jsonObj, fp, indent=4, default=default)
     fp.close ()
 
-    SimpleTableFormatter().format(jsonObj)
+    getClassInstance("SimpleTableFormatter").format(jsonObj)
 
     sys.exit (0)
