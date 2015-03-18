@@ -1,12 +1,13 @@
 __author__ = 'jan-hybs'
-import abc
 import re
 import os
-import copy
-from  ProfilerFormatter import ProfilerFormatter
+
+class SimpleTableFormatter (object) :
 
 
-class SimpleTableFormatter (ProfilerFormatter) :
+    def __init__(self):
+        pass
+
     json = None
     output = ""
 
@@ -16,6 +17,12 @@ class SimpleTableFormatter (ProfilerFormatter) :
     bodyRows = []
     maxBodySize = None
     headerFields = ("tag", "call count", "max time", "max/min time", "avg time", "total", "source")
+    styles = {"separator": os.linesep}
+    separator = os.linesep
+
+    def set_styles (self, styles):
+        self.styles.update(styles)
+        self.separator = self.styles["separator"]
 
     def format (self, json) :
         self.json = json
@@ -24,18 +31,18 @@ class SimpleTableFormatter (ProfilerFormatter) :
         self.maxBodySize = [n + 2 for n in self.maxBodySize]
 
         lineDivider = (sum (self.maxBodySize) + 2 + len (self.maxBodySize) * 2) * "-"
-        fmtHead = "{:" + str (self.maxNameSize + 2) + "s}{}" + os.linesep
+        fmtHead = "{:" + str (self.maxNameSize + 2) + "s}{}" + self.separator
 
         for pair in self.headerCols : self.output += fmtHead.format (*pair)
 
         self.output += lineDivider
-        self.output += os.linesep
+        self.output += self.separator
         self.output += "| "
         for i in range (len (self.headerFields)) :
             self.output += ("{:^" + str (self.maxBodySize[i]+1) + "s}|").format (self.headerFields[i])
-        self.output += os.linesep
+        self.output += self.separator
         self.output += lineDivider
-        self.output += os.linesep
+        self.output += self.separator
 
         for tup in self.bodyRows :
             self.output += "| "
@@ -43,11 +50,11 @@ class SimpleTableFormatter (ProfilerFormatter) :
             for i in range (len (self.maxBodySize)) :
                 fields.append (("{:" + tup[i][0] + "" + str (self.maxBodySize[i]) + "s}").format (tup[i][1]))
             self.output += " |".join(fields)
-            self.output += " |" + os.linesep
+            self.output += " |" + self.separator
             # self.output += fmtBody.format (*tup)
 
         self.output += lineDivider
-        print self.output
+        return self.output
 
 
     def appendToHeader (self, name, value=None) :
@@ -84,8 +91,6 @@ class SimpleTableFormatter (ProfilerFormatter) :
         self.appendToHeader ("Run started", json["run-started-at"])
         self.appendToHeader ("Run ended", json["run-finished-at"])
         self.appendToHeader ("Run duration", json["run-finished-at"] - json["run-started-at"])
-        print json["run-finished-at"]
-        print json["run-started-at"]
 
 
     def processBody (self, json, level) :
@@ -106,17 +111,3 @@ class SimpleTableFormatter (ProfilerFormatter) :
                 self.processBody (child, level + 1)
         except :
             pass
-        # "tag": "Whole Program",
-        # "file-path": "system\/sys_profiler.cc",
-        # "file-line": "209",
-        # "function": "Profiler",
-        # "call-count": "1",
-        # "call-count-min": "1",
-        # "call-count_max": "1",
-        # "call-count_sum": "2",
-        # "cumul-time": "3.458179402",
-        # "cumul-time-min": "3.442388778",
-        # "cumul-time_max": "3.458179402",
-        # "cumul-time_sum": "6.90056818",
-        # "percent": "100",
-        # "children":
