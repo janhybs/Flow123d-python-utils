@@ -8,8 +8,8 @@ from optparse import OptionParser
 
 __author__ = 'Jan Hybs'
 
-intFields = ["file-line", "call-count", "call-count-min", "call-count_max", "call-count_sum"]
-floatFields = ["cumul-time", "cumul-time-min", "cumul-time_max", "cumul-time_sum", "percent"]
+intFields = ["file-line", "call-count", "call-count-min", "call-count-max", "call-count-sum"]
+floatFields = ["cumul-time", "cumul-time-min", "cumul-time-max", "cumul-time-sum", "percent"]
 intFieldsRoot = ["task-size", "run-process-count"]
 floatFieldsRoot = ["timer-resolution"]
 dateFields = ["run-started-at", "run-finished-at"]

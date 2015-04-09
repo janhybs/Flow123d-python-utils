@@ -99,10 +99,10 @@ class SimpleTableFormatter (object) :
             self.appendToBody ((
                 ("<", "{:6.2f} {:s} {:s}".format (json["percent"], " >  " * (level - 1) * 1, json["tag"])),
                 ("^", "{:d}".format (json["call-count"])),
-                (">", "{:1.4f}".format (json["cumul-time_max"])),
-                (">", "{:1.4f}".format (json["cumul-time_max"] / json["cumul-time-min"])),
-                (">", "{:1.4f}".format (json["cumul-time_sum"] / json["call-count_sum"])),
-                (">", "{:1.4f}".format (json["cumul-time_sum"])),
+                (">", "{:1.4f}".format (json["cumul-time-max"])),
+                (">", "{:1.4f}".format (json["cumul-time-max"] / json["cumul-time-min"])),
+                (">", "{:1.4f}".format (json["cumul-time-sum"] / json["call-count-sum"])),
+                (">", "{:1.4f}".format (json["cumul-time-sum"])),
                 (">", "{:s} : {:<5d} {:40s}".format (json["function"], json["file-line"], json["file-path"]))
             ))
 
