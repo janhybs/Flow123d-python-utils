@@ -4,10 +4,18 @@ __author__ = 'jan-hybs'
 class StringUtil (object):
 
     @staticmethod
-    def join (iterable, prefix="", suffix="", separator=","):
+    def join (iterable, prefix="", suffix="", separator=",", padding=None, extraSpace=2):
         result = ""
         result += prefix
-        result += (suffix+separator+prefix).join (iterable)
+
+        size = len (iterable)
+        for i in range (size):
+            if padding is None:
+                result += str (iterable[i])
+            else:
+                result += str (iterable[i]).center(padding[i] + extraSpace)
+            if i < size-1:
+                result += (suffix+separator+prefix)
         result += suffix
 
         return result

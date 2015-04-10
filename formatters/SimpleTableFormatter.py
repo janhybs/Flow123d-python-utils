@@ -21,7 +21,7 @@ class SimpleTableFormatter (object) :
     separator = os.linesep
 
     def set_styles (self, styles):
-        self.styles.update(styles)
+        self.styles.update (styles)
         self.separator = self.styles["separator"]
 
     def format (self, json) :

@@ -12,27 +12,35 @@ class CSVFormatter (object) :
 
     header = []
     body = []
-    headerFields = ("percentage", "tag", "call count", "max time", "max/min time", "avg time", "total", "function", "location")
-
+    headerFields = ("percentage", "level", "tag", "call count", "max time", "max/min time", "avg time", "total", "function", "location")
+    styles = {"separator": os.linesep}
+    separator = os.linesep
 
     def format (self, json) :
         self.json = json
-        self.processHeader (json)
+        # self.processHeader (json)
         self.processBody (json, 0)
 
-        result = ""
+        # tmpLst = []
+        # tmpLst.append(self.headerFields)
+        # tmpLst.extend(self.body)
+        # self.maxWidth = self.fixWidth (tmpLst)
 
-        result += StringUtil.join (self.headerFields, separator=',', prefix='"', suffix='"') + os.linesep
+        result = ""
+        result += StringUtil.join (self.headerFields, separator=',', prefix='"', suffix='"') + self.separator
 
         for row in self.body:
-            result += StringUtil.join (row, separator=',', prefix='"', suffix='"') + os.linesep
+            result += StringUtil.join (row, separator=',', prefix='"', suffix='"') + self.separator
 
 
 
         return result
 
+
+
     def set_styles (self, styles):
-        pass
+        self.styles.update(styles)
+        self.separator = self.styles["separator"]
 
     def appendToHeader (self, name, value=None) :
         value = value if value is not None else self.json[name.lower ().replace (" ", "-")]
@@ -66,13 +74,14 @@ class CSVFormatter (object) :
         if level > 0 :
             self.appendToBody ((
                 "{:1.2f}".format (json["percent"]),
-                "{:s} {:s}".format ("-" * (level - 1) * 1, json["tag"]),
+                "{:d}".format (level),
+                "{:s}".format (json["tag"]),
                 "{:d}".format (json["call-count"]),
                 "{:1.4f}".format (json["cumul-time-max"]),
                 "{:1.4f}".format (json["cumul-time-max"] / json["cumul-time-min"]),
                 "{:1.4f}".format (json["cumul-time-sum"] / json["call-count-sum"]),
                 "{:1.4f}".format (json["cumul-time-sum"]),
-                "{:s}:{:d}".format (json["function"], json["file-line"]),
+                "{:s}():{:d}".format (json["function"], json["file-line"]),
                 "{:s}".format (json["file-path"])
             ))
 
@@ -81,3 +90,11 @@ class CSVFormatter (object) :
                 self.processBody (child, level + 1)
         except :
             pass
+
+    def fixWidth (self, lst):
+        size = len (lst[0])
+        maxWidth = [5] * size
+
+        for values in lst:
+            maxWidth = [max (maxWidth[i], len (str (values[i]))) for i in range (size)]
+        return maxWidth
