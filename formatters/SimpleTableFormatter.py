@@ -17,7 +17,7 @@ class SimpleTableFormatter (object) :
     bodyRows = []
     maxBodySize = None
     headerFields = ("tag", "call count", "max time", "max/min time", "avg time", "total", "source")
-    styles = {"separator": os.linesep}
+    styles = {"separator": os.linesep, "padding": 0}
     separator = os.linesep
 
     def set_styles (self, styles):
@@ -28,7 +28,7 @@ class SimpleTableFormatter (object) :
         self.json = json
         self.processHeader (json)
         self.processBody (json, 0)
-        self.maxBodySize = [n + 2 for n in self.maxBodySize]
+        self.maxBodySize = [n + self.styles['padding'] for n in self.maxBodySize]
 
         lineDivider = (sum (self.maxBodySize) + 2 + len (self.maxBodySize) * 2) * "-"
         fmtHead = "{:" + str (self.maxNameSize + 2) + "s}{}" + self.separator
@@ -103,7 +103,7 @@ class SimpleTableFormatter (object) :
                 (">", "{:1.4f}".format (json["cumul-time-max"] / json["cumul-time-min"])),
                 (">", "{:1.4f}".format (json["cumul-time-sum"] / json["call-count-sum"])),
                 (">", "{:1.4f}".format (json["cumul-time-sum"])),
-                (">", "{:s} : {:<5d} {:40s}".format (json["function"], json["file-line"], json["file-path"]))
+                ("<", "{:>24s} : {:<5d} {:s}".format (json["function"], json["file-line"], json["file-path"]))
             ))
 
         try :
