@@ -19,8 +19,8 @@ parser.add_option("-i", "--input", dest="input", metavar="FILENAME", default=Non
                   help="Absolute or relative path to JSON file which will be processed")
 parser.add_option("-o", "--output", dest="output", metavar="FILENAME", default=None,
                   help="Absolute or relative path output file which will be generated/overwritten")
-#parser.add_option("-f", "--formatter", dest="formatter", metavar="CLASSNAME", default="SimpleTableFormatter",
-parser.add_option("-f", "--formatter", dest="formatter", metavar="CLASSNAME", default="CSVFormatter",
+#parser.add_option("-f", "--formatter", dest="formatter", metavar="CLASSNAME", default="CSVFormatter",
+parser.add_option("-f", "--formatter", dest="formatter", metavar="CLASSNAME", default="SimpleTableFormatter",
                   help="Classname of formatter which will be used, to list available formatters use option -l (--list)")
 parser.add_option("-l", "--list", dest="list", default=False, action="store_true",
                   help="Prints all formatters available in folder formatters (using duck-typing)")
