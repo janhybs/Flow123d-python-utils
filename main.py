@@ -25,7 +25,7 @@ parser.add_option("-f", "--formatter", dest="formatter", metavar="CLASSNAME", de
 parser.add_option("-l", "--list", dest="list", default=False, action="store_true",
                   help="Prints all formatters available in folder formatters (using duck-typing)")
 parser.add_option("-s", "--style", dest="styles", default=[], action="append",
-                  help="Additional stylin options in name:value format (for example separator:\n default os separator)")
+                  help="Additional styling options in name:value format (for example separator:\n default is os separator)")
 parser.set_usage("""%prog [options]
     """)
 
@@ -126,6 +126,7 @@ if __name__ == "__main__" :
         fp = open (options.output, "w")
         fp.write (output)
         fp.close ()
+        print '{} file generated'.format (options.output)
     else:
         print output
 
