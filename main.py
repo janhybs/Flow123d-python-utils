@@ -100,12 +100,18 @@ def convert_fields (obj, fields, fun, rec=True) :
 
 
 def convert (json_location, output_file, formatter):
+    # return "Chyba: {} {} {}".format (json_location, output_file, formatter)
     return convert_complex (json_location, output_file, formatter, [])
 
 def convert_complex (json_location, output_file=None, formatter="SimpleTableFormatter", styles=[]):
     # read file to JSON
-    with open (json_location, 'r') as fp:
-        jsonObj = json.load(fp, encoding="utf-8", cls=ProfilerJSONDecoder)
+    try:
+        with open (json_location, 'r') as fp:
+            jsonObj = json.load(fp, encoding="utf-8", cls=ProfilerJSONDecoder)
+    except Exception as exception:
+        # return string with message on error
+        return str(exception)
+
 
     try:
         # split styles fields declaration
@@ -118,16 +124,22 @@ def convert_complex (json_location, output_file=None, formatter="SimpleTableForm
         output = instance.format (jsonObj)
     except Exception as exception:
         # return string with message on error
-        return exception.message
+        return str(exception)
 
-    # if output file is specified write result there
-    if output_file is not None:
-        with open (output_file, "w") as fp:
-            fp.write(output)
-        print '{} file generated'.format (output_file)
-    # otherwise just print result to stdout
-    else:
-        print output
+
+    try:
+        # if output file is specified write result there
+        if output_file is not None:
+            with open (output_file, "w") as fp:
+                fp.write(output)
+            print '{} file generated'.format (output_file)
+        # otherwise just print result to stdout
+        else:
+            print output
+    except Exception as exception:
+        # return string with message on error
+        return str(exception)
+
 
     # return True on success
     return True
