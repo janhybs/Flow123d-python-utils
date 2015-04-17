@@ -3,6 +3,28 @@
 Takes file in json profiler format created in project [Flow123d](https://github.com/flow123d/flow123d) and
 converts it to different format.
 
+## Usage
+```
+Usage: main.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -i FILENAME, --input=FILENAME
+                        Absolute or relative path to JSON file which will be
+                        processed
+  -o FILENAME, --output=FILENAME
+                        Absolute or relative path output file which will be
+                        generated/overwritten
+  -f CLASSNAME, --formatter=CLASSNAME
+                        Classname of formatter which will be used, to list
+                        available formatters use option -l (--list)
+  -l, --list            Prints all formatters available in folder formatters
+                        (using duck-typing)
+  -s STYLES, --style=STYLES
+                        Additional styling options in name:value format (for
+                        example separator:  default is os separator)
+
+```
 ## Examples
 List all avaiable formatters:
 
