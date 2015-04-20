@@ -7,14 +7,11 @@ class CSVFormatter (object) :
 
 
     def __init__(self):
-        pass
-
-
-    header = []
-    body = []
-    headerFields = ("percentage", "level", "tag", "call count", "max time", "max/min time", "avg time", "total", "function", "location")
-    styles = {"separator": os.linesep}
-    separator = os.linesep
+        self.header = []
+        self.body = []
+        self.headerFields = ("percentage", "level", "tag", "call count", "max time", "max/min time", "avg time", "total", "function", "location")
+        self.styles = {"separator": os.linesep}
+        self.separator = os.linesep
 
     def format (self, json) :
         self.json = json

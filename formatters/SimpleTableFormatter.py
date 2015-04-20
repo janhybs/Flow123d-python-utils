@@ -6,19 +6,17 @@ class SimpleTableFormatter (object) :
 
 
     def __init__(self):
-        pass
+        self.json = None
+        self.output = ""
 
-    json = None
-    output = ""
+        self.headerCols = []
+        self.maxNameSize = 12
 
-    headerCols = []
-    maxNameSize = 12
-
-    bodyRows = []
-    maxBodySize = None
-    headerFields = ("tag", "call count", "max time", "max/min time", "avg time", "total", "source")
-    styles = {"separator": os.linesep, "padding": 0}
-    separator = os.linesep
+        self.bodyRows = []
+        self.maxBodySize = None
+        self.headerFields = ("tag", "call count", "max time", "max/min time", "avg time", "total", "source")
+        self.styles = {"separator": os.linesep, "padding": 0}
+        self.separator = os.linesep
 
     def set_styles (self, styles):
         self.styles.update (styles)
