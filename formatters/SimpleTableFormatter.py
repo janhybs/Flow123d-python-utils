@@ -15,12 +15,12 @@ class SimpleTableFormatter (object) :
         self.bodyRows = []
         self.maxBodySize = None
         self.headerFields = ("tag", "call count", "max time", "max/min time", "avg time", "total", "source")
-        self.styles = {"separator": os.linesep, "padding": 0}
-        self.separator = os.linesep
+        self.styles = {"linesep": os.linesep, "padding": 0}
+        self.linesep = os.linesep
 
     def set_styles (self, styles):
         self.styles.update (styles)
-        self.separator = self.styles["separator"]
+        self.linesep = self.styles["linesep"]
 
     def format (self, json) :
         self.json = json
@@ -29,18 +29,18 @@ class SimpleTableFormatter (object) :
         self.maxBodySize = [n + self.styles['padding'] for n in self.maxBodySize]
 
         lineDivider = (sum (self.maxBodySize) + 2 + len (self.maxBodySize) * 2) * "-"
-        fmtHead = "{:" + str (self.maxNameSize + 2) + "s}{}" + self.separator
+        fmtHead = "{:" + str (self.maxNameSize + 2) + "s}{}" + self.linesep
 
         for pair in self.headerCols : self.output += fmtHead.format (*pair)
 
         self.output += lineDivider
-        self.output += self.separator
+        self.output += self.linesep
         self.output += "| "
         for i in range (len (self.headerFields)) :
             self.output += ("{:^" + str (self.maxBodySize[i]+1) + "s}|").format (self.headerFields[i])
-        self.output += self.separator
+        self.output += self.linesep
         self.output += lineDivider
-        self.output += self.separator
+        self.output += self.linesep
 
         for tup in self.bodyRows :
             self.output += "| "
@@ -48,7 +48,7 @@ class SimpleTableFormatter (object) :
             for i in range (len (self.maxBodySize)) :
                 fields.append (("{:" + tup[i][0] + "" + str (self.maxBodySize[i]) + "s}").format (tup[i][1]))
             self.output += " |".join(fields)
-            self.output += " |" + self.separator
+            self.output += " |" + self.linesep
             # self.output += fmtBody.format (*tup)
 
         self.output += lineDivider

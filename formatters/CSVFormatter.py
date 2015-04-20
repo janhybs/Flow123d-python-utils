@@ -1,4 +1,4 @@
-from stringutil import StringUtil
+from utils.stringutil import StringUtil
 
 __author__ = 'jan-hybs'
 import re, os
@@ -10,8 +10,8 @@ class CSVFormatter (object) :
         self.header = []
         self.body = []
         self.headerFields = ("percentage", "level", "tag", "call count", "max time", "max/min time", "avg time", "total", "function", "location")
-        self.styles = {"separator": os.linesep}
-        self.separator = os.linesep
+        self.styles = {"linesep": os.linesep, 'separator': ',', 'prefix': '"', 'suffix': '"'}
+        self.linesep = os.linesep
 
     def format (self, json) :
         self.json = json
@@ -24,10 +24,18 @@ class CSVFormatter (object) :
         # self.maxWidth = self.fixWidth (tmpLst)
 
         result = ""
-        result += StringUtil.join (self.headerFields, separator=',', prefix='"', suffix='"') + self.separator
+        result += StringUtil.join (
+                        self.headerFields,
+                        separator=self.styles["separator"],
+                        prefix=self.styles["prefix"],
+                        suffix=self.styles["suffix"]) + self.linesep
 
         for row in self.body:
-            result += StringUtil.join (row, separator=',', prefix='"', suffix='"') + self.separator
+            result += StringUtil.join (
+                        row,
+                        separator=self.styles["separator"],
+                        prefix=self.styles["prefix"],
+                        suffix=self.styles["suffix"])+ self.linesep
 
 
 
@@ -37,7 +45,7 @@ class CSVFormatter (object) :
 
     def set_styles (self, styles):
         self.styles.update(styles)
-        self.separator = self.styles["separator"]
+        self.linesep = self.styles["linesep"]
 
     def appendToHeader (self, name, value=None) :
         value = value if value is not None else self.json[name.lower ().replace (" ", "-")]
