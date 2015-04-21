@@ -1,0 +1,36 @@
+Program name       Flow123d
+Program version    1.8.JHy_profiler_update
+Program branch     JHy_profiler_update
+Program revision   release_1.8.2-151-gd82984e
+Program build      Apr 21 2015, 14:29:16 flags: -g -O0 -Wall -Wno-unused-local-typedefs -std=c++11
+Timer resolution   4.909e-05
+Task description   Test10 - Unsteady flow in 2D, Mixed Hybrid method
+Task size          942
+Run process count  1
+Run started        2015-04-21 14:29:39
+Run ended          2015-04-21 14:29:41
+Run duration       0:00:02
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|                       tag                      | call count |  max time  |max/min time|  avg time  |   total    |                                 source                                  |
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| 100.00  Whole Program                          |     1      |     0.0033 |     1.0000 |     0.0033 |     0.0033 |                Profiler : 194   /src/system/sys_profiler.cc             |
+|  36.96  >   HC run simulation                  |     1      |     0.0012 |     1.0000 |     0.0012 |     0.0012 |          run_simulation : 151   /src/coupling/hc_explicit_sequential.cc |
+|  99.98  >   >   Solving MH system              |     3      |     0.0012 |     1.0000 |     0.0004 |     0.0012 |         update_solution : 294   /src/flow/darcy_flow_mh.cc              |
+|  34.36  >   >   >   full assembly              |     3      |     0.0004 |     1.0000 |     0.0001 |     0.0004 |  assembly_linear_system : 989   /src/flow/darcy_flow_mh.cc              |
+|   0.00  >   >   >   postprocess                |     3      |     0.0000 |     1.0000 |     0.0000 |     0.0000 |             postprocess : 320   /src/flow/darcy_flow_mh.cc              |
+|   5.24  >   >   >   PETSC linear solver        |     3      |     0.0001 |     1.0000 |     0.0000 |     0.0001 |                   solve : 351   /src/la/linsys_PETSC.cc                 |
+|  99.99  >   >   >   >   PETSC linear iteration |    24      |     0.0001 |     1.0000 |     0.0000 |     0.0001 |                   solve : 352   /src/la/linsys_PETSC.cc                 |
+|  34.84  >   >   >   Darcy output               |     3      |     0.0004 |     1.0000 |     0.0001 |     0.0004 |                  output : 195   /src/flow/darcy_flow_mh_output.cc       |
+|  62.49  >   >   >   >   Fill OutputData        |     3      |     0.0003 |     1.0000 |     0.0001 |     0.0003 |                  output : 144   /src/fields/field_set.cc                |
+|   3.73  >   >   >   >   write_time_frame       |     3      |     0.0000 |     1.0000 |     0.0000 |     0.0000 |        write_time_frame : 217   /src/io/output_time.cc                  |
+|  12.42  >   HC constructor                     |     1      |     0.0004 |     1.0000 |     0.0004 |     0.0004 |   HC_ExplicitSequential : 76    /src/coupling/hc_explicit_sequential.cc |
+|  14.01  >   >   Reading mesh - init_from_input |     1      |     0.0001 |     1.0000 |     0.0001 |     0.0001 |         init_from_input : 228   /src/mesh/mesh.cc                       |
+|  27.68  >   >   >   MESH - setup topology      |     1      |     0.0000 |     1.0000 |     0.0000 |     0.0000 |          setup_topology : 253   /src/mesh/mesh.cc                       |
+|  60.05  >   >   >   GMSHReader - read mesh     |     1      |     0.0000 |     1.0000 |     0.0000 |     0.0000 |               read_mesh : 77    /src/mesh/msh_gmshreader.cc             |
+|  85.90  >   >   Darcy constructor              |     1      |     0.0003 |     1.0000 |     0.0003 |     0.0003 |      DarcyFlowMH_Steady : 219   /src/flow/darcy_flow_mh.cc              |
+|  93.57  >   >   >   preallocation              |     1      |     0.0003 |     1.0000 |     0.0003 |     0.0003 |    create_linear_system : 883   /src/flow/darcy_flow_mh.cc              |
+|  99.82  >   >   >   >   PETSC PREALLOCATION    |     1      |     0.0003 |     1.0000 |     0.0003 |     0.0003 |    create_linear_system : 960   /src/flow/darcy_flow_mh.cc              |
+|   0.13  >   >   >   data init                  |     1      |     0.0000 |     1.0000 |     0.0000 |     0.0000 |      DarcyFlowMH_Steady : 224   /src/flow/darcy_flow_mh.cc              |
+|   1.11  >   >   >   prepare parallel           |     1      |     0.0000 |     1.0000 |     0.0000 |     0.0000 |        prepare_parallel : 1314  /src/flow/darcy_flow_mh.cc              |
+|   1.14  >   >   >   prepare scatter            |     1      |     0.0000 |     1.0000 |     0.0000 |     0.0000 |     make_serial_scatter : 1267  /src/flow/darcy_flow_mh.cc              |
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
