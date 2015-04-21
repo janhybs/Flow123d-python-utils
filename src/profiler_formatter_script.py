@@ -2,7 +2,7 @@ __author__ = 'Jan Hybs'
 
 import sys
 from optparse import OptionParser
-from profiler_formatter_module import ProfilerFormatter
+from profiler.profiler_formatter_module import ProfilerFormatter
 
 
 

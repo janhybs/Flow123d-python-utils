@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<coverage branch-rate="0.545454545455" line-rate="0.883720930233" timestamp="1429611478" version="gcovr 3.2">
+ <sources>
+  <source>/home/builder/jenkins/F123-linux-coveragetest/flow123d</source>
+ </sources>
+ <packages>
+  </packages>
+</coverage>

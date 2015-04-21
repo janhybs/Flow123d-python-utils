@@ -1,4 +1,4 @@
-from utils.stringutil import StringUtil
+from utils.strings import  join_iterable
 
 __author__ = 'jan-hybs'
 import re, os
@@ -24,14 +24,14 @@ class CSVFormatter (object) :
         # self.maxWidth = self.fixWidth (tmpLst)
 
         result = ""
-        result += StringUtil.join (
+        result += join_iterable (
                         self.headerFields,
                         separator=self.styles["separator"],
                         prefix=self.styles["prefix"],
                         suffix=self.styles["suffix"]) + self.linesep
 
         for row in self.body:
-            result += StringUtil.join (
+            result += join_iterable (
                         row,
                         separator=self.styles["separator"],
                         prefix=self.styles["prefix"],
