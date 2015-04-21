@@ -1,4 +1,4 @@
-# Flow123d-py-profiler-transform
+# Flow123d-python-utils
 
 Takes file in json profiler format created in project [Flow123d](https://github.com/flow123d/flow123d) and
 converts it to different format.
