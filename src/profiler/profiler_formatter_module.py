@@ -55,7 +55,7 @@ class ProfilerFormatter (object):
 
     @staticmethod
     def get_class_instance (cls):
-        module =  importlib.import_module("formatters." + cls)
+        module =  importlib.import_module("profiler.formatters." + cls)
         class_ = getattr(module, cls)
         instance = class_()
         return instance
