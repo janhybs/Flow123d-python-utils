@@ -1,7 +1,8 @@
 # encoding: utf-8
 # author:   Jan Hybs
 
-import re, os
+import re, os, sys
+from utils.dotdict import DotDict
 
 
 class SimpleTableFormatter (object):
@@ -20,44 +21,63 @@ class SimpleTableFormatter (object):
         self.bodyRows = []
         self.maxBodySize = None
         self.headerFields = ("tag", "call count", "max time", "max/min time", "avg time", "total", "source")
-        self.styles = { "linesep": os.linesep, "padding": 0, "minwidth": 11 }
-        self.linesep = os.linesep
+        self.styles = {
+            "linesep": os.linesep, "padding": 0,
+            "min_width": 12, "colsep": '',
+            "rowsep": '', "space_header": 3,
+            "leading_char": " .  "
+            }
 
     def set_styles (self, styles):
         """Overrides default styles"""
         self.styles.update (styles)
-        self.linesep = self.styles["linesep"]
-        self.styles["minwidth"] = int (self.styles["minwidth"])
+        # make sure some values are actually ints
+        self.styles["min_width"]        = int (self.styles["min_width"])
+        self.styles["padding"]          = int (self.styles["padding"])
+        self.styles["space_header"]     = int (self.styles["space_header"])
+        self.styles["colsep_start"]     = self.styles["colsep"] + " "
+        self.styles["colsep_end"]       = " " + self.styles["colsep"]
+
+    def convert_style (self):
+        self.set_styles (self.styles)
+        self.styles = DotDict(self.styles)
 
     def format (self, json):
         """"Formats given json object"""
+        self.convert_style ()
+
+
         self.json = json
         self.processHeader (json)
         self.processBody (json, 0)
-        self.maxBodySize = [n + self.styles['padding'] for n in self.maxBodySize]
+        print self.maxBodySize
+        self.maxBodySize = [n + self.styles.padding for n in self.maxBodySize]
 
-        lineDivider = (sum (self.maxBodySize) + 2 + len (self.maxBodySize) * 2) * "-"
-        fmtHead = "{:" + str (self.maxNameSize + 2) + "s}{}" + self.linesep
+        self.maxNameSize = self.maxNameSize + self.styles.space_header
+
+        lineDivider = (sum (self.maxBodySize) + 2 + len (self.maxBodySize) * 2) * self.styles.rowsep
+        fmtHead = "{{:{self.maxNameSize}s}}{{}}{self.styles.linesep}".format(self=self)
 
         for pair in self.headerCols:
             self.output += fmtHead.format (*pair)
 
         self.output += lineDivider
-        self.output += self.linesep
-        self.output += "| "
+        self.output += self.styles.linesep
+        self.output += self.styles.colsep_start
         for i in range (len (self.headerFields)):
-            self.output += ("{:^" + str (self.maxBodySize[i] + 1) + "s}|").format (self.headerFields[i])
-        self.output += self.linesep
+            fmt = "{{:^{maxBodySize}s}}{colsep}".format(maxBodySize=self.maxBodySize[i], colsep = self.styles.colsep_end)
+            self.output += fmt.format (self.headerFields[i])
+        self.output += self.styles.linesep
         self.output += lineDivider
-        self.output += self.linesep
+        self.output += self.styles.linesep
 
         for tup in self.bodyRows:
-            self.output += "| "
+            self.output += self.styles.colsep_start
             fields = []
             for i in range (len (self.maxBodySize)):
-                fields.append (("{:" + tup[i][0] + "" + str (self.maxBodySize[i]) + "s}").format (tup[i][1]))
-            self.output += " |".join (fields)
-            self.output += " |" + self.linesep
+                fields            .append (("{:" + tup[i][0] + "" + str (self.maxBodySize[i]) + "s}").format (tup[i][1]))
+            self.output += self.styles.colsep_end.join (fields)
+            self.output += self.styles.colsep_end + self.styles.linesep
             # self.output += fmtBody.format (*tup)
 
         self.output += lineDivider
@@ -86,12 +106,11 @@ class SimpleTableFormatter (object):
 
         # default empty array
         if self.maxBodySize is None:
-            self.maxBodySize = [self.styles["minwidth"]] * len (values)
+            self.maxBodySize = [self.styles.min_width] * len (values)
 
         # update max length
         for i in range (len (self.maxBodySize)):
             self.maxBodySize[i] = max (self.maxBodySize[i], len (str (values[i][1])))
-        pass
 
     def processHeader (self, json):
         """Appends header information"""
@@ -118,17 +137,17 @@ class SimpleTableFormatter (object):
         """Recursive body processing"""
         if level > 0:
             self.appendToBody ((
-                ("<", "{:6.2f} {:s} {:s}".format (json["percent"], " >  " * (level - 1) * 1, json["tag"])),
+                ("<", "{:6.2f} {:s} {:s}".format (json["percent"], self.styles.leading_char * (level - 1) * 1, json["tag"])),
                 ("^", "{:d}".format (json["call-count"])),
-                (">", "{:1.4f}".format (json["cumul-time-max"])),
-                (">", "{:1.4f}".format (json["cumul-time-max"] / json["cumul-time-min"])),
-                (">", "{:1.4f}".format (json["cumul-time-sum"] / json["call-count-sum"])),
-                (">", "{:1.4f}".format (json["cumul-time-sum"])),
+                ("^", "{:1.4f}".format (json["cumul-time-max"])),
+                ("^", "{:1.4f}".format (json["cumul-time-max"] / json["cumul-time-min"])),
+                ("^", "{:1.4f}".format (json["cumul-time-sum"] / json["call-count-sum"])),
+                ("^", "{:1.4f}".format (json["cumul-time-sum"])),
                 ("<", "{:>24s} : {:<5d} {:s}".format (json["function"], json["file-line"], json["file-path"]))
             ))
 
         try:
             for child in json["children"]:
                 self.processBody (child, level + 1)
-        except:
+        except Exception as e:
             pass
