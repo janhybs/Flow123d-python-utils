@@ -45,3 +45,4 @@ Temporary Items
 *.pyc
 /mount.sh
 /umount.sh
+/copy.py
