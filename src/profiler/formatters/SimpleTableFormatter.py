@@ -84,11 +84,13 @@ class SimpleTableFormatter (object):
         """
         self.bodyRows.append (values)
 
+        # default empty array
         if self.maxBodySize is None:
             self.maxBodySize = [self.styles["minwidth"]] * len (values)
 
         # update max length
-        self.maxBodySize = [max (self.maxBodySize[i], len (str (values[i][1]))) for i in range (len (self.maxBodySize))]
+        for i in range (len (self.maxBodySize)):
+            self.maxBodySize[i] = max (self.maxBodySize[i], len (str (values[i][1])))
         pass
 
     def processHeader (self, json):
