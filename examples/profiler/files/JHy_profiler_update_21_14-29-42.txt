@@ -4,6 +4,7 @@ Program branch     JHy_profiler_update
 Program revision   release_1.8.2-151-gd82984e
 Program build      Apr 21 2015, 14:29:16 flags: -g -O0 -Wall -Wno-unused-local-typedefs -std=c++11
 Timer resolution   4.909e-05
+Source dir         /home/jan-hybs/Dokumenty/Smartgit-flow/flow123d
 Task description   Test10 - Unsteady flow in 2D, Mixed Hybrid method
 Task size          942
 Run process count  1
