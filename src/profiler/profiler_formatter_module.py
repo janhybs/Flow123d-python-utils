@@ -60,11 +60,9 @@ class ProfilerJSONDecoder (json.JSONDecoder):
             return obj.strftime ("%m/%d/%y %H:%M:%S")
         return str (obj)
 
-
     def parse_date (self, str):
         """Default parsing method for date"""
         return datetime.datetime.strptime (str, "%m/%d/%y %H:%M:%S")
-
 
     def convert_fields (self, obj, fields, fun, rec=True):
         """Recursive value type conversion"""
@@ -112,7 +110,6 @@ class ProfilerFormatter (object):
             except:
                 pass
         return result
-
 
     def convert (self, json_location, output_file=None, formatter="SimpleTableFormatter", styles=[]):
         """Converts file @ json_location to output_file (if set) using given formatter name"""

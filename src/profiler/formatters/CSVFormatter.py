@@ -11,7 +11,6 @@ class CSVFormatter (object):
      and returns csv string
     """
 
-
     def __init__ (self):
         self.header = []
         self.body = []
@@ -22,7 +21,6 @@ class CSVFormatter (object):
         )
         self.styles = { "linesep": os.linesep, 'separator': ',', 'prefix': '"', 'suffix': '"' }
         self.linesep = os.linesep
-
 
     def format (self, json):
         """"format given json object"""
@@ -51,12 +49,10 @@ class CSVFormatter (object):
 
         return result
 
-
     def set_styles (self, styles):
         """override default styles"""
         self.styles.update (styles)
         self.linesep = self.styles["linesep"]
-
 
     def appendToBody (self, values):
         """Appends entry to body row list.
@@ -64,7 +60,6 @@ class CSVFormatter (object):
         """
         self.body.append (values)
         pass
-
 
     def processBody (self, json, level):
         """Recursive body processing"""
@@ -87,7 +82,6 @@ class CSVFormatter (object):
                 self.processBody (child, level + 1)
         except:
             pass
-
 
     def fixWidth (self, lst):
         """Gets maximum width for each element of iterable object property"""

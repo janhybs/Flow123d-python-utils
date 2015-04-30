@@ -37,7 +37,6 @@ class CoverageMerge (object):
         self.filtersuffix = options.suffix
         self.packagefilters = options.packagefilters
 
-
     def execute_merge (self):
         # get arguments
         logging.basicConfig (level=self.loglevel, format='%(levelname)s %(asctime)s: %(message)s', datefmt='%x %X')
@@ -97,7 +96,6 @@ class CoverageMerge (object):
                 self.merge_xml (self.finalxml, xmlfile, self.finalxml)
                 currfile += 1
 
-
     def merge_xml (self, xmlfile1, xmlfile2, outputfile):
         # parse
         xml1 = ET.parse (xmlfile1)
@@ -137,7 +135,6 @@ class CoverageMerge (object):
                 included.append (pckg)
         return included
 
-
     def prepare_packagefilters (self):
         if not self.packagefilters:
             return None
@@ -145,7 +142,6 @@ class CoverageMerge (object):
         # create simple regexp from given filter
         for i in range (len (self.packagefilters)):
             self.packagefilters[i] = '^' + self.packagefilters[i].replace ('.', '\.').replace ('*', '.*') + '$'
-
 
     def include_package (self, name):
         if not self.packagefilters:
@@ -155,7 +151,6 @@ class CoverageMerge (object):
             if re.search (packagefilter, name):
                 return True
         return False
-
 
     def get_attributes_chain (self, obj, attrs):
         """Return a joined arguments of object based on given arguments"""
@@ -167,7 +162,6 @@ class CoverageMerge (object):
             return result
         else:
             return obj.attrib[attrs]
-
 
     def merge (self, root, list1, list2, attr, merge_function):
         """ Groups given lists based on group attributes. Process of merging items with same key is handled by
@@ -184,7 +178,6 @@ class CoverageMerge (object):
             else:
                 root.append (item2)
 
-
     def merge_packages (self, package1, package2):
         """Merges two packages. Returns package1."""
         classes1 = package1.findall (CLASSES_LIST)
@@ -193,7 +186,6 @@ class CoverageMerge (object):
             self.merge (package1.find (CLASSES_ROOT), classes1, classes2, ['filename', 'name'], self.merge_classes)
 
         return package1
-
 
     def merge_classes (self, class1, class2):
         """Merges two classes. Returns class1."""
@@ -210,14 +202,12 @@ class CoverageMerge (object):
 
         return class1
 
-
     def merge_methods (self, method1, method2):
         """Merges two methods. Returns method1."""
 
         lines1 = method1.findall (LINES_LIST)
         lines2 = method2.findall (LINES_LIST)
         self.merge (method1.find (LINES_ROOT), lines1, lines2, 'number', self.merge_lines)
-
 
     def merge_lines (self, line1, line2):
         """Merges two lines by summing their hits. Returns line1."""

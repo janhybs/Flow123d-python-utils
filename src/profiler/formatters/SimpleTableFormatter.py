@@ -10,7 +10,6 @@ class SimpleTableFormatter (object):
      and returns simple table-like text string
     """
 
-
     def __init__ (self):
         self.json = None
         self.output = ""
@@ -24,13 +23,11 @@ class SimpleTableFormatter (object):
         self.styles = { "linesep": os.linesep, "padding": 0, "minwidth": 11 }
         self.linesep = os.linesep
 
-
     def set_styles (self, styles):
         """Overrides default styles"""
         self.styles.update (styles)
         self.linesep = self.styles["linesep"]
         self.styles["minwidth"] = int (self.styles["minwidth"])
-
 
     def format (self, json):
         """"Formats given json object"""
@@ -66,7 +63,6 @@ class SimpleTableFormatter (object):
         self.output += lineDivider
         return self.output
 
-
     def appendToHeader (self, name, value=None):
         """Appends entry to header column list, if no value was given
         value from json object by given name will be taken
@@ -76,7 +72,6 @@ class SimpleTableFormatter (object):
 
         if self.maxNameSize < len (str (name)):
             self.maxNameSize = len (str (name))
-
 
     def appendToBody (self, values):
         """Appends entry to body row list.
@@ -95,7 +90,6 @@ class SimpleTableFormatter (object):
         # update max length
         self.maxBodySize = [max (self.maxBodySize[i], len (str (values[i][1]))) for i in range (len (self.maxBodySize))]
         pass
-
 
     def processHeader (self, json):
         """Appends header information"""
@@ -117,7 +111,6 @@ class SimpleTableFormatter (object):
         self.appendToHeader ("Run started", json["run-started-at"])
         self.appendToHeader ("Run ended", json["run-finished-at"])
         self.appendToHeader ("Run duration", json["run-finished-at"] - json["run-started-at"])
-
 
     def processBody (self, json, level):
         """Recursive body processing"""
