@@ -40,7 +40,7 @@ class ProfilerJSONDecoder (json.JSONDecoder):
         default_obj = super (ProfilerJSONDecoder, self).decode (json_string)
 
         self.intFields          = ["file-line", "call-count", "call-count-min", "call-count-max", "call-count-sum"]
-        self.floatFields        = ["cumul-time", "cumul-time-min", "cumul-time-max", "cumul-time-sum", "percent"]
+        self.floatFields        = ["cumul-time", "cumul-time-min", "cumul-time-max", "cumul-time-sum", "percent", "run-duration"]
         self.intFieldsRoot      = ["task-size", "run-process-count"]
         self.floatFieldsRoot    = ["timer-resolution"]
         self.dateFields         = ["run-started-at", "run-finished-at"]

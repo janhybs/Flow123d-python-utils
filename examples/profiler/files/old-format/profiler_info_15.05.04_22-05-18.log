@@ -1,0 +1,40 @@
+Program name: Flow123d
+Program version: 0.0.DF_int64_input
+Program branch: DF_int64_input
+Program revision: jenkins-Flow123d-linux-debug-multijob-979
+Program build: May  4 2015, 21:54:32 flags: -g -O0 -Wall -Wno-unused-local-typedefs -std=c++11
+
+Task description: Test10 - Unsteady flow in 2D, Lumped Mixed Hybrid
+Task size: 942
+
+Run processes count: 1
+Run started at: 05/04/15 22:05:18
+Run finished at: 05/04/15 22:05:23
+--------------------------------------------------------------------------------
+tag tree                                    calls   Tmax   max/min   T/calls   Ttotal   code_point                                                                                                           
+--------------------------------------------------------------------------------
+[100.0] Whole Program                          1    4.34      1.00      4.34     4.34   system/sys_profiler.cc:213, Profiler()                                                                               
+  [88.0] HC run simulation                     1    3.82      1.00      3.82     3.82   coupling/hc_explicit_sequential.cc:137, run_simulation()                                                             
+    [100.0] Solving MH system                 50    3.82      1.00      0.08     3.82   flow/darcy_flow_mh.cc:313, update_solution()                                                                         
+      [1.0] modify system                     50    0.04      1.00      0.00     0.04   flow/darcy_flow_mh.cc:1033, assembly_linear_system()                                                                 
+        [100.0] modify system                 50    0.04      1.00      0.00     0.04   flow/darcy_flow_mh.cc:1703, modify_system()                                                                          
+      [16.0] PETSC linear solver              50    0.61      1.00      0.01     0.61   la/linsys_PETSC.cc:351, solve()                                                                                      
+        [100.0] PETSC linear iteration        50    0.61      1.00      0.01     0.61   la/linsys_PETSC.cc:352, solve()                                                                                      
+      [22.3] Darcy output                     50    0.85      1.00      0.02     0.85   flow/darcy_flow_mh_output.cc:194, output()                                                                           
+        [61.2] Fill OutputData                 5    0.52      1.00      0.10     0.52   fields/field_set.cc:144, output()                                                                                    
+        [5.9] write_time_frame                 5    0.05      1.00      0.01     0.05   io/output_time.cc:212, write_time_frame()                                                                            
+  [11.3] HC constructor                        1    0.49      1.00      0.49     0.49   coupling/hc_explicit_sequential.cc:85, HC_ExplicitSequential()                                                       
+    [22.4] full assembly                       1    0.11      1.00      0.11     0.11   flow/darcy_flow_mh.cc:1008, assembly_linear_system()                                                                 
+      [0.0] modify system                      1    0.00      1.00      0.00     0.00   flow/darcy_flow_mh.cc:1703, modify_system()                                                                          
+    [10.2] Reading mesh - init_from_input      1    0.05      1.00      0.05     0.05   mesh/mesh.cc:228, init_from_input()                                                                                  
+      [20.0] MESH - setup topology             1    0.01      1.00      0.01     0.01   mesh/mesh.cc:253, setup_topology()                                                                                   
+      [80.0] GMSHReader - read mesh            1    0.04      1.00      0.04     0.04   mesh/msh_gmshreader.cc:77, read_mesh()                                                                               
+    [24.5] preallocation                       1    0.12      1.00      0.12     0.12   flow/darcy_flow_mh.cc:902, create_linear_system()                                                                    
+      [100.0] PETSC PREALLOCATION              1    0.12      1.00      0.12     0.12   flow/darcy_flow_mh.cc:979, create_linear_system()                                                                    
+    [2.0] Darcy constructor                    1    0.01      1.00      0.01     0.01   flow/darcy_flow_mh.cc:238, DarcyFlowMH_Steady()                                                                      
+      [100.0] data init                        1    0.01      1.00      0.01     0.01   flow/darcy_flow_mh.cc:243, DarcyFlowMH_Steady()                                                                      
+      [0.0] prepare parallel                   1    0.00      1.00      0.00     0.00   flow/darcy_flow_mh.cc:1333, prepare_parallel()                                                                       
+    [0.0] prepare scatter                      1    0.00      1.00      0.00     0.00   flow/darcy_flow_mh.cc:1286, make_serial_scatter()                                                                    
+    [34.7] Darcy output                        1    0.17      1.00      0.17     0.17   flow/darcy_flow_mh_output.cc:194, output()                                                                           
+      [64.7] Fill OutputData                   1    0.11      1.00      0.11     0.11   fields/field_set.cc:144, output()                                                                                    
+      [0.0] write_time_frame                   1    0.00      1.00      0.00     0.00   io/output_time.cc:212, write_time_frame()                                                                            
