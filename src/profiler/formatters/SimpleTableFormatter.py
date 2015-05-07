@@ -53,7 +53,6 @@ class SimpleTableFormatter (object):
         self.json = json
         self.processHeader (json)
         self.processBody (json, 0)
-        print self.maxBodySize
         self.maxBodySize = [n + self.styles.padding for n in self.maxBodySize]
 
         self.maxNameSize = self.maxNameSize + self.styles.space_header

@@ -1,0 +1,345 @@
+{
+    "program-name": "Flow123d",
+    "program-version": "1.8.JHy_python_update",
+    "program-branch": "JHy_python_update",
+    "program-revision": "release_1.8.2-225-gc9790f6",
+    "program-build": "May  7 2015, 19:46:26 flags: -g -O0 -Wall -Wno-unused-local-typedefs -std=c++11",
+    "timer-resolution": "0.000049770",
+    "source-dir": "\/home\/jan-hybs\/Dokumenty\/SmartGit\/flow123d",
+    "task-description": "Test10 - Unsteady flow in 2D, Mixed Hybrid method",
+    "task-size": "942",
+    "run-process-count": "1",
+    "run-started-at": "05\/07\/15 19:46:42",
+    "run-finished-at": "05\/07\/15 19:46:42",
+    "run-duration": "0.000000000",
+    "children":
+    [
+        {
+            "tag": "Whole Program",
+            "file-path": "\/src\/system\/sys_profiler.cc",
+            "file-line": "196",
+            "function": "Profiler",
+            "call-count": "1",
+            "call-count-min": "1",
+            "call-count-max": "1",
+            "call-count-sum": "1",
+            "cumul-time": "0.001503957",
+            "cumul-time-min": "0.001503957",
+            "cumul-time-max": "0.001503957",
+            "cumul-time-sum": "0.001503957",
+            "percent": "100",
+            "children":
+            [
+                {
+                    "tag": "HC run simulation",
+                    "file-path": "\/src\/coupling\/hc_explicit_sequential.cc",
+                    "file-line": "137",
+                    "function": "run_simulation",
+                    "call-count": "1",
+                    "call-count-min": "1",
+                    "call-count-max": "1",
+                    "call-count-sum": "1",
+                    "cumul-time": "0.000617092",
+                    "cumul-time-min": "0.000617092",
+                    "cumul-time-max": "0.000617092",
+                    "cumul-time-sum": "0.000617092",
+                    "percent": "41.03124609750435",
+                    "children":
+                    [
+                        {
+                            "tag": "Solving MH system",
+                            "file-path": "\/src\/flow\/darcy_flow_mh.cc",
+                            "file-line": "313",
+                            "function": "update_solution",
+                            "call-count": "3",
+                            "call-count-min": "3",
+                            "call-count-max": "3",
+                            "call-count-sum": "3",
+                            "cumul-time": "0.000617039",
+                            "cumul-time-min": "0.000617039",
+                            "cumul-time-max": "0.000617039",
+                            "cumul-time-sum": "0.000617039",
+                            "percent": "99.99129012254684",
+                            "children":
+                            [
+                                {
+                                    "tag": "full assembly",
+                                    "file-path": "\/src\/flow\/darcy_flow_mh.cc",
+                                    "file-line": "1008",
+                                    "function": "assembly_linear_system",
+                                    "call-count": "3",
+                                    "call-count-min": "3",
+                                    "call-count-max": "3",
+                                    "call-count-sum": "3",
+                                    "cumul-time": "0.000115520",
+                                    "cumul-time-min": "0.000115520",
+                                    "cumul-time-max": "0.000115520",
+                                    "cumul-time-sum": "0.000115520",
+                                    "percent": "18.7217107108538"
+                                },
+                                {
+                                    "tag": "postprocess",
+                                    "file-path": "\/src\/flow\/darcy_flow_mh.cc",
+                                    "file-line": "339",
+                                    "function": "postprocess",
+                                    "call-count": "3",
+                                    "call-count-min": "3",
+                                    "call-count-max": "3",
+                                    "call-count-sum": "3",
+                                    "cumul-time": "0.000000008",
+                                    "cumul-time-min": "0.000000008",
+                                    "cumul-time-max": "0.000000008",
+                                    "cumul-time-sum": "0.000000008",
+                                    "percent": "0.001292949600283286"
+                                },
+                                {
+                                    "tag": "PETSC linear solver",
+                                    "file-path": "\/src\/la\/linsys_PETSC.cc",
+                                    "file-line": "351",
+                                    "function": "solve",
+                                    "call-count": "3",
+                                    "call-count-min": "3",
+                                    "call-count-max": "3",
+                                    "call-count-sum": "3",
+                                    "cumul-time": "0.000054249",
+                                    "cumul-time-min": "0.000054249",
+                                    "cumul-time-max": "0.000054249",
+                                    "cumul-time-sum": "0.000054249",
+                                    "percent": "8.791884197171631",
+                                    "children":
+                                    [
+                                        {
+                                            "tag": "PETSC linear iteration",
+                                            "file-path": "\/src\/la\/linsys_PETSC.cc",
+                                            "file-line": "352",
+                                            "function": "solve",
+                                            "call-count": "24",
+                                            "call-count-min": "24",
+                                            "call-count-max": "24",
+                                            "call-count-sum": "24",
+                                            "cumul-time": "0.000054242",
+                                            "cumul-time-min": "0.000054242",
+                                            "cumul-time-max": "0.000054242",
+                                            "cumul-time-sum": "0.000054242",
+                                            "percent": "99.98578415675239"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "tag": "Darcy output",
+                                    "file-path": "\/src\/flow\/darcy_flow_mh_output.cc",
+                                    "file-line": "194",
+                                    "function": "output",
+                                    "call-count": "3",
+                                    "call-count-min": "3",
+                                    "call-count-max": "3",
+                                    "call-count-sum": "3",
+                                    "cumul-time": "0.000351972",
+                                    "cumul-time-min": "0.000351972",
+                                    "cumul-time-max": "0.000351972",
+                                    "cumul-time-sum": "0.000351972",
+                                    "percent": "57.0422000695561",
+                                    "children":
+                                    [
+                                        {
+                                            "tag": "Fill OutputData",
+                                            "file-path": "\/src\/fields\/field_set.cc",
+                                            "file-line": "144",
+                                            "function": "output",
+                                            "call-count": "3",
+                                            "call-count-min": "3",
+                                            "call-count-max": "3",
+                                            "call-count-sum": "3",
+                                            "cumul-time": "0.000211238",
+                                            "cumul-time-min": "0.000211238",
+                                            "cumul-time-max": "0.000211238",
+                                            "cumul-time-sum": "0.000211238",
+                                            "percent": "60.0155604212643"
+                                        },
+                                        {
+                                            "tag": "write_time_frame",
+                                            "file-path": "\/src\/io\/output_time.cc",
+                                            "file-line": "212",
+                                            "function": "write_time_frame",
+                                            "call-count": "3",
+                                            "call-count-min": "3",
+                                            "call-count-max": "3",
+                                            "call-count-sum": "3",
+                                            "cumul-time": "0.000016696",
+                                            "cumul-time-min": "0.000016696",
+                                            "cumul-time-max": "0.000016696",
+                                            "cumul-time-sum": "0.000016696",
+                                            "percent": "4.743509830581184"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "tag": "HC constructor",
+                    "file-path": "\/src\/coupling\/hc_explicit_sequential.cc",
+                    "file-line": "85",
+                    "function": "HC_ExplicitSequential",
+                    "call-count": "1",
+                    "call-count-min": "1",
+                    "call-count-max": "1",
+                    "call-count-sum": "1",
+                    "cumul-time": "0.000115400",
+                    "cumul-time-min": "0.000115400",
+                    "cumul-time-max": "0.000115400",
+                    "cumul-time-sum": "0.000115400",
+                    "percent": "7.673091472869421",
+                    "children":
+                    [
+                        {
+                            "tag": "Reading mesh - init_from_input",
+                            "file-path": "\/src\/mesh\/mesh.cc",
+                            "file-line": "228",
+                            "function": "init_from_input",
+                            "call-count": "1",
+                            "call-count-min": "1",
+                            "call-count-max": "1",
+                            "call-count-sum": "1",
+                            "cumul-time": "0.000039060",
+                            "cumul-time-min": "0.000039060",
+                            "cumul-time-max": "0.000039060",
+                            "cumul-time-sum": "0.000039060",
+                            "percent": "33.84738200204848",
+                            "children":
+                            [
+                                {
+                                    "tag": "MESH - setup topology",
+                                    "file-path": "\/src\/mesh\/mesh.cc",
+                                    "file-line": "253",
+                                    "function": "setup_topology",
+                                    "call-count": "1",
+                                    "call-count-min": "1",
+                                    "call-count-max": "1",
+                                    "call-count-sum": "1",
+                                    "cumul-time": "0.000012868",
+                                    "cumul-time-min": "0.000012868",
+                                    "cumul-time-max": "0.000012868",
+                                    "cumul-time-sum": "0.000012868",
+                                    "percent": "32.94427864492194"
+                                },
+                                {
+                                    "tag": "GMSHReader - read mesh",
+                                    "file-path": "\/src\/mesh\/msh_gmshreader.cc",
+                                    "file-line": "77",
+                                    "function": "read_mesh",
+                                    "call-count": "1",
+                                    "call-count-min": "1",
+                                    "call-count-max": "1",
+                                    "call-count-sum": "1",
+                                    "cumul-time": "0.000022791",
+                                    "cumul-time-min": "0.000022791",
+                                    "cumul-time-max": "0.000022791",
+                                    "cumul-time-sum": "0.000022791",
+                                    "percent": "58.34863078211433"
+                                }
+                            ]
+                        },
+                        {
+                            "tag": "Darcy constructor",
+                            "file-path": "\/src\/flow\/darcy_flow_mh.cc",
+                            "file-line": "238",
+                            "function": "DarcyFlowMH_Steady",
+                            "call-count": "1",
+                            "call-count-min": "1",
+                            "call-count-max": "1",
+                            "call-count-sum": "1",
+                            "cumul-time": "0.000075995",
+                            "cumul-time-min": "0.000075995",
+                            "cumul-time-max": "0.000075995",
+                            "cumul-time-sum": "0.000075995",
+                            "percent": "65.85393697417746",
+                            "children":
+                            [
+                                {
+                                    "tag": "preallocation",
+                                    "file-path": "\/src\/flow\/darcy_flow_mh.cc",
+                                    "file-line": "902",
+                                    "function": "create_linear_system",
+                                    "call-count": "1",
+                                    "call-count-min": "1",
+                                    "call-count-max": "1",
+                                    "call-count-sum": "1",
+                                    "cumul-time": "0.000062327",
+                                    "cumul-time-min": "0.000062327",
+                                    "cumul-time-max": "0.000062327",
+                                    "cumul-time-sum": "0.000062327",
+                                    "percent": "82.01373858295361",
+                                    "children":
+                                    [
+                                        {
+                                            "tag": "PETSC PREALLOCATION",
+                                            "file-path": "\/src\/flow\/darcy_flow_mh.cc",
+                                            "file-line": "979",
+                                            "function": "create_linear_system",
+                                            "call-count": "1",
+                                            "call-count-min": "1",
+                                            "call-count-max": "1",
+                                            "call-count-sum": "1",
+                                            "cumul-time": "0.000061979",
+                                            "cumul-time-min": "0.000061979",
+                                            "cumul-time-max": "0.000061979",
+                                            "cumul-time-sum": "0.000061979",
+                                            "percent": "99.44144663985377"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "tag": "data init",
+                                    "file-path": "\/src\/flow\/darcy_flow_mh.cc",
+                                    "file-line": "243",
+                                    "function": "DarcyFlowMH_Steady",
+                                    "call-count": "1",
+                                    "call-count-min": "1",
+                                    "call-count-max": "1",
+                                    "call-count-sum": "1",
+                                    "cumul-time": "0.000000470",
+                                    "cumul-time-min": "0.000000470",
+                                    "cumul-time-max": "0.000000470",
+                                    "cumul-time-sum": "0.000000470",
+                                    "percent": "0.6180776708189101"
+                                },
+                                {
+                                    "tag": "prepare parallel",
+                                    "file-path": "\/src\/flow\/darcy_flow_mh.cc",
+                                    "file-line": "1333",
+                                    "function": "prepare_parallel",
+                                    "call-count": "1",
+                                    "call-count-min": "1",
+                                    "call-count-max": "1",
+                                    "call-count-sum": "1",
+                                    "cumul-time": "0.000003719",
+                                    "cumul-time-min": "0.000003719",
+                                    "cumul-time-max": "0.000003719",
+                                    "cumul-time-sum": "0.000003719",
+                                    "percent": "4.893174875632382"
+                                },
+                                {
+                                    "tag": "prepare scatter",
+                                    "file-path": "\/src\/flow\/darcy_flow_mh.cc",
+                                    "file-line": "1286",
+                                    "function": "make_serial_scatter",
+                                    "call-count": "1",
+                                    "call-count-min": "1",
+                                    "call-count-max": "1",
+                                    "call-count-sum": "1",
+                                    "cumul-time": "0.000001049",
+                                    "cumul-time-min": "0.000001049",
+                                    "cumul-time-max": "0.000001049",
+                                    "cumul-time-sum": "0.000001049",
+                                    "percent": "1.379942868959352"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
