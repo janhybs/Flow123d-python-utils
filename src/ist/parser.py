@@ -3,8 +3,10 @@
 
 #
 import json
+from ist.formatters.latex import LatexRecord
 from ist.nodes import TypedList, Array
 from ist.nodes import Record, AbstractRecord, Selection
+
 
 class ProfilerJSONDecoder (json.JSONDecoder):
     def decode (self, json_string):
@@ -16,12 +18,13 @@ class ProfilerJSONDecoder (json.JSONDecoder):
 
 json_location = 'example.json'
 with open (json_location, 'r') as fp:
-
     # parse json file
     jsonObj = json.load (fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
-    for item in jsonObj:
-        if type(item) is dict:
-            print item
+    l = LatexRecord ()
+    result = ''.join (l.format (jsonObj[0]))
+
+    with open ('fff.tex', 'w') as fp:
+        fp.write (result)
 
 
