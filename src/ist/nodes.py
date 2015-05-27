@@ -11,10 +11,10 @@ class ISTNode (object):
         for field in self._fields:
             # parse list
             if issubclass (field.type, TypedList):
-                value = field.value.parse (o.get (field.name, []))
+                value = field.value.copy ().parse (o.get (field.name, []))
             # parse more complex objects
             elif issubclass (field.type, ISTNode):
-                value = field.value.parse (o.get (field.name, { }))
+                value = field.value.copy ().parse (o.get (field.name, { }))
             # simple values
             else:
                 value = o.get (field.name)
@@ -25,6 +25,10 @@ class ISTNode (object):
                 Globals.items[value] = self
 
         return self
+
+
+    def copy (self):
+        return self.__class__()
 
     def __repr__ (self):
         return '<{self.__class__.__name__} {self._fields}>'.format (self=self)
@@ -37,6 +41,9 @@ class Reference (ISTNode):
 
     def get_reference (self):
         return Globals.items.get (self.ref_id, None)
+
+    def copy (self):
+        return Reference ()
 
     def __repr__ (self):
         return "<Reference ({self.ref_id}) -> {ref}>".format (self=self, ref=self.get_reference ())
@@ -83,7 +90,7 @@ class RecordKeyNode (AbstractNode):
 class RecordKey (DescriptionNode):
     _fields = DescriptionNode._fields + [
         Field ('key'),
-        Field ('type', Reference()),
+        Field ('type', Reference ()),
         Field ('default', RecordKeyNode ())
     ]
 
@@ -100,7 +107,10 @@ class Record (DescriptionNode):
 
 class AbstractRecord (Record):
     _fields = Record._fields + [
-        Field ('implementations', TypedList (Reference))
+        Field ('implementations', TypedList (Reference)),
+        Field ('default_descendant', Reference ()),
+        Field ('full_name'),
+        Field ('name')
     ]
 
 

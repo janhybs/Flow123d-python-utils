@@ -11,7 +11,7 @@ class Field (object):
         self.type = type if value is None else value.__class__
 
     def __repr__ (self):
-        if issubclass(self.type, TypedList):
+        if issubclass (self.type, TypedList):
             return "<'{self.name}[{self.type}]'>".format (self=self)
         return "<'{self.name}'>".format (self=self)
 
@@ -23,11 +23,12 @@ class TypedList (list):
 
     def parse (self, lst):
         from ist.nodes import registered_nodes
+
         if self.cls is None:
             for o in lst:
                 input_type = o.get ('input_type', '')
                 found = False
-                for node_type, cls in registered_nodes.iteritems():
+                for node_type, cls in registered_nodes.iteritems ():
                     if input_type == node_type:
                         self.append (cls ().parse (o))
                         found = True
@@ -39,3 +40,6 @@ class TypedList (list):
             for o in lst:
                 self.append (self.cls ().parse (o))
         return self
+
+    def copy (self):
+        return TypedList (self.cls)

@@ -3,7 +3,7 @@
 
 #
 import json
-from ist.formatters.latex import LatexRecord
+from ist.formatters.latex import LatexRecord, LatexFormatter
 from ist.nodes import TypedList, Array
 from ist.nodes import Record, AbstractRecord, Selection
 
@@ -21,10 +21,11 @@ with open (json_location, 'r') as fp:
     # parse json file
     jsonObj = json.load (fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
-    l = LatexRecord ()
-    result = ''.join (l.format (jsonObj[0]))
+    print jsonObj[2]
+    result = LatexFormatter.format ([jsonObj[2]])
+    result = ''.join(result)
 
-    with open ('fff.tex', 'w') as fp:
+    with open ('../../docs/input_reference_red.tex', 'w') as fp:
         fp.write (result)
 
 
