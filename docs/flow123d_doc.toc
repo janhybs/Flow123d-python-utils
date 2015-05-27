@@ -1,0 +1,61 @@
+\contentsline {chapter}{\numberline {1}Getting Started}{5}{chapter.1}
+\contentsline {section}{\numberline {1.1}Introduction}{5}{section.1.1}
+\contentsline {section}{\numberline {1.2}Reading Documentation}{6}{section.1.2}
+\contentsline {section}{\numberline {1.3}Running Flow123d}{6}{section.1.3}
+\contentsline {section}{\numberline {1.4}Tutorial Problem}{8}{section.1.4}
+\contentsline {subsection}{\numberline {1.4.1}Geometry}{8}{subsection.1.4.1}
+\contentsline {subsection}{\numberline {1.4.2}CON File Format}{9}{subsection.1.4.2}
+\contentsline {subsection}{\numberline {1.4.3}Flow Setting}{10}{subsection.1.4.3}
+\contentsline {subsection}{\numberline {1.4.4}Transport Setting}{11}{subsection.1.4.4}
+\contentsline {subsection}{\numberline {1.4.5}Reaction Term}{12}{subsection.1.4.5}
+\contentsline {subsection}{\numberline {1.4.6}Results}{14}{subsection.1.4.6}
+\contentsline {chapter}{\numberline {2}Mathematical Models of Physical Reality}{16}{chapter.2}
+\contentsline {section}{\numberline {2.1}Meshes of Mixed Dimension}{16}{section.2.1}
+\contentsline {section}{\numberline {2.2}Advection-Diffusion Processes on Fractures}{17}{section.2.2}
+\contentsline {section}{\numberline {2.3}Darcy Flow Model}{19}{section.2.3}
+\contentsline {paragraph}{Volume balance.}{22}{section*.4}
+\contentsline {section}{\numberline {2.4}Transport of Substances}{22}{section.2.4}
+\contentsline {paragraph}{Initial and boundary conditions.}{23}{section*.5}
+\contentsline {paragraph}{Communication between dimensions.}{24}{section*.6}
+\contentsline {paragraph}{Mass balance.}{24}{section*.7}
+\contentsline {paragraph}{Two transport models.}{25}{section*.8}
+\contentsline {section}{\numberline {2.5}Reaction Term in Transport}{25}{section.2.5}
+\contentsline {subsection}{\numberline {2.5.1}Dual Porosity}{27}{subsection.2.5.1}
+\contentsline {subsection}{\numberline {2.5.2}Equilibrial Sorption}{27}{subsection.2.5.2}
+\contentsline {paragraph}{Units conversion.}{28}{section*.10}
+\contentsline {subsection}{\numberline {2.5.3}Sorption in Dual Porosity Model}{29}{subsection.2.5.3}
+\contentsline {subsection}{\numberline {2.5.4}Radioactive Decay}{30}{subsection.2.5.4}
+\contentsline {subsection}{\numberline {2.5.5}First Order Reaction}{31}{subsection.2.5.5}
+\contentsline {section}{\numberline {2.6}Heat Transfer}{31}{section.2.6}
+\contentsline {paragraph}{Initial and boundary conditions.}{32}{section*.11}
+\contentsline {paragraph}{Communication between dimensions.}{33}{section*.12}
+\contentsline {paragraph}{Energy balance.}{33}{section*.13}
+\contentsline {chapter}{\numberline {3}Numerical Methods}{34}{chapter.3}
+\contentsline {section}{\numberline {3.1}Diagonalized Mixed-Hybrid Method}{34}{section.3.1}
+\contentsline {section}{\numberline {3.2}Discontinuous Galerkin Method}{36}{section.3.2}
+\contentsline {section}{\numberline {3.3}Finite Volume Method for Convective Transport}{38}{section.3.3}
+\contentsline {section}{\numberline {3.4}Solution Issues for Reaction Term}{39}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}Dual Porosity}{39}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.2}Equilibrial Sorption}{40}{subsection.3.4.2}
+\contentsline {paragraph}{Limited solubility.}{41}{section*.16}
+\contentsline {subsection}{\numberline {3.4.3}System of Linear Ordinary Differential Equations}{41}{subsection.3.4.3}
+\contentsline {paragraph}{Semi-analytic solution.}{41}{section*.17}
+\contentsline {paragraph}{Pad{\' e} approximant.}{42}{section*.18}
+\contentsline {chapter}{\numberline {4}File Formats}{44}{chapter.4}
+\contentsline {section}{\numberline {4.1}Main Input File (CON File Format)}{44}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}JSON for Humans}{44}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}CON Constructs}{45}{subsection.4.1.2}
+\contentsline {subsection}{\numberline {4.1.3}CON Special Keys}{46}{subsection.4.1.3}
+\contentsline {subsection}{\numberline {4.1.4}Record Types}{47}{subsection.4.1.4}
+\contentsline {subsubsection}{Implicit Creation of Composed Entities}{47}{section*.20}
+\contentsline {section}{\numberline {4.2}Important Record Types of Flow123d Input}{47}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}Mesh Record}{47}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}Field Records}{48}{subsection.4.2.2}
+\contentsline {subsection}{\numberline {4.2.3}Field Data for Equations}{49}{subsection.4.2.3}
+\contentsline {section}{\numberline {4.3}Mesh and Data File Format MSH ASCII}{50}{section.4.3}
+\contentsline {section}{\numberline {4.4}Output Files}{51}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}Auxiliary Output Files}{53}{subsection.4.4.1}
+\contentsline {subsubsection}{Profiling Information}{53}{section*.21}
+\contentsline {subsubsection}{Balance of Conservative Quantities}{53}{section*.22}
+\contentsline {subsubsection}{Raw Water Flow Data File}{53}{section*.23}
+\contentsline {chapter}{\numberline {5}Main Input File Reference}{55}{chapter.5}
