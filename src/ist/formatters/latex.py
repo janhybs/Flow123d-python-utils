@@ -434,6 +434,9 @@ class LatexRecord (LatexItemFormatter):
                 with tex:
                     for reference in reference_list:
                         tex.Alink (reference.get_reference ().name)
+            else:
+                tex.add ()
+
 
             tex.add ()  # TODO default auto conversion key
             tex.add ()  # TODO hyperlink into hand written text
@@ -468,8 +471,6 @@ class LatexUniversal (LatexItemFormatter):
         tex.KeyItem ()
         with tex:
             tex.hyperB (record_key.key, record.type_name)
-        tex.add ('String (generic)')
-
         return tex
 
     def _end_format_as_child (self, self_object, record_key, record):
