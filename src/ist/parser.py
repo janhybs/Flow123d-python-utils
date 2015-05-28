@@ -21,8 +21,7 @@ with open (json_location, 'r') as fp:
     # parse json file
     jsonObj = json.load (fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
-    print jsonObj[2]
-    result = LatexFormatter.format ([jsonObj[2]])
+    result = LatexFormatter.format (jsonObj)
     result = ''.join(result)
 
     with open ('../../docs/input_reference_red.tex', 'w') as fp:
