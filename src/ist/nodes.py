@@ -1,7 +1,7 @@
 # encoding: utf-8
 # author:   Jan Hybs
 from ist.globals import Globals
-from ist.utils import Field, TypedList
+from ist.utils.utils import Field, TypedList
 
 
 class ISTNode (object):
@@ -122,7 +122,9 @@ class SelectionValue (DescriptionNode):
 
 class Selection (DescriptionNode):
     _fields = DescriptionNode._fields + [
-        Field ('values', TypedList (SelectionValue))
+        Field ('values', TypedList (SelectionValue)),
+        Field ('name'),
+        Field ('full_name')
     ]
 
 
