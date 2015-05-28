@@ -14,8 +14,9 @@
 \end{RecordType}
 """
 from ist.nodes import Bool, AbstractRecord, Selection
+from ist.utils.texlist import texlist
 
-"""
+ur"""
 \begin{RecordType}{\hyperB{IT::Root}{Root}}{}{}{}{Root record of JSON input for Flow123d.}
 \KeyItem{\hyperB{Root::problem}{problem}}{abstract type: \Alink{IT::Problem}{Problem}}{\textlangle{\it obligatory }\textrangle}{}{Simulation problem to be solved.}
 \KeyItem{\hyperB{Root::pause-after-run}{pause\_after\_run}}{Bool}{false}{}{If true, the program will wait for key press before it terminates.}
@@ -23,185 +24,253 @@ from ist.nodes import Bool, AbstractRecord, Selection
 """
 
 
-def function (*args): return '{' + '}{'.join (args) + '}'
-
-
-slash = '\\'
-
-tag = lambda t, v: "\\" + t + "{" + v + "}"
-enclose = lambda v: "{" + v + "}"
-hyperB = lambda v: "\\hyperB{" + v + "}"
-Alink = lambda v: "\\Alink{" + v + "}"
-it = lambda v: 'IT::' + v
-sub = lambda a, b: a + '::' + b
-u2d = lambda v: v.replace ('_', '-')
-u2s = lambda v: v.replace ('_', '\\_')
-
-double_tag = lambda t, s, v: "{\\" + t + "{" + s + u2d (v) + "}{" + u2s (v) + "}}"
-double_hyperB = lambda s, v: "{\\hyperB{" + s + u2d (v) + "}{" + u2s (v) + "}}"
-desc = lambda v: v.strip ().replace ('\\n', '\\\\')
-
-
 class LatexItemFormatter (object):
     def __init__ (self, tag_name=None):
         self.tag_name = tag_name
 
-    def open (self):
-        return tag ('begin', self.tag_name)
+    def format (self, element):
+        raise Exception ('Method format not implemented {}'.format (self.__class__.__name__))
 
-    def close (self):
-        return tag ('end', self.tag_name)
-
-
-'''
-{
-  "id": "f9756fb2f66076a1",
-  "input_type": "Selection",
-  "name": "PartTool",
-  "full_name": "PartTool",
-  "description": "Select the partitioning tool to use.",
-  "values": [
-     {
-        "name": "PETSc",
-        "description": "Use PETSc interface to various partitioning tools."
-     },
-     {
-        "name": "METIS",
-        "description": "Use direct interface to Metis."
-     }
-  ]
-}
-
-\begin{SelectionType}{\hyperB{IT::PartTool}{PartTool}}{Select the partitioning tool to use.}
-\KeyItem{PETSc}{Use PETSc interface to various partitioning tools.}
-\KeyItem{METIS}{Use direct interface to Metis.}
-\end{SelectionType}
-'''
+    def format_as_child (self, *args):
+        raise Exception ('Method format_as_child not implemented {}'.format (self.__class__.__name__))
 
 
 class LatexSelection (LatexItemFormatter):
     def __init__ (self):
-        super (LatexRecordKey, self).__init__ ('SelectionType')
+        super (LatexSelection, self).__init__ ('SelectionType')
+
+    # "input_type": "Record",
+    # "type_name": "Partition",
+    # "type_full_name": "Partition",
+    # "description": "Setting for various types of mesh partitioning.",
+    # "reducible_to_key": "graph_type",
+    # "keys": [
+    # {
+    # "key": "tool",
+    # "type": "<<REFERENCE_ID>>",
+    # "description": "Software package used for partitioning. See corresponding selection.",
+    # "default": {
+    # "type": "value at declaration",
+    # "value": "METIS"
+    # },
+    # },
+    #
+    #
+    # {selection: \Alink{IT::PartTool}{PartTool}}
+    # {METIS}
+    # {}
+    # {Software package used for partitioning. See corresponding selection.}
+
+    def format_as_child (self, self_selection, record_key, record):
+        tex = texlist ()
+        tex.KeyItem ()
+        with tex:
+            tex.hyperB (record_key.key, record.type_name)
+
+        with tex:
+            tex.append ('selection: ')
+            tex.append (tex.u2s (self_selection.name))
+        tex.add (record_key.default.value)
+        tex.add ()
+        tex.add_description_field (record_key.description)
+
+        return tex
+
+    # {
+    # "id": "f9756fb2f66076a1",
+    # "input_type": "Selection",
+    # "name": "PartTool",
+    # "full_name": "PartTool",
+    # "description": "Select the partitioning tool to use.",
+    # "values": [
+    # {
+    # "name": "PETSc",
+    # "description": "Use PETSc interface to various partitioning tools."
+    # },
+    # {
+    # "name": "METIS",
+    # "description": "Use direct interface to Metis."
+    #      }
+    #   ]
+    # }
+    #
+    # \begin{SelectionType}{\hyperB{IT::PartTool}{PartTool}}{Select the partitioning tool to use.}
+    # \KeyItem{PETSc}{Use PETSc interface to various partitioning tools.}
+    # \KeyItem{METIS}{Use direct interface to Metis.}
+    # \end{SelectionType}
+    #
+    # SelectionType environment
+    # usage:
+    # \begin{SelectionType}{<selection name>}{< selection description>}
+    #       \KeyItem{<value name>}{<value>}
+    #       Key value description.
+    # \end{SelectionType}
+
+    def format (self, selection):
+        tex = texlist (self.tag_name)
+
+        with tex.element ():
+            with tex:
+                tex.hyperB (selection.name)
+            tex.add_description_field (selection.description)
+
+            for selection_value in selection.values:
+                tex.newline ()
+                tex.KeyItem (selection_value.name, selection.description)
+            tex.newline ()
+
+        return tex
 
 
-    def format (self, selection, record_key=None, record=None):
-        if record_key is None and record is None:
-            result = []
-            result.append (self.open ())
-            result.append ()
-
-
-'''
-{
-    "key": "TYPE",
-    "description": "Sub-record selection.",
-    "default": {
-        "type": "value at declaration",
-        "value": "SequentialCoupling"
-    },
-    "type": "b0bf265898e2625b"
-}
-
-\KeyItem{\hyperB{SequentialCoupling::TYPE}{TYPE}}{selection: Problem\_TYPE\_selection}{SequentialCoupling}{}{Sub-record selection.}
-'''
+# {
+# "key": "tool",
+# "description": "Software package used for partitioning. See corresponding selection.",
+# "default": {
+# "type": "value at declaration",
+# "value": "METIS"
+# },
+# "type": "f9756fb2f66076a1"
+# },
+#
+# \KeyItem{<name>}                % name of the key
+# {<type>}                % type of the key
+# {<default value>}       % type of default value and possibly the value itself
+# {<link>}                %  possible hyperlink to hand written text
+# {<key description>}     % description of the key
+#
+# \KeyItem{\hyperB{Partition::tool}{tool}}
+# {selection: \Alink{IT::PartTool}{PartTool}}
+# {METIS}
+# {}
+# {Software package used for partitioning. See corresponding selection.}
 
 
 class LatexRecordKey (LatexItemFormatter):
     def __init__ (self):
         super (LatexRecordKey, self).__init__ ('KeyItem')
 
+
     def format (self, record_key, record):
-        result = list ()
+        tex = texlist ()
         reference = record_key.type.get_reference ()
 
-        # record key head is same for every type
-        # \KeyItem{\hyperB{Root::problem}{problem}}
-        result.append (slash + 'KeyItem')
-        result.append (
-            double_hyperB (record.type_name + '::', record_key.key)
-        )
-
+        # try to grab formatter and format type and default value based on reference type
         try:
             fmt = LatexFormatter.get_formatter_for (reference)
+            tex.extend (fmt.format_as_child (reference, record_key, record))
         except Exception as e:
-            fmt = None
+            tex.append (' <<Missing formatter for {}>>'.format (type (reference)))
             print e
 
-        if fmt:
-            result.extend (fmt.format_as_child (reference, record_key, record))
-            result.append (enclose (''))
-            result.append (enclose (desc (record_key.description)))
-        else:
-            result.append (' <<Missing formatter for {}>>'.format (type (reference)))
-        return result
+        return tex
 
 
-'''
-{
-  "id": "1b711c7cb758740",
-  "input_type": "AbstractRecord",
-  "name": "Problem",
-  "full_name": "Problem",
-  "description": "The root record of description of particular the problem to solve.",
-  "implementations": [
-     "81a9cc0d6917a75"
-  ]
-}
-
-\begin{AbstractType}{\hyperB{IT::Problem}{Problem}}{}{}{The root record of description of particular the problem to solve.}
-\Descendant{\Alink{IT::SequentialCoupling}{SequentialCoupling}}
-\end{AbstractType}
-'''
-
+# AbstractType environment
+# usage:
+# \begin{AbstractType}
+# {<record name>}
+# {<default descendant>}
+# {<link>}
+# {<description>}         % Description paragraph of the abstract type.
+# \Descendant{<type name>}
+# \end{AbstractType}
 
 class LatexAbstractRecord (LatexItemFormatter):
     def __init__ (self):
         super (LatexAbstractRecord, self).__init__ ('AbstractType')
 
+    # {
+    #    "key": "primary_equation",
+    #    "description": "Primary equation, have all data given.",
+    #    "default": {
+    #       "type": "obligatory",
+    #       "value": "OBLIGATORY"
+    #    },
+    #    "type": "89b3f40b6e805da8"
+    # },
+    # \KeyItem{\hyperB{SequentialCoupling::primary-equation}{primary\_equation}}
+    #         {abstract type: \Alink{IT::DarcyFlowMH}{DarcyFlowMH}}
+    #         {\textlangle{\it obligatory }\textrangle}
+    #         {}
+    #         {Primary equation, have all data given.}
+
     def format_as_child (self, abstract_record, record_key, record):
-        result = list ()
-        result.append (
-            enclose ('abstract type: ' +
-                     Alink (it (abstract_record.name)) +
-                     enclose (abstract_record.name)
-            )
-        )
-        result.append (
-            enclose ('\\textlangle' +
-                     enclose ('\\it ' + record_key.default.type + ' ') +
-                     '\\textrangle'
-            )
-        )
-        return result
+        tex = texlist ()
+        tex.KeyItem ()
+        with tex:
+            tex.hyperB (record_key.key, record.type_name)
+
+        with tex:
+            tex.append ('abstract type: ')
+            tex.Alink (abstract_record.name)
+
+        with tex:
+            tex.textlangle (record_key.default.type)
+        tex.add ()
+        tex.add_description_field (record_key.description)
+
+        return tex
+
+
+    # {
+    #   "id": "89b3f40b6e805da8",
+    #   "input_type": "AbstractRecord",
+    #   "name": "DarcyFlowMH",
+    #   "full_name": "DarcyFlowMH",
+    #   "description": "Mixed-Hybrid  solver for saturated Darcy flow.",
+    #   "implementations": [
+    #      "3d0fe10b33e5936b",
+    #      "8d74b0bcfe5f8833",
+    #      "5bf2d1a105220256"
+    #   ]
+    # },
+    # \begin{AbstractType}
+    #       {\hyperB{IT::DarcyFlowMH}{DarcyFlowMH}}
+    #       {}
+    #       {}
+    #       {Mixed-Hybrid  solver for saturated Darcy flow.}
+    # \Descendant{\Alink{IT::Steady-MH}{Steady\_MH}}
+    # \Descendant{\Alink{IT::Unsteady-MH}{Unsteady\_MH}}
+    # \Descendant{\Alink{IT::Unsteady-LMH}{Unsteady\_LMH}}
+    # \end{AbstractType}
+
 
     def format (self, abstract_record):
-        result = list ()
-        result.append (self.open ())
-        result.append (double_hyperB ('IT::', abstract_record.name))
-        result.append (enclose (''))
-        result.append (enclose (''))
-        result.append (enclose (abstract_record.description))
+        tex = texlist (self.tag_name)
+        with tex.element ():
+            with tex:
+                tex.hyperB (abstract_record.name)
+            tex.add ()
+            tex.add ()
+            tex.add_description_field (abstract_record.description)
 
-        for descendant in abstract_record.implementations:
-            result.append ('\n')
-            result.append (slash + 'Descendant')
-            result.append (double_tag ('Alink', 'IT::', descendant.get_reference ().type_name))
+            for descendant in abstract_record.implementations:
+                tex.newline ()
+                tex.tag ('Descendant')
+                with tex:
+                    tex.Alink (descendant.get_reference ().type_name)
+            tex.newline ()
 
-        result.append ('\n')
-        result.append (self.close ())
-        return result
+        return tex
 
 
-'''
-{
-  "id": "29b5533100b6f60f",
-  "input_type": "String",
-  "name": "String",
-  "full_name": "String"
-}
-
-unknown root format so far
-'''
+# {
+#   "id": "29b5533100b6f60f",
+#   "input_type": "String",
+#   "name": "String",
+#   "full_name": "String"
+# }
+#
+# %       \KeyItem{<name>}                % name of the key
+# %               {<type>}                % type of the key
+# %               {<default value>}       % type of default value and possibly the value itself
+# %               {<link>}                % possible hyperlink to hand written text
+# %               {<key description>}     % description of the key
+#
+# {String (generic)}
+# {\textlangle{\it optional }\textrangle}
+# {}
+# {description}
 
 
 class LatexString (LatexItemFormatter):
@@ -209,155 +278,253 @@ class LatexString (LatexItemFormatter):
         super (LatexString, self).__init__ ('String')
 
 
-    # {String (generic)}{\textlangle{\it optional }\textrangle}{}{Short description of the solved problem.\\Is displayed in the main log, and possibly in other text output files.}
+    # {
+    # "id": "b9614d55a6c3462e",
+    #   "input_type": "Record",
+    #   "type_name": "Region",
+    #   "type_full_name": "Region",
+    #   "description": "Definition of region of elements.",
+    #   "keys": [
+    #      {
+    #         "key": "name",
+    #         "type": "<<REFERENCE_ID>>",
+    #         "description": "Label (name) of the region. Has to be unique in one mesh.\n",
+    #         "default": {
+    #            "type": "obligatory",
+    #            "value": "OBLIGATORY"
+    #         },
+    #
+    # \KeyItem{\hyperB{Region::name}{name}}
+    #         {String (generic)}
+    #         {\textlangle{\it obligatory }\textrangle}
+    #         {}
+    #         {Label (name) of the region. Has to be unique in one mesh.\\}
+
     def format_as_child (self, self_string, record_key, record):
-        result = list ()
-        result.append (enclose (self_string.name + ' (generic)'))
-        result.append (
-            enclose ('\\textlangle' +
-                     enclose ('\\it ' + record_key.default.type + ' ') +
-                     '\\textrangle'
-            )
-        )
-        return result
+        tex = texlist ()
+        tex.KeyItem ()
+        with tex:
+            tex.hyperB (record_key.key, record.type_name)
+        tex.add ('String (generic)')
+
+        with tex:
+            tex.textlangle (record_key.default.type)
+        tex.add ()
+        tex.add_description_field (record_key.description)
+
+        return tex
 
 
-'''
-{
-  "id": "81a9cc0d6917a75",
-  "input_type": "Record",
-  "type_name": "SequentialCoupling",
-  "type_full_name": "SequentialCoupling:Problem",
-  "description": "Record with data for a general sequential coupling.\n",
-  "implements": [
-     "1b711c7cb758740"
-  ],
-  "keys": [
-     {
-        "key": "TYPE",
-        "description": "Sub-record selection.",
-        "default": {
-           "type": "value at declaration",
-           "value": "SequentialCoupling"
-        },
-        "type": "b0bf265898e2625b"
-     },
-     {
-        "key": "description",
-        "description": "Short description of the solved problem.\nIs displayed in the main log, and possibly in other text output files.",
-        "default": {
-           "type": "optional",
-           "value": "OPTIONAL"
-        },
-        "type": "29b5533100b6f60f"
-     },
-     {
-        "key": "mesh",
-        "description": "Computational mesh common to all equations.",
-        "default": {
-           "type": "obligatory",
-           "value": "OBLIGATORY"
-        },
-        "type": "c57e1ac33a446313"
-     },
-     {
-        "key": "time",
-        "description": "Simulation time frame and time step.",
-        "default": {
-           "type": "optional",
-           "value": "OPTIONAL"
-        },
-        "type": "d8574f6af69c7e1f"
-     },
-     {
-        "key": "primary_equation",
-        "description": "Primary equation, have all data given.",
-        "default": {
-           "type": "obligatory",
-           "value": "OBLIGATORY"
-        },
-        "type": "89b3f40b6e805da8"
-     },
-     {
-        "key": "secondary_equation",
-        "description": "The equation that depends (the velocity field) on the result of the primary equation.",
-        "default": {
-           "type": "optional",
-           "value": "OPTIONAL"
-        },
-        "type": "ba303ae783dcf903"
-     }
-  ]
-}
-\begin{RecordType}{\hyperB{IT::SequentialCoupling}{SequentialCoupling}}{\Alink{IT::Problem}{Problem}}{}{}{Record with data for a general sequential coupling.}
-\KeyItem{\hyperB{SequentialCoupling::TYPE}{TYPE}}{selection: Problem\_TYPE\_selection}{SequentialCoupling}{}{Sub-record selection.}
-\KeyItem{\hyperB{SequentialCoupling::description}{description}}{String (generic)}{\textlangle{\it optional }\textrangle}{}{Short description of the solved problem.\\Is displayed in the main log, and possibly in other text output files.}
-\KeyItem{\hyperB{SequentialCoupling::mesh}{mesh}}{record: \Alink{IT::Mesh}{Mesh}}{\textlangle{\it obligatory }\textrangle}{}{Computational mesh common to all equations.}
-\KeyItem{\hyperB{SequentialCoupling::time}{time}}{record: \Alink{IT::TimeGovernor}{TimeGovernor}}{\textlangle{\it optional }\textrangle}{}{Simulation time frame and time step.}
-\KeyItem{\hyperB{SequentialCoupling::primary-equation}{primary\_equation}}{abstract type: \Alink{IT::DarcyFlowMH}{DarcyFlowMH}}{\textlangle{\it obligatory }\textrangle}{}{Primary equation, have all data given.}
-\KeyItem{\hyperB{SequentialCoupling::secondary-equation}{secondary\_equation}}{abstract type: \Alink{IT::Transport}{Transport}}{\textlangle{\it optional }\textrangle}{}{The equation that depends (the velocity field) on the result of the primary equation.}
-\end{RecordType}
-'''
-# TODO textrangle textlangle
+# RecordType environment
+#
+# usage:
+# \begin{RecordType}
+#       {<record name>}                 % name of the record, used for header and for hypertarget in form IT::<record name>
+#       {<parent abstract record>}      % possible parent abstract record
+#       {<default conversion key>}      % possible auto conversion key
+#       {<link>}                        % possible hyperlink into hand written text
+#       {< record description>}         % description of the record
+#
+#       \KeyItem{<name>}                % name of the key
+#               {<type>}                % type of the key
+#               {<default value>}       % type of default value and possibly the value itself
+#               {<link>}                %  possible hyperlink to hand written text
+#               {<key description>}     % description of the key
+#       ...
+# \end{RecordType}
 
 class LatexRecord (LatexItemFormatter):
     def __init__ (self):
         super (LatexRecord, self).__init__ ('RecordType')
 
 
-    # {record: \Alink{IT::Mesh}{Mesh}}{\textlangle{\it obligatory }\textrangle}{}{Computational mesh common to all equations.}
+    # {
+    # "key": "mesh",
+    # "description": "Computational mesh common to all equations.",
+    # "default": {
+    #    "type": "obligatory",
+    #    "value": "OBLIGATORY"
+    # },
+    # "type": "c57e1ac33a446313"
+    # },
+    #
+    # \KeyItem{\hyperB{SequentialCoupling::mesh}{mesh}}
+    #         {record: \Alink{IT::Mesh}{Mesh}}
+    #         {\textlangle{\it obligatory }\textrangle}
+    #         {}
+    #         {Computational mesh common to all equations.}
+
+
     def format_as_child (self, self_record, record_key, record):
-        result = list ()
-        result.append (enclose (
-            'record: ' +
-            Alink (it (u2d (self_record.type_name))) +
-            enclose (u2s (self_record.type_name))
-        ))
-        result.append (
-            enclose ('\\textlangle' +
-                     enclose ('\\it ' + record_key.default.type + ' ') +
-                     '\\textrangle'
-            )
-        )
-        return result
+        tex = texlist ()
+        tex.KeyItem ()
+        with tex:
+            tex.hyperB (record_key.key, record.type_name)
 
-    # \begin{RecordType}{\hyperB{IT::type_name}{type_name}}{}{}{}{description}
+        with tex:
+            tex.append ('record: ')
+            tex.Alink (self_record.type_name)
+        with tex:
+            tex.textlangle (record_key.default.type)
+        tex.add ()
+        tex.add_description_field (record_key.description)
+
+        return tex
+
+    # {
+    #   "id": "81a9cc0d6917a75",
+    #   "input_type": "Record",
+    #   "type_name": "SequentialCoupling",
+    #   "type_full_name": "SequentialCoupling:Problem",
+    #   "description": "Record with data for a general sequential coupling.\n",
+    #   "implements": [
+    #      "1b711c7cb758740"
+    #   ],
+    #   "keys": [
+    #      {
+    #         "key": "TYPE",
+    #         "description": "Sub-record selection.",
+    #         "default": {
+    #            "type": "value at declaration",
+    #            "value": "SequentialCoupling"
+    #         },
+    #         "type": "b0bf265898e2625b"
+    #      },
+    #      ...
+    #      {
+    #         "key": "secondary_equation",
+    #         "description": "The equation that depends (the velocity field) on the result of the primary equation.",
+    #         "default": {
+    #            "type": "optional",
+    #            "value": "OPTIONAL"
+    #         },
+    #         "type": "ba303ae783dcf903"
+    #      }
+    #   ]
+    # }
+    # \begin{RecordType}
+    #       {\hyperB{IT::SequentialCoupling}{SequentialCoupling}}
+    #       {\Alink{IT::Problem}{Problem}}
+    #       {}
+    #       {}
+    #       {Record with data for a general sequential coupling.}
+    # \KeyItem{\hyperB{SequentialCoupling::TYPE}{TYPE}}
+    #     {selection: Problem\_TYPE\_selection}{SequentialCoupling}
+    #     {}
+    #     {Sub-record selection.}
+    # ...
+    # \KeyItem{\hyperB{SequentialCoupling::secondary-equation}{secondary\_equation}}
+    #     {abstract type: \Alink{IT::Transport}{Transport}}
+    #     {\textlangle{\it optional }\textrangle}
+    #     {}
+    #     {The equation that depends (the velocity field) on the result of the primary equation.}
+    # \end{RecordType}
+
+
     def format (self, record):
-        result = list ()
-        result.append (self.open ())
-
+        tex = texlist (self.tag_name)
         reference_list = record.implements
 
-        # record arguments
-        result.append (double_hyperB ('IT::', record.type_name))
-        # link to implements
-        if reference_list:
-            for reference in reference_list:
-                result.append (double_tag ('Alink', 'IT::', reference.get_reference ().name))  # link to implements
-        else:
-            result.append (enclose (''))
+        with tex.element ():
+            with tex:
+                tex.hyperB (record.type_name)
 
-        # unknown
-        result.append (enclose (''))
-        # unknown
-        result.append (enclose (''))
-        # description
-        result.append (enclose (record.description))
+            # TODO what if multiple inheritance?
+            if reference_list:
+                with tex:
+                    for reference in reference_list:
+                        tex.Alink (reference.get_reference ().name)
 
-        # record keys
-        for record_key in record.keys:
-            try:
+            tex.add ()  # TODO default auto conversion key
+            tex.add ()  # TODO hyperlink into hand written text
+            tex.add_description_field (record.description)
+
+            # record keys
+            for record_key in record.keys:
+                # try:
+                tex.newline ()
                 fmt = LatexFormatter.get_formatter_for (record_key)
+                tex.extend (fmt.format (record_key, record))
+                # except Exception as e:
+                #     print e
+                #     continue
+            tex.newline ()
 
-                result.append ('\n')
-                result.extend (fmt.format (record_key, record))
-            except Exception as e:
-                print e
-                continue
+        return tex
 
-        result.append ('\n')
-        result.append (self.close ())
-        return result
+
+class LatexUniversal (LatexItemFormatter):
+    def __init__ (self):
+        super (LatexUniversal, self).__init__ ('')
+
+    #\KeyItem
+    # {\hyperB{Mesh::regions}{regions}}
+    # {Array  of record: \Alink{IT::Region}{Region}}
+    # {\textlangle{\it optional }\textrangle}
+    # {}
+    # {List of additional region definitions not contained in the mesh.}
+    def _start_format_as_child (self, self_object, record_key, record):
+        tex = texlist ()
+        tex.KeyItem ()
+        with tex:
+            tex.hyperB (record_key.key, record.type_name)
+        tex.add ('String (generic)')
+
+        return tex
+
+    def _end_format_as_child (self, self_object, record_key, record):
+        tex = texlist ()
+        with tex:
+            tex.textlangle (record_key.default.type)
+        tex.add ()
+        tex.add_description_field (record_key.description)
+
+        return tex
+
+    def _format_as_child (self, self_object, record_key, record):
+        raise Exception ('Not implemented yet')
+
+    def format_as_child (self, self_object, record_key, record):
+        tex = texlist ()
+        tex.extend (self._start_format_as_child (self_object, record_key, record))
+        tex.extend (self._format_as_child (self_object, record_key, record))
+        tex.extend (self._end_format_as_child (self_object, record_key, record))
+        return tex
+
+
+class LatexArray (LatexUniversal):
+    def _format_as_child (self, self_array, record_key, record):
+        tex = texlist ()
+        tex.add ('Array of HOW_TO_DETERMINE_TYPE')
+        return tex
+
+
+class LatexInteger (LatexUniversal):
+    def _format_as_child (self, self_int, record_key, record):
+        tex = texlist ()
+        tex.add ('Integer' + str (self_int.range))
+        return tex
+
+
+class LatexDouble (LatexUniversal):
+    def _format_as_child (self, self_double, record_key, record):
+        tex = texlist ()
+        tex.add ('Double' + str (self_double.range))
+        return tex
+
+
+class LatexBool (LatexUniversal):
+    def _format_as_child (self, self_bool, record_key, record):
+        tex = texlist ()
+        tex.add ('Bool')
+        return tex
+
+
+class LatexFileName (LatexUniversal):
+    def _format_as_child (self, self_fn, record_key, record):
+        tex = texlist ()
+        tex.add (self_fn.file_mode + ' file name')
+        return tex
 
 
 class LatexFormatter (object):
@@ -365,27 +532,35 @@ class LatexFormatter (object):
         'Record': LatexRecord,
         'RecordKey': LatexRecordKey,
         'AbstractRecord': LatexAbstractRecord,
-        'String': LatexString
+        'String': LatexString,
+        'Selection': LatexSelection,
+        'Array': LatexArray,
+        'Integer': LatexInteger,
+        'Double': LatexDouble,
+        'Bool': LatexBool,
+        'FileName': LatexFileName,
+        '': LatexUniversal
     }
 
     @staticmethod
     def format (items):
-        result = list ()
+        tex = texlist ()
 
         for item in items:
             try:
                 fmt = LatexFormatter.get_formatter_for (item)
+                tex.extend (fmt.format (item))
+                tex.newline ()
+                tex.newline ()
             except Exception as e:
-                raise e
+                print e
                 continue
 
-            result.extend (fmt.format (item))
-
-        return result
+        return tex
 
     @staticmethod
     def get_formatter_for (o):
         cls = LatexFormatter.formatters.get (o.__class__.__name__, None)
         if cls is None:
-            raise Exception ('no formatter found for {}'.format (o.__class__.__name__))
+            cls = LatexFormatter.formatters.get ('')
         return cls ()
