@@ -1,5 +1,6 @@
 # encoding: utf-8
 # author:   Jan Hybs
+import re
 
 
 class texlist (list):
@@ -9,9 +10,9 @@ class texlist (list):
         self.counter = 1
 
     def tag (self, field_name, *values):
-        self.append ('\\' + field_name)
+        self.slash (field_name)
         for value in values:
-            self.add (value)
+            self.add_s (value)
 
         return self
 
@@ -24,6 +25,20 @@ class texlist (list):
         self.append ("{" + value + "}")
         return self
 
+    def add_s (self, value=''):
+        '''
+        Add field with value escaped
+        '''
+        self.append ("{" + self.escape (value) + "}")
+        return self
+
+    def add_d (self, value=''):
+        '''
+        Add field with value underscores replaced by dashed
+        '''
+        self.append ("{" + self.secure (value) + "}")
+        return self
+
     def open (self):
         self.append ('{')
         return self
@@ -33,8 +48,8 @@ class texlist (list):
         return self
 
     def hyperB (self, value, n='IT::'):
-        self.tag ('hyperB', self.u2d ((n if n.endswith ('::') else n + '::') + value))
-        self.add (self.u2s (value))
+        self.tag ('hyperB', self.secure ((n if n.endswith ('::') else n + '::') + value))
+        self.add ('hyperB:' + self.escape (value))
 
         return self
 
@@ -46,14 +61,14 @@ class texlist (list):
         return self
 
     def Alink (self, value, n="IT::"):
-        self.tag ('Alink', self.u2d ((n if n.endswith ('::') else n + '::') + value))
-        self.add (self.u2s (value))
+        self.tag ('Alink', self.secure ((n if n.endswith ('::') else n + '::') + value))
+        self.add ('Alink:' + self.escape (value))
 
         return self
 
     def textlangle (self, value, namespace='\\it '):
         self.slash ('textlangle')
-        self.add (namespace + value + ' ')
+        self.add (self.escape (namespace + value + ' ').lower ())
         self.slash ('textrangle')
 
         return self
@@ -94,10 +109,18 @@ class texlist (list):
         self.add (self.description (value))
 
     def description (self, value):
-        return value.strip ().replace ('\n', '\\\\').replace ('\\n', '\\\\')
+        return self.escape (value.strip ().replace ('\n', '\\\\'))
 
-    def u2d (self, value):
-        return value.replace ('_', '-')
+    def secure (self, value):
+        return value \
+            .replace ('_', '-') \
+            .replace ('>', '') \
+            .replace ('<', '')
 
-    def u2s (self, value):
-        return value.replace ('_', '\\_')
+    def escape (self, value):
+        value = re.sub (r'\$ElementData', r'\$ElementData', value)
+        value = value \
+            .replace ('_', '\\_') \
+            .replace ('->', '$\\rightarrow$') \
+            .replace ('<-', '$\\leftarrow$')
+        return value
