@@ -26,9 +26,21 @@ class ISTNode (object):
 
         return self
 
+    def get (self, *args):
+        for arg in args:
+            value = getattr (self, arg, None)
+            if value is not None:
+                return value
+
+        raise Exception ('no valid attribute within {} found on {}', args, self.__class__.__name__)
+
 
     def copy (self):
-        return self.__class__()
+        '''
+        Return copy of this instance
+        :return:
+        '''
+        return self.__class__ ()
 
     def __repr__ (self):
         return '<{self.__class__.__name__} {self._fields}>'.format (self=self)
@@ -50,21 +62,64 @@ class Reference (ISTNode):
 
 
 class NumberRange (ISTNode):
-    def parse (self, o=[]):
-        try:
-            self.min = o[0]
-        except:
-            self.min = None
+    def __init__ (self, always_visible=True):
+        super (NumberRange, self).__init__ ()
+        self.min = self.max = ''
+        self.always_visible = always_visible
 
-        try:
-            self.max = o[1]
-        except:
-            self.max = None
+    replacements = {
+        '2147483647': '',
+        '4294967295': '',
+        '-2147483647': '',
+        '1.79769e+308': '',
+        '-1.79769e+308': '',
+        '': 'unknown range'
+    }
+
+
+    def parse (self, o=[]):
+        self.min = o[0] if len (o) > 0 else ''
+        self.max = o[1] if len (o) > 1 else ''
 
         return self
 
+    def is_pointless (self):
+        '''
+        Wheather is information within this instance beneficial
+        '''
+        return self._format () in ('[0, ]', '[, ]')
+
+    def _format (self):
+        '''
+        Method will will return string representation of this instance
+        :return:
+        '''
+        return '[{}, {}]'.format (
+            self.replacements.get (str (self.min), self.min),
+            self.replacements.get (str (self.max), self.max)
+        )
+
+    def copy (self):
+        return NumberRange (self.always_visible)
+
     def __repr__ (self):
-        return '<NumberRange {{{self.min} , {self.max}}}>'.format (self=self)
+        '''
+        method will return string representation if is meaningful or flag always visible
+        is True
+        :return:
+        '''
+        return self._format () if self.always_visible or not self.is_pointless () else ''
+
+
+class DoubleRange (NumberRange):
+    def __init__ (self, always_visible=False):
+        super (DoubleRange, self).__init__ (always_visible)
+
+    def is_pointless (self):
+        return self._format () == '[, ]'
+
+    def copy (self):
+        return DoubleRange (self.always_visible)
 
 
 class AbstractNode (ISTNode):
@@ -101,7 +156,8 @@ class Record (DescriptionNode):
         Field ('input_type'),
         Field ('type_full_name'),
         Field ('keys', TypedList (RecordKey)),
-        Field ('implements', TypedList (Reference))
+        Field ('implements', TypedList (Reference)),
+        Field ('reducible_to_key')
     ]
 
 
@@ -115,7 +171,7 @@ class AbstractRecord (Record):
 
 
 class SelectionValue (DescriptionNode):
-    _fields = AbstractNode._fields + [
+    _fields = DescriptionNode._fields + [
         Field ('name')
     ]
 
@@ -139,7 +195,7 @@ class Double (AbstractNode):
     _fields = AbstractNode._fields + [
         Field ('name'),
         Field ('full_name'),
-        Field ('range', NumberRange ())
+        Field ('range', DoubleRange ())
     ]
 
 
@@ -168,11 +224,12 @@ class Bool (AbstractNode):
 
 class Array (AbstractNode):
     _fields = AbstractNode._fields + [
-        Field ('range', NumberRange ()),
+        Field ('range', NumberRange (False)),
         Field ('subtype', Reference ())
     ]
 
 
+# all acceptable input_type
 registered_nodes = {
     'Record': Record,
     'AbstractRecord': AbstractRecord,
@@ -184,7 +241,3 @@ registered_nodes = {
     'Bool': Bool,
     'Array': Array
 }
-
-
-
-# ['', u'Selection', u'String', u'Double', u'FileName', u'Record', u'Bool', u'Integer', u'Array', u'AbstractRecord']
