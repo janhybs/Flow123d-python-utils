@@ -13,7 +13,7 @@
 \KeyItem{\hyperB{SequentialCoupling::secondary-equation}{secondary\_equation}}{abstract type: \Alink{IT::Transport}{Transport}}{\textlangle{\it optional }\textrangle}{}{The equation that depends (the velocity field) on the result of the primary equation.}
 \end{RecordType}
 """
-from ist.nodes import Bool, AbstractRecord, Selection
+from ist.nodes import Bool, AbstractRecord, Selection, Integer, DescriptionNode, String
 from ist.utils.texlist import texlist
 
 ur"""
@@ -69,8 +69,9 @@ class LatexSelection (LatexItemFormatter):
 
         with tex:
             tex.append ('selection: ')
-            tex.append (tex.u2s (self_selection.name))
-        tex.add (record_key.default.value)
+            # tex.append (tex.escape (self_selection.name)) # TODO with or without Alink
+            tex.Alink (self_selection.name)
+        tex.add_s (record_key.default.value)
         tex.add ()
         tex.add_description_field (record_key.description)
 
@@ -90,8 +91,8 @@ class LatexSelection (LatexItemFormatter):
     # {
     # "name": "METIS",
     # "description": "Use direct interface to Metis."
-    #      }
-    #   ]
+    # }
+    # ]
     # }
     #
     # \begin{SelectionType}{\hyperB{IT::PartTool}{PartTool}}{Select the partitioning tool to use.}
@@ -102,8 +103,8 @@ class LatexSelection (LatexItemFormatter):
     # SelectionType environment
     # usage:
     # \begin{SelectionType}{<selection name>}{< selection description>}
-    #       \KeyItem{<value name>}{<value>}
-    #       Key value description.
+    # \KeyItem{<value name>}{<value>}
+    # Key value description.
     # \end{SelectionType}
 
     def format (self, selection):
@@ -116,7 +117,7 @@ class LatexSelection (LatexItemFormatter):
 
             for selection_value in selection.values:
                 tex.newline ()
-                tex.KeyItem (selection_value.name, selection.description)
+                tex.KeyItem (selection_value.name, selection_value.description)
             tex.newline ()
 
         return tex
@@ -180,17 +181,17 @@ class LatexAbstractRecord (LatexItemFormatter):
         super (LatexAbstractRecord, self).__init__ ('AbstractType')
 
     # {
-    #    "key": "primary_equation",
-    #    "description": "Primary equation, have all data given.",
-    #    "default": {
-    #       "type": "obligatory",
-    #       "value": "OBLIGATORY"
-    #    },
-    #    "type": "89b3f40b6e805da8"
+    # "key": "primary_equation",
+    # "description": "Primary equation, have all data given.",
+    # "default": {
+    # "type": "obligatory",
+    # "value": "OBLIGATORY"
+    # },
+    # "type": "89b3f40b6e805da8"
     # },
     # \KeyItem{\hyperB{SequentialCoupling::primary-equation}{primary\_equation}}
-    #         {abstract type: \Alink{IT::DarcyFlowMH}{DarcyFlowMH}}
-    #         {\textlangle{\it obligatory }\textrangle}
+    # {abstract type: \Alink{IT::DarcyFlowMH}{DarcyFlowMH}}
+    # {\textlangle{\it obligatory }\textrangle}
     #         {}
     #         {Primary equation, have all data given.}
 
@@ -205,7 +206,7 @@ class LatexAbstractRecord (LatexItemFormatter):
             tex.Alink (abstract_record.name)
 
         with tex:
-            tex.textlangle (record_key.default.type)
+            tex.textlangle (record_key.default.type)  # TODO detault value ot type?
         tex.add ()
         tex.add_description_field (record_key.description)
 
@@ -255,10 +256,10 @@ class LatexAbstractRecord (LatexItemFormatter):
 
 
 # {
-#   "id": "29b5533100b6f60f",
-#   "input_type": "String",
-#   "name": "String",
-#   "full_name": "String"
+# "id": "29b5533100b6f60f",
+# "input_type": "String",
+# "name": "String",
+# "full_name": "String"
 # }
 #
 # %       \KeyItem{<name>}                % name of the key
@@ -280,11 +281,11 @@ class LatexString (LatexItemFormatter):
 
     # {
     # "id": "b9614d55a6c3462e",
-    #   "input_type": "Record",
-    #   "type_name": "Region",
-    #   "type_full_name": "Region",
-    #   "description": "Definition of region of elements.",
-    #   "keys": [
+    # "input_type": "Record",
+    # "type_name": "Region",
+    # "type_full_name": "Region",
+    # "description": "Definition of region of elements.",
+    # "keys": [
     #      {
     #         "key": "name",
     #         "type": "<<REFERENCE_ID>>",
@@ -319,11 +320,11 @@ class LatexString (LatexItemFormatter):
 #
 # usage:
 # \begin{RecordType}
-#       {<record name>}                 % name of the record, used for header and for hypertarget in form IT::<record name>
-#       {<parent abstract record>}      % possible parent abstract record
-#       {<default conversion key>}      % possible auto conversion key
-#       {<link>}                        % possible hyperlink into hand written text
-#       {< record description>}         % description of the record
+# {<record name>}                 % name of the record, used for header and for hypertarget in form IT::<record name>
+# {<parent abstract record>}      % possible parent abstract record
+# {<default conversion key>}      % possible auto conversion key
+# {<link>}                        % possible hyperlink into hand written text
+# {< record description>}         % description of the record
 #
 #       \KeyItem{<name>}                % name of the key
 #               {<type>}                % type of the key
@@ -365,7 +366,7 @@ class LatexRecord (LatexItemFormatter):
             tex.append ('record: ')
             tex.Alink (self_record.type_name)
         with tex:
-            tex.textlangle (record_key.default.type)
+            tex.textlangle (record_key.default.value)  # TODO detault value ot type?
         tex.add ()
         tex.add_description_field (record_key.description)
 
@@ -429,7 +430,7 @@ class LatexRecord (LatexItemFormatter):
             with tex:
                 tex.hyperB (record.type_name)
 
-            # TODO what if multiple inheritance?
+            # TODO what if multiple inheritance? list
             if reference_list:
                 with tex:
                     for reference in reference_list:
@@ -437,8 +438,13 @@ class LatexRecord (LatexItemFormatter):
             else:
                 tex.add ()
 
+            # TODO default auto conversion key
+            if record.reducible_to_key:
+                with tex:
+                    tex.Alink (record.reducible_to_key, record.type_name)
+            else:
+                tex.add ()
 
-            tex.add ()  # TODO default auto conversion key
             tex.add ()  # TODO hyperlink into hand written text
             tex.add_description_field (record.description)
 
@@ -475,8 +481,11 @@ class LatexUniversal (LatexItemFormatter):
 
     def _end_format_as_child (self, self_object, record_key, record):
         tex = texlist ()
+
+        # TODO textlangle or not?
         with tex:
-            tex.textlangle (record_key.default.type)
+            tex.textlangle (record_key.default.value)
+            # tex.append (record_key.default.value)
         tex.add ()
         tex.add_description_field (record_key.description)
 
@@ -495,8 +504,29 @@ class LatexUniversal (LatexItemFormatter):
 
 class LatexArray (LatexUniversal):
     def _format_as_child (self, self_array, record_key, record):
+        subtype = self_array.subtype.get_reference ()
         tex = texlist ()
-        tex.add ('Array of HOW_TO_DETERMINE_TYPE')
+        with tex:
+            if type (subtype) == Integer:
+                tex.append ('Array of {subtype} {subrange}'.format (
+                    range=self_array.range, subtype=subtype.input_type,
+                    subrange=subtype.range))
+            else:
+                tex.append ('Array{range} of {subtype}'.format (
+                    range=' ' + str (self_array.range) if not self_array.range.is_pointless () else '',
+                    subtype=subtype.input_type))
+
+            if type (subtype) == String:
+                tex.append (' (generic)')
+
+            # TODO link to complex type only?
+            if issubclass (subtype.__class__, DescriptionNode):
+                tex.append (': ')
+                tex.Alink (subtype.get ('type_name', 'name'))
+            else:
+                # no link
+                pass
+
         return tex
 
 
@@ -506,6 +536,14 @@ class LatexInteger (LatexUniversal):
         tex.add ('Integer' + str (self_int.range))
         return tex
 
+    def _end_format_as_child (self, self_object, record_key, record):
+        tex = texlist ()
+        # TODO textlangle or not?
+        tex.add (record_key.default.value)
+        tex.add ()
+        tex.add_description_field (record_key.description)
+        return tex
+
 
 class LatexDouble (LatexUniversal):
     def _format_as_child (self, self_double, record_key, record):
@@ -513,11 +551,27 @@ class LatexDouble (LatexUniversal):
         tex.add ('Double' + str (self_double.range))
         return tex
 
+    def _end_format_as_child (self, self_object, record_key, record):
+        tex = texlist ()
+        # TODO textlangle or not?
+        tex.add (record_key.default.value)
+        tex.add ()
+        tex.add_description_field (record_key.description)
+        return tex
+
 
 class LatexBool (LatexUniversal):
     def _format_as_child (self, self_bool, record_key, record):
         tex = texlist ()
         tex.add ('Bool')
+        return tex
+
+    def _end_format_as_child (self, self_object, record_key, record):
+        tex = texlist ()
+        tex.add (record_key.default.value)
+        tex.add ()
+        tex.add_description_field (record_key.description)
+
         return tex
 
 
@@ -565,3 +619,6 @@ class LatexFormatter (object):
         if cls is None:
             cls = LatexFormatter.formatters.get ('')
         return cls ()
+
+
+    # TODO default_descendant
