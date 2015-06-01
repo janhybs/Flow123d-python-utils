@@ -26,6 +26,9 @@ class ISTNode (object):
 
         return self
 
+    def include_in_format (self):
+        return True
+
     def get (self, *args):
         for arg in args:
             value = getattr (self, arg, None)
@@ -52,13 +55,16 @@ class Reference (ISTNode):
         return self
 
     def get_reference (self):
-        return Globals.items.get (self.ref_id, None)
+        return Globals.items.get (str (self.ref_id), None)
 
     def copy (self):
         return Reference ()
 
     def __repr__ (self):
         return "<Reference ({self.ref_id}) -> {ref}>".format (self=self, ref=self.get_reference ())
+
+    def __nonzero__ (self):
+        return self.get_reference () is not None
 
 
 class NumberRange (ISTNode):
@@ -135,7 +141,7 @@ class DescriptionNode (AbstractNode):
     ]
 
 
-class RecordKeyNode (AbstractNode):
+class RecordKeyDefault (AbstractNode):
     _fields = AbstractNode._fields + [
         Field ('type'),
         Field ('value')
@@ -146,8 +152,11 @@ class RecordKey (DescriptionNode):
     _fields = DescriptionNode._fields + [
         Field ('key'),
         Field ('type', Reference ()),
-        Field ('default', RecordKeyNode ())
+        Field ('default', RecordKeyDefault ())
     ]
+
+    def include_in_format (self):
+        return self.key.find ('TYPE') == -1
 
 
 class Record (DescriptionNode):
@@ -182,6 +191,9 @@ class Selection (DescriptionNode):
         Field ('name'),
         Field ('full_name')
     ]
+
+    def include_in_format (self):
+        return self.name.find ('TYPE') == -1
 
 
 class String (AbstractNode):

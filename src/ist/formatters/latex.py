@@ -13,7 +13,7 @@
 \KeyItem{\hyperB{SequentialCoupling::secondary-equation}{secondary\_equation}}{abstract type: \Alink{IT::Transport}{Transport}}{\textlangle{\it optional }\textrangle}{}{The equation that depends (the velocity field) on the result of the primary equation.}
 \end{RecordType}
 """
-from ist.nodes import Bool, AbstractRecord, Selection, Integer, DescriptionNode, String
+from ist.nodes import Bool, AbstractRecord, Selection, Integer, DescriptionNode, String, ISTNode
 from ist.utils.texlist import texlist
 
 ur"""
@@ -69,8 +69,11 @@ class LatexSelection (LatexItemFormatter):
 
         with tex:
             tex.append ('selection: ')
-            # tex.append (tex.escape (self_selection.name)) # TODO with or without Alink
-            tex.Alink (self_selection.name)
+            if self_selection.include_in_format ():
+                tex.Alink (self_selection.name)
+            else:
+                tex.append (tex.escape (self_selection.name))
+
         tex.add_s (record_key.default.value)
         tex.add ()
         tex.add_description_field (record_key.description)
@@ -192,8 +195,8 @@ class LatexAbstractRecord (LatexItemFormatter):
     # \KeyItem{\hyperB{SequentialCoupling::primary-equation}{primary\_equation}}
     # {abstract type: \Alink{IT::DarcyFlowMH}{DarcyFlowMH}}
     # {\textlangle{\it obligatory }\textrangle}
-    #         {}
-    #         {Primary equation, have all data given.}
+    # {}
+    # {Primary equation, have all data given.}
 
     def format_as_child (self, abstract_record, record_key, record):
         tex = texlist ()
@@ -205,8 +208,9 @@ class LatexAbstractRecord (LatexItemFormatter):
             tex.append ('abstract type: ')
             tex.Alink (abstract_record.name)
 
-        with tex:
-            tex.textlangle (record_key.default.type)  # TODO detault value ot type?
+        tex.extend (
+            LatexRecordKeyDefault ().format_as_child (record_key.default, record_key, record)
+        )
         tex.add ()
         tex.add_description_field (record_key.description)
 
@@ -214,22 +218,22 @@ class LatexAbstractRecord (LatexItemFormatter):
 
 
     # {
-    #   "id": "89b3f40b6e805da8",
-    #   "input_type": "AbstractRecord",
-    #   "name": "DarcyFlowMH",
-    #   "full_name": "DarcyFlowMH",
-    #   "description": "Mixed-Hybrid  solver for saturated Darcy flow.",
-    #   "implementations": [
-    #      "3d0fe10b33e5936b",
-    #      "8d74b0bcfe5f8833",
-    #      "5bf2d1a105220256"
-    #   ]
+    # "id": "89b3f40b6e805da8",
+    # "input_type": "AbstractRecord",
+    # "name": "DarcyFlowMH",
+    # "full_name": "DarcyFlowMH",
+    # "description": "Mixed-Hybrid  solver for saturated Darcy flow.",
+    # "implementations": [
+    # "3d0fe10b33e5936b",
+    # "8d74b0bcfe5f8833",
+    # "5bf2d1a105220256"
+    # ]
     # },
     # \begin{AbstractType}
-    #       {\hyperB{IT::DarcyFlowMH}{DarcyFlowMH}}
-    #       {}
-    #       {}
-    #       {Mixed-Hybrid  solver for saturated Darcy flow.}
+    # {\hyperB{IT::DarcyFlowMH}{DarcyFlowMH}}
+    # {}
+    # {}
+    # {Mixed-Hybrid  solver for saturated Darcy flow.}
     # \Descendant{\Alink{IT::Steady-MH}{Steady\_MH}}
     # \Descendant{\Alink{IT::Unsteady-MH}{Unsteady\_MH}}
     # \Descendant{\Alink{IT::Unsteady-LMH}{Unsteady\_LMH}}
@@ -241,8 +245,16 @@ class LatexAbstractRecord (LatexItemFormatter):
         with tex.element ():
             with tex:
                 tex.hyperB (abstract_record.name)
-            tex.add ()
-            tex.add ()
+
+            if abstract_record.default_descendant:
+                reference = abstract_record.default_descendant.get_reference ()
+                with tex:
+                    tex.Alink (reference.type_name)
+                with tex:
+                    tex.AddDoc (abstract_record.name)
+            else:
+                tex.add ()
+                tex.add ()
             tex.add_description_field (abstract_record.description)
 
             for descendant in abstract_record.implementations:
@@ -253,7 +265,6 @@ class LatexAbstractRecord (LatexItemFormatter):
             tex.newline ()
 
         return tex
-
 
 # {
 # "id": "29b5533100b6f60f",
@@ -286,20 +297,20 @@ class LatexString (LatexItemFormatter):
     # "type_full_name": "Region",
     # "description": "Definition of region of elements.",
     # "keys": [
-    #      {
-    #         "key": "name",
-    #         "type": "<<REFERENCE_ID>>",
-    #         "description": "Label (name) of the region. Has to be unique in one mesh.\n",
-    #         "default": {
-    #            "type": "obligatory",
-    #            "value": "OBLIGATORY"
-    #         },
+    # {
+    # "key": "name",
+    # "type": "<<REFERENCE_ID>>",
+    # "description": "Label (name) of the region. Has to be unique in one mesh.\n",
+    # "default": {
+    # "type": "obligatory",
+    # "value": "OBLIGATORY"
+    # },
     #
     # \KeyItem{\hyperB{Region::name}{name}}
-    #         {String (generic)}
-    #         {\textlangle{\it obligatory }\textrangle}
-    #         {}
-    #         {Label (name) of the region. Has to be unique in one mesh.\\}
+    # {String (generic)}
+    # {\textlangle{\it obligatory }\textrangle}
+    # {}
+    # {Label (name) of the region. Has to be unique in one mesh.\\}
 
     def format_as_child (self, self_string, record_key, record):
         tex = texlist ()
@@ -326,12 +337,12 @@ class LatexString (LatexItemFormatter):
 # {<link>}                        % possible hyperlink into hand written text
 # {< record description>}         % description of the record
 #
-#       \KeyItem{<name>}                % name of the key
-#               {<type>}                % type of the key
-#               {<default value>}       % type of default value and possibly the value itself
-#               {<link>}                %  possible hyperlink to hand written text
-#               {<key description>}     % description of the key
-#       ...
+# \KeyItem{<name>}                % name of the key
+# {<type>}                % type of the key
+# {<default value>}       % type of default value and possibly the value itself
+# {<link>}                %  possible hyperlink to hand written text
+# {<key description>}     % description of the key
+# ...
 # \end{RecordType}
 
 class LatexRecord (LatexItemFormatter):
@@ -343,17 +354,17 @@ class LatexRecord (LatexItemFormatter):
     # "key": "mesh",
     # "description": "Computational mesh common to all equations.",
     # "default": {
-    #    "type": "obligatory",
-    #    "value": "OBLIGATORY"
+    # "type": "obligatory",
+    # "value": "OBLIGATORY"
     # },
     # "type": "c57e1ac33a446313"
     # },
     #
     # \KeyItem{\hyperB{SequentialCoupling::mesh}{mesh}}
-    #         {record: \Alink{IT::Mesh}{Mesh}}
-    #         {\textlangle{\it obligatory }\textrangle}
-    #         {}
-    #         {Computational mesh common to all equations.}
+    # {record: \Alink{IT::Mesh}{Mesh}}
+    # {\textlangle{\it obligatory }\textrangle}
+    # {}
+    # {Computational mesh common to all equations.}
 
 
     def format_as_child (self, self_record, record_key, record):
@@ -365,20 +376,22 @@ class LatexRecord (LatexItemFormatter):
         with tex:
             tex.append ('record: ')
             tex.Alink (self_record.type_name)
-        with tex:
-            tex.textlangle (record_key.default.value)  # TODO detault value ot type?
+
+        tex.extend (
+            LatexRecordKeyDefault ().format_as_child (record_key.default, record_key, record)
+        )
         tex.add ()
         tex.add_description_field (record_key.description)
 
         return tex
 
     # {
-    #   "id": "81a9cc0d6917a75",
-    #   "input_type": "Record",
-    #   "type_name": "SequentialCoupling",
-    #   "type_full_name": "SequentialCoupling:Problem",
-    #   "description": "Record with data for a general sequential coupling.\n",
-    #   "implements": [
+    # "id": "81a9cc0d6917a75",
+    # "input_type": "Record",
+    # "type_name": "SequentialCoupling",
+    # "type_full_name": "SequentialCoupling:Problem",
+    # "description": "Record with data for a general sequential coupling.\n",
+    # "implements": [
     #      "1b711c7cb758740"
     #   ],
     #   "keys": [
@@ -438,19 +451,23 @@ class LatexRecord (LatexItemFormatter):
             else:
                 tex.add ()
 
-            # TODO default auto conversion key
             if record.reducible_to_key:
                 with tex:
                     tex.Alink (record.reducible_to_key, record.type_name)
             else:
                 tex.add ()
 
-            tex.add ()  # TODO hyperlink into hand written text
+            # hyperlink into hand written text
+            # LATER it can removed since is not used anymore
+            tex.add ()
             tex.add_description_field (record.description)
 
             # record keys
             for record_key in record.keys:
                 # try:
+                # if not record_key.include_in_format ():
+                #     continue
+
                 tex.newline ()
                 fmt = LatexFormatter.get_formatter_for (record_key)
                 tex.extend (fmt.format (record_key, record))
@@ -462,11 +479,41 @@ class LatexRecord (LatexItemFormatter):
         return tex
 
 
+class LatexRecordKeyDefault (LatexItemFormatter):
+    def __init__ (self):
+        super (LatexRecordKeyDefault, self).__init__ ('')
+
+        self.format_rules = {
+            'value at read time': self.raw_format,
+            'value at declaration': self.textlangle_format,
+            'optional': self.textlangle_format,
+            'obligatory': self.textlangle_format
+        }
+
+    def format_as_child (self, self_default, record_key, record):
+        method = self.format_rules.get (self_default.type, None)
+        if method:
+            return method (self_default, record_key, record)
+
+        return LatexRecordKeyDefault.textlangle_format (self_default, record_key, record)
+
+    def textlangle_format (self, self_default, record_key, record):
+        tex = texlist ()
+        with tex:
+            tex.textlangle (self_default.value)
+        return tex
+
+    def raw_format (self, self_default, record_key, record):
+        tex = texlist ()
+        tex.add_s (self_default.value)
+        return tex
+
+
 class LatexUniversal (LatexItemFormatter):
     def __init__ (self):
         super (LatexUniversal, self).__init__ ('')
 
-    #\KeyItem
+    # \KeyItem
     # {\hyperB{Mesh::regions}{regions}}
     # {Array  of record: \Alink{IT::Region}{Region}}
     # {\textlangle{\it optional }\textrangle}
@@ -482,10 +529,9 @@ class LatexUniversal (LatexItemFormatter):
     def _end_format_as_child (self, self_object, record_key, record):
         tex = texlist ()
 
-        # TODO textlangle or not?
-        with tex:
-            tex.textlangle (record_key.default.value)
-            # tex.append (record_key.default.value)
+        tex.extend (
+            LatexRecordKeyDefault ().format_as_child (record_key.default, record_key, record)
+        )
         tex.add ()
         tex.add_description_field (record_key.description)
 
@@ -519,7 +565,6 @@ class LatexArray (LatexUniversal):
             if type (subtype) == String:
                 tex.append (' (generic)')
 
-            # TODO link to complex type only?
             if issubclass (subtype.__class__, DescriptionNode):
                 tex.append (': ')
                 tex.Alink (subtype.get ('type_name', 'name'))
@@ -538,8 +583,9 @@ class LatexInteger (LatexUniversal):
 
     def _end_format_as_child (self, self_object, record_key, record):
         tex = texlist ()
-        # TODO textlangle or not?
-        tex.add (record_key.default.value)
+        tex.extend (
+            LatexRecordKeyDefault ().format_as_child (record_key.default, record_key, record)
+        )
         tex.add ()
         tex.add_description_field (record_key.description)
         return tex
@@ -553,8 +599,9 @@ class LatexDouble (LatexUniversal):
 
     def _end_format_as_child (self, self_object, record_key, record):
         tex = texlist ()
-        # TODO textlangle or not?
-        tex.add (record_key.default.value)
+        tex.extend (
+            LatexRecordKeyDefault ().format_as_child (record_key.default, record_key, record)
+        )
         tex.add ()
         tex.add_description_field (record_key.description)
         return tex
@@ -602,14 +649,21 @@ class LatexFormatter (object):
         tex = texlist ()
 
         for item in items:
-            try:
-                fmt = LatexFormatter.get_formatter_for (item)
-                tex.extend (fmt.format (item))
-                tex.newline ()
-                tex.newline ()
-            except Exception as e:
-                print e
-                continue
+            # format only IST nodes
+            if issubclass (item.__class__, ISTNode):
+
+                # do no format certain objects
+                if not item.include_in_format ():
+                    continue
+
+                try:
+                    fmt = LatexFormatter.get_formatter_for (item)
+                    tex.extend (fmt.format (item))
+                    tex.newline ()
+                    tex.newline ()
+                except Exception as e:
+                    print e
+                    continue
 
         return tex
 
@@ -621,4 +675,4 @@ class LatexFormatter (object):
         return cls ()
 
 
-    # TODO default_descendant
+        # TODO default_descendant

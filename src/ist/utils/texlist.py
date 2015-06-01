@@ -49,7 +49,7 @@ class texlist (list):
 
     def hyperB (self, value, n='IT::'):
         self.tag ('hyperB', self.secure ((n if n.endswith ('::') else n + '::') + value))
-        self.add ('hyperB:' + self.escape (value))
+        self.add (self.escape (value))
 
         return self
 
@@ -62,9 +62,12 @@ class texlist (list):
 
     def Alink (self, value, n="IT::"):
         self.tag ('Alink', self.secure ((n if n.endswith ('::') else n + '::') + value))
-        self.add ('Alink:' + self.escape (value))
+        self.add (self.escape (value))
 
         return self
+
+    def AddDoc (self, value):
+        self.slash ('AddDoc', self.escape (value))
 
     def textlangle (self, value, namespace='\\it '):
         self.slash ('textlangle')
@@ -82,7 +85,7 @@ class texlist (list):
         return self
 
     def open_element (self, name):
-        self.tag ('begin', self.name)
+        self.tag ('begin', name)
         return self
 
     def close_element (self, name):
