@@ -24,85 +24,47 @@
 # result = LatexFormatter.format (jsonObj)
 # result = ''.join(result)
 #
-#     with open ('../../docs/input_reference_red.tex', 'w') as fp:
-#         fp.write (result)
+# with open ('../../docs/input_reference_red.tex', 'w') as fp:
+# fp.write (result)
 #
 #
 
 from markdown import markdown
 import xml.etree.ElementTree as ET
+from ist.formatters.html2latex import Html2Latex
 from ist.utils.texlist import texlist
 
 latex = """
-**foo** *em* [link](g.com)
+# foo
+**strong** *em* [link](g.com)            ***strong-italic***
 
-* cascas
-* caas
-* caas
+If you can **please** do *this*:
+
+* hi
+* hello
+* greetings
+
+
+meaning __this__:
+
+1. foo
+2. bar
+3. stuff
+
+stuff
+
+```
+x = 0
+x = 2 + 2
+what is x
+```
 """
-html = markdown (latex)
-
+html = markdown (latex, extensions=['markdown.extensions.sane_lists', 'markdown.extensions.nl2br'])
 tree = ET.fromstring ('<html>' + html + "</html>")
 
 
-class LatexHref (object):
-    def to_latex (self, element):
-        tex = texlist ()
-        with tex:
-            tex.append ('\\href')
-            tex.add (element.attrib.get ('href'))
-            tex.add (element.text)
-        return tex
 
-
-class Html2Latex (object):
-    def to_latex (self, element):
-        tex = texlist ()
-
-        if element.tag == 'li':
-            with tex:
-                tex.append ('\\item ')
-                tex.append (element.text)
-
-        if element.tag == 'a':
-            tex.extend (LatexHref ().to_latex (element))
-
-        if element.tag == 'em':
-            with tex:
-                tex.tag ('it', element.text)
-
-        if element.tag == 'strong':
-            with tex:
-                tex.tag ('bf', element.text)
-
-        if element.tag == 'ul':
-            tex.append ('\\begin{itemize}')
-            tex.newline ()
-
-        if element.tag == 'ol':
-            tex.append ('\\begin{enumerate}')
-            tex.newline ()
-
-        # tex.append (element)
-        for child in element:
-            tex.extend (Html2Latex ().to_latex (child))
-
-        if element.tag == 'ul':
-            tex.append ('\\end{itemize}')
-
-        if element.tag == 'ol':
-            tex.append ('\\end{enumerate}')
-
-        if element.tag == 'li':
-            tex.newline ()
-
-        if element.tail:
-            tex.append (element.tail)
-
-        return tex
-
-
-tex = Html2Latex ().to_latex (tree)
+tex = Html2Latex (tree).to_latex ()
 print tex
 print html
 print ''.join (tex)
