@@ -35,7 +35,7 @@ class ISTNode (object):
             if value is not None:
                 return value
 
-        raise Exception ('no valid attribute within {} found on {}', args, self.__class__.__name__)
+        raise Exception ('no valid attribute within {} found on {}'.format (args, self.__class__.__name__))
 
 
     def copy (self):
