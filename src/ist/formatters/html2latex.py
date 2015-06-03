@@ -111,10 +111,20 @@ class Html2Latex (object):
 
 class LatexHref (Html2Latex):
     def to_latex (self):
-        self.tex.append ('\\href')
-        self.tex.add (self.el.attrib.get ('href'))
-        with self.tex:
-            self.tex.add (self.text ())
-            self.extend_children ()
-        self.add_tail ()
+
+        # Alink href?
+        if self.el.attrib.get ('data-href') == 'Alink':
+            url = self.el.attrib.get('href')
+            ns = self.el.attrib.get('data-ns')
+            text = self.text()
+            self.tex.Alink(url=url, ns=ns, text=text)
+            self.add_tail ()
+        else:
+        # other href
+            self.tex.append ('\\href')
+            self.tex.add (self.el.attrib.get ('href'))
+            with self.tex:
+                self.tex.add (self.text ())
+                self.extend_children ()
+            self.add_tail ()
         return self.tex

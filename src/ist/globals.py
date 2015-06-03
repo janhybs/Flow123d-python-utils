@@ -1,9 +1,10 @@
 # encoding: utf-8
 # author:   Jan Hybs
+from ist.utils.utils import TypedList
 
 
 class Globals (object):
-    items = {}
+    items = { }
     names = {
         'record': 'type_name',
         'abstractrecord': 'name',
@@ -12,13 +13,59 @@ class Globals (object):
     }
 
     @staticmethod
-    def get_by_name (name, type=''):
-        for (id, item) in Globals.items.iteritems():
+    def search_in_element (element, value):
+        from ist.nodes import Record
+
+        if type (element) is Record:
+            return getattr (element, value, None)
+
+        if type (element) is TypedList:
+            for item in element:
+                try:
+                    if item.get ('key', 'name').lower () == value.lower ():
+                        return item
+                except:
+                    pass
+            return None
+
+        # last resort
+        return getattr (element, value, None)
+
+
+    @staticmethod
+    def get_url_by_name (label, type=''):
+        '''
+        constructs and returns tuple (name, type, link) from given name and label
+        :param label: name#field where field is optional
+        :param type:
+        :return:
+        '''
+        parts = label.split ("#")
+        name = parts[0]
+        fields = parts[1:]
+
+        for (id, item) in Globals.items.iteritems ():
             try:
-                if item.get(Globals.names.get(type.lower())).lower() == name.lower():
-                    return item
+                if item.get ('type_name', 'name', 'id').lower () == name.lower ():
+
+                    # only link to item?
+                    if not fields:
+                        return item.get_name (), item.get_type (), 'IT::{}'.format (item.get_name ())
+
+                    # link to item's field
+                    if fields:
+                        curr = item
+                        for field in fields:
+                            find = Globals.search_in_element (curr, field)
+                            if not find:
+                                print 'cannot find {} on {}'.format (field, curr)
+                                return None
+                            # next level
+                            curr = find
+
+                        return curr.get_name (), curr.get_type (), '{}::{}'.format (item.get_name (), curr.get_name ())
             except:
                 # no such attribute
                 pass
 
-        return None
+        return (None, None, None)

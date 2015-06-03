@@ -5,7 +5,28 @@ from ist.utils.utils import Field, TypedList
 
 
 class ISTNode (object):
+    # type of the object (similar to __class__.__name__)
+    __type__ = ''
+
+    # name of the field, which stores value by which can be this object searched
+    __name_field__ = ''
+
+    # name of the field, which stores value, which is the most important to this object
+    __value_field__ = ''
+
     _fields = []
+
+
+    def get_name (self):
+        return getattr (self, self.__name_field__)
+
+
+    def get_type (self):
+        return self.__type__
+
+
+    def get_value (self):
+        return getattr (self, self.__value_field__)
 
     def parse (self, o={ }):
         for field in self._fields:
@@ -50,6 +71,9 @@ class ISTNode (object):
 
 
 class Reference (ISTNode):
+    __type__ = 'Reference'
+    __value_field__ = 'ref_id'
+
     def parse (self, o=''):
         self.ref_id = o
         return self
@@ -68,6 +92,10 @@ class Reference (ISTNode):
 
 
 class NumberRange (ISTNode):
+    __type__ = 'Range'
+    __name_field__ = ''
+    __value_field__ = ''
+
     def __init__ (self, always_visible=True):
         super (NumberRange, self).__init__ ()
         self.min = self.max = ''
@@ -118,6 +146,9 @@ class NumberRange (ISTNode):
 
 
 class DoubleRange (NumberRange):
+    __type__ = 'Range'
+    __name_field__ = ''
+
     def __init__ (self, always_visible=False):
         super (DoubleRange, self).__init__ (always_visible)
 
@@ -142,6 +173,10 @@ class DescriptionNode (AbstractNode):
 
 
 class RecordKeyDefault (AbstractNode):
+    __type__ = 'Defaults'
+    __name_field__ = ''
+    __value_field__ = 'value'
+
     _fields = AbstractNode._fields + [
         Field ('type'),
         Field ('value')
@@ -149,6 +184,10 @@ class RecordKeyDefault (AbstractNode):
 
 
 class RecordKey (DescriptionNode):
+    __type__ = 'Record key'
+    __name_field__ = 'key'
+    __value_field__ = 'default'
+
     _fields = DescriptionNode._fields + [
         Field ('key'),
         Field ('type', Reference ()),
@@ -160,6 +199,10 @@ class RecordKey (DescriptionNode):
 
 
 class Record (DescriptionNode):
+    __type__ = 'Record'
+    __name_field__ = 'type_name'
+    __value_field__ = 'type_name'
+
     _fields = DescriptionNode._fields + [
         Field ('type_name'),
         Field ('input_type'),
@@ -171,6 +214,10 @@ class Record (DescriptionNode):
 
 
 class AbstractRecord (Record):
+    __type__ = 'AbstractRecord'
+    __name_field__ = 'name'
+    __value_field__ = 'name'
+
     _fields = Record._fields + [
         Field ('implementations', TypedList (Reference)),
         Field ('default_descendant', Reference ()),
@@ -180,12 +227,20 @@ class AbstractRecord (Record):
 
 
 class SelectionValue (DescriptionNode):
+    __type__ = 'Selection value'
+    __name_field__ = 'name'
+    __value_field__ = 'name'
+
     _fields = DescriptionNode._fields + [
         Field ('name')
     ]
 
 
 class Selection (DescriptionNode):
+    __type__ = 'Selection'
+    __name_field__ = 'name'
+    __value_field__ = 'name'
+
     _fields = DescriptionNode._fields + [
         Field ('values', TypedList (SelectionValue)),
         Field ('name'),
@@ -197,6 +252,10 @@ class Selection (DescriptionNode):
 
 
 class String (AbstractNode):
+    __type__ = 'String'
+    __name_field__ = 'name'
+    __value_field__ = 'name'
+
     _fields = AbstractNode._fields + [
         Field ('name'),
         Field ('full_name')
@@ -204,6 +263,10 @@ class String (AbstractNode):
 
 
 class Double (AbstractNode):
+    __type__ = 'Double'
+    __name_field__ = 'name'
+    __value_field__ = 'range'
+
     _fields = AbstractNode._fields + [
         Field ('name'),
         Field ('full_name'),
@@ -212,6 +275,10 @@ class Double (AbstractNode):
 
 
 class Integer (AbstractNode):
+    __type__ = 'Integer'
+    __name_field__ = 'name'
+    __value_field__ = 'range'
+
     _fields = AbstractNode._fields + [
         Field ('name'),
         Field ('full_name'),
@@ -220,6 +287,10 @@ class Integer (AbstractNode):
 
 
 class FileName (AbstractNode):
+    __type__ = 'FileName'
+    __name_field__ = 'name'
+    __value_field__ = 'file_mode'
+
     _fields = AbstractNode._fields + [
         Field ('name'),
         Field ('full_name'),
@@ -228,6 +299,10 @@ class FileName (AbstractNode):
 
 
 class Bool (AbstractNode):
+    __type__ = 'Bool'
+    __name_field__ = 'name'
+    __value_field__ = ''
+
     _fields = AbstractNode._fields + [
         Field ('name'),
         Field ('full_name')
@@ -235,6 +310,10 @@ class Bool (AbstractNode):
 
 
 class Array (AbstractNode):
+    __type__ = 'Array'
+    __name_field__ = 'name'
+    __value_field__ = 'range'
+
     _fields = AbstractNode._fields + [
         Field ('range', NumberRange (False)),
         Field ('subtype', Reference ())

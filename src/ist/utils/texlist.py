@@ -47,10 +47,13 @@ class texlist (list):
         self.append ('}')
         return self
 
-    def hyperB (self, value, n='IT::'):
-        self.tag ('hyperB', self.secure ((n if n.endswith ('::') else n + '::') + value))
-        self.add (self.escape (value))
-
+    def hyperB (self, value, ns='IT::'):
+        if __debug__:
+            self.tag ('hyperB', self.secure ((ns if ns.endswith ('::') else ns + '::') + value))
+            self.add (self.escape ((ns if ns.endswith ('::') else ns + '::') + value))
+        else:
+            self.tag ('hyperB', self.secure ((ns if ns.endswith ('::') else ns + '::') + value))
+            self.add (self.escape (value))
         return self
 
     def slash (self, value=''):
@@ -60,9 +63,16 @@ class texlist (list):
 
         return self
 
-    def Alink (self, value, n="IT::"):
-        self.tag ('Alink', self.secure ((n if n.endswith ('::') else n + '::') + value))
-        self.add (self.escape (value))
+    def Alink (self, url, ns="IT::", text=None):
+        ns = ns if ns.endswith ('::') else ns + '::'
+        ns = ns if url.find('::') == -1 else ''
+
+        if __debug__:
+            self.tag ('Alink', self.secure (ns + url))
+            self.add (self.escape (ns + (url if text is None else text)))
+        else:
+            self.tag ('Alink', self.secure (ns + url))
+            self.add (self.escape (url if text is None else text))
 
         return self
 

@@ -15,6 +15,7 @@ from markdown.extensions import Extension
 from markdown.inlinepatterns import Pattern
 from markdown.util import etree
 import re
+from ist.globals import Globals
 
 
 def build_url (label, base, end):
@@ -35,7 +36,7 @@ class FlowLinkExtension (Extension):
 
         # append to end of inline patterns
         # WIKILINK_RE = r'\[\[([\w0-9_ -]+)\]\]'
-        WIKILINK_RE = r'\[\[([\w0-9-]+_[\w0-9_-]+)\]\]'
+        WIKILINK_RE = r'\[\[([\w0-9-]+_[\w0-9_#-]+)\]\]'
         wikilinkPattern = FlowLinks (WIKILINK_RE, self.getConfigs ())
         wikilinkPattern.md = md
         md.inlinePatterns.add ('wikilink', wikilinkPattern, "<not_strong")
@@ -47,25 +48,32 @@ class FlowLinks (Pattern):
         self.config = config
 
     def handleMatch (self, m):
-        print m
         if m.group (2).strip ():
             label = m.group (2).strip ()
-            (type, name) = label.split ("_", 1)
-            element = self.build_element(type, name)
+            (type, label) = label.split ("_", 1)
+            element = self.build_element (type, label)
             return element
         else:
             return ''
 
-    def build_element (self, type, value):
+    def build_element (self, type, label):
         if type.lower () == 'attribute':
             p = etree.Element ('p')
             p.text = 'attribute value here'
             return p
 
         if type.lower () in ('record', 'abstractrecord', 'selection'):
+
+            # find item which is desired
+            (name, type, link) = Globals.get_url_by_name (label)
+            if not link:
+                return None
+
             a = etree.Element ('a')
-            a.text = value
-            a.set('href', value)
+            a.text = '{name} ({type})'.format (name=name, type=type)
+            a.set ('data-href', 'Alink')
+            a.set ('href', link)
+            a.set ('data-ns', 'IT::')
             return a
 
         print 'unknown type'
