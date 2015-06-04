@@ -3,6 +3,8 @@
 
 #
 import json
+import sys
+from ist.formatters.extensions.md_latex import MdLatexSupport
 from ist.formatters.json2latex import LatexRecord, LatexFormatter
 from ist.globals import Globals
 from ist.nodes import TypedList, Array
@@ -24,15 +26,12 @@ with open (json_location, 'r') as fp:
 
 result = LatexFormatter.format (jsonObj)
 
-
-
-
 import xml.etree.ElementTree as ET
 import markdown
 from ist.formatters.html2latex import Html2Latex
 from ist.utils.texlist import texlist
 
-latex = """
+markdown_example = """
 # Simple md support
 
 showcase of **strong** and *em* fonts (or ***both***), links to [Google](google.com)
@@ -70,26 +69,56 @@ or like this:
 - [[selection_PartTool]]
 - [[record_SoluteTransport_DG_Data#keys#diff_m]]
 
+Using latex in md:
+
+(( \\textbf{bold} and \\textit{italic} font ))
+
+or like this: (( $x=\\frac{1+y}{1+2z^2}$ )) bigger?
+
+
+(( $$x=\\frac{1+y}{1+2z^2}$$ ))
+
+or
+
+(($$
+ \\frac{1}{\displaystyle 1+
+   \\frac{1}{\displaystyle 2+
+   \\frac{1}{\displaystyle 3+x}}} +
+ \\frac{1}{1+\\frac{1}{2+\\frac{1}{3+x}}}
+$$))
+
+or
+
+((
+\\begin{eqnarray*}
+ e^x &\\approx& 1+x+x^2/2! + \\\\
+   && {}+x^3/3! + x^4/4! + \\\\
+   && + x^5/5!
+\\end{eqnarray*}
+))
+
+ca
+asc
+
 """
-html = markdown.markdown (latex, extensions=[
+
+md_latex = MdLatexSupport ()
+markdown_example = md_latex.prepare (markdown_example)
+html_example = markdown.markdown (markdown_example, extensions=[
     'markdown.extensions.sane_lists',
     'markdown.extensions.nl2br',
-    'ist.formatters.extensions.flowlinks'
-
-])
-tree = ET.fromstring ('<html>' + html + "</html>")
-
-
+    'ist.formatters.extensions.md_links'])
+html_example = md_latex.finish (html_example)
+tree = ET.fromstring ('<html_example>' + html_example + "</html_example>")
 
 tex = Html2Latex (tree).to_latex ()
 print '\n\n'
-print html
+print html_example
 print '\n\n'
 print ''.join (tex)
 
-
 result.extend (tex)
-result = ''.join(result)
+result = ''.join (result)
 
 with open ('../../docs/input_reference_red.tex', 'w') as fp:
     fp.write (result)

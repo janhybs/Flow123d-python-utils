@@ -13,7 +13,7 @@ class Html2Latex (object):
 
     def __init__ (self, element):
         if type (element) is str:
-            tree = ET.fromstring ('<html>' + element + "</html>")
+            tree = ET.fromstring ('<html_example>' + element + "</html_example>")
             self.el = tree
         else:
             self.el = element
@@ -98,6 +98,11 @@ class Html2Latex (object):
             self.extend_children ()
             self.tex.newline ()
             self.tex.close_element ('lstlisting')
+            self.add_tail ()
+
+        elif self.tag_is ('span'):
+            self.tex.append (self.text ())
+            self.extend_children ()
             self.add_tail ()
 
         else:
