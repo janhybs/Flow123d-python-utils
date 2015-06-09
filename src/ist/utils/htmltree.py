@@ -57,6 +57,9 @@ class htmltree(object):
         self.roots.append(element)
         return self
 
+    def description(self, value):
+        return self.tag('div', value, { 'class': 'description' })
+
     def __enter__(self):
         self.counter += 1
         return self
@@ -70,6 +73,6 @@ class htmltree(object):
         return ET.dump(self.root)
 
     def __repr__(self):
-        return self.dump()
+        return '<htmltree object>'
 
 

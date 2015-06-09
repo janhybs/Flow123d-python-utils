@@ -5,11 +5,15 @@
 import json
 import sys
 from ist.formatters.extensions.md_latex import MdLatexSupport
+from ist.formatters.json2html import HTMLSelection
 from ist.formatters.json2latex import LatexRecord, LatexFormatter
 from ist.globals import Globals
 from ist.nodes import TypedList, Array
 from ist.nodes import Record, AbstractRecord, Selection
 
+import xml.etree.ElementTree as ET
+import markdown
+from ist.formatters.html2latex import Html2Latex
 
 class ProfilerJSONDecoder (json.JSONDecoder):
     def decode (self, json_string):
@@ -24,11 +28,14 @@ with open (json_location, 'r') as fp:
     # parse json file
     jsonObj = json.load (fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
+
+selection_formatter = HTMLSelection ()
+selection_formatter.format(jsonObj[16])
+ET.dump(selection_formatter.current())
+
 result = LatexFormatter.format (jsonObj)
 
-import xml.etree.ElementTree as ET
-import markdown
-from ist.formatters.html2latex import Html2Latex
+
 from ist.utils.texlist import texlist
 
 markdown_example = """
