@@ -5,6 +5,16 @@
       "type_name": "Root",
       "type_full_name": "Root",
       "description": "Root record of JSON input for Flow123d.",
+      "attributes": [
+        {
+          "name": "attribute_1",
+          "value": "And its value"
+        },
+        {
+          "name": "attribute_2",
+          "value": "And its value"
+        }
+      ],
       "keys": [
          {
             "key": "problem",
