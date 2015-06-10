@@ -237,7 +237,7 @@ class HTMLFormatter(object):
 
     @staticmethod
     def format(items):
-        html = htmltree('body')
+        html = htmltree('div')
 
         for item in items:
             # format only IST nodes

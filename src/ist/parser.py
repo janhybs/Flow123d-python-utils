@@ -26,11 +26,18 @@ def json2latex(input_file='examples/example.json', output_file='../../docs/input
     with open(output_file, 'w') as fp:
         fp.write(latex_result)
 
-def json2html (input_file='examples/example.json', output_file='../../docs/input_reference_red.html'):
+
+def json2html(input_file='examples/example.json', output_file='../../docs/input_reference_red.html'):
     with open(input_file, 'r') as fp:
         json_object = json.load(fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
-    html_body = HTMLFormatter.format(json_object)
+    html_content = HTMLFormatter.format(json_object)
+
+    html_body = htmltree('body')
+    with html_body.open('div', '', { 'class': 'jumbotron' }):
+        with html_body.open('div', '', { 'class': 'container' }):
+            html_body.add(html_content.current())
+
     html_head = htmltree('head')
     html_head.tag('title', 'Flow123d input reference')
     html_head.style('css/main.css')
@@ -49,7 +56,7 @@ json2html()
 # md_latex = MdLatexSupport()
 # markdown_example = md_latex.prepare(markdown_example)
 # html_example = markdown.markdown(markdown_example, extensions=[
-#     'markdown.extensions.sane_lists',
+# 'markdown.extensions.sane_lists',
 #     'markdown.extensions.nl2br',
 #     'ist.formatters.extensions.md_links'])
 # html_example = md_latex.finish(html_example)

@@ -85,7 +85,7 @@ class htmltree(object):
         return self
 
     def dump(self):
-        return ET.tostring(self.root)
+        return ET.tostring(self.root, method='html')
 
     def __repr__(self):
         return '<htmltree object>'
