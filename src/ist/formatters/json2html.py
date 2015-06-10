@@ -161,8 +161,10 @@ class HTMLAbstractRecord(HTMLItemFormatter):
             self.href(reference.type_name)
             self.description(abstract_record.name)
 
+        self.description(abstract_record.description)
+
         for descendant in abstract_record.implementations:
-            with self.open('h2'):
+            with self.open('h3'):
                 self.span('Descendant')
                 self.href(descendant.get_reference().type_name)
 
@@ -176,7 +178,7 @@ class HTMLRecord(HTMLItemFormatter):
         self.span('record: ')
 
         with self.open('strong'):
-            self.href(self_record.name)
+            self.href(self_record.type_name)
 
         self.add(HTMLRecordKeyDefault().format_as_child(record_key.default, record_key, record))
         self.description(record_key.description)
