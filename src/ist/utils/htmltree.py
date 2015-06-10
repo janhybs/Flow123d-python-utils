@@ -85,9 +85,12 @@ class htmltree(object):
         return self
 
     def dump(self):
-        return ET.dump(self.root)
+        return ET.tostring(self.root)
 
     def __repr__(self):
         return '<htmltree object>'
+
+    def style(self, location):
+        self.tag('link', '', { 'rel': 'stylesheet', 'type': 'text/css', 'media': 'screen', 'href': location })
 
 
