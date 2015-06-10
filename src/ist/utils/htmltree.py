@@ -1,23 +1,29 @@
 # encoding: utf-8
 # author:   Jan Hybs
+import cgi
 
 import xml.etree.ElementTree as ET
 
 
 class htmltree(object):
-    def __init__(self, tag_name='div', *args, **kwargs):
-        self.root = ET.Element(tag_name)
+    def __init__(self, tag_name='div', cls='', *args, **kwargs):
+        self.attrib = { 'class': cls } if cls else { }
+        self.tag_name = tag_name
+        self.root = ET.Element(tag_name, self.attrib)
         self.counter = 0
         self.roots = [self.root]
 
     def tag(self, tag_name, value='', attrib={ }):
         element = ET.Element(tag_name, attrib)
-        element.text = value
+        element.text = cgi.escape(value)
         self.current().append(element)
         return element
 
     def current(self):
         return self.roots[self.counter]
+
+    def add(self, element):
+        return self.current().append(element)
 
     def h1(self, value='', attrib={ }):
         return self.tag('h1', value, attrib)
@@ -49,8 +55,17 @@ class htmltree(object):
     def div(self, value='', attrib={ }):
         return self.tag('div', value, attrib)
 
+    def bold(self, value='', attrib={ }):
+        return self.tag('strong', value, attrib)
+
+    def italic(self, value='', attrib={ }):
+        return self.tag('em', value, attrib)
+
     def li(self, value='', attrib={ }):
         return self.tag('li', value, attrib)
+
+    def href(self, href, value=''):
+        return self.tag('a', value if value else href, { 'href': href })
 
     def open(self, tag_name, value='', attrib={ }):
         element = self.tag(tag_name, value, attrib)

@@ -5,7 +5,7 @@
 import json
 import sys
 from ist.formatters.extensions.md_latex import MdLatexSupport
-from ist.formatters.json2html import HTMLSelection
+from ist.formatters.json2html import HTMLSelection, HTMLInteger, HTMLFormatter
 from ist.formatters.json2latex import LatexRecord, LatexFormatter
 from ist.globals import Globals
 from ist.nodes import TypedList, Array
@@ -29,12 +29,15 @@ with open (json_location, 'r') as fp:
     jsonObj = json.load (fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
 
-selection_formatter = HTMLSelection ()
-selection_formatter.format(jsonObj[16])
-ET.dump(selection_formatter.current())
-
-result = LatexFormatter.format (jsonObj)
-
+html = HTMLFormatter.format(jsonObj)
+# def f (o):
+#     print o
+#     for ch in o._children:
+#         f (ch)
+#
+# f (html.current())
+print html.dump()
+sys.exit(0)
 
 from ist.utils.texlist import texlist
 

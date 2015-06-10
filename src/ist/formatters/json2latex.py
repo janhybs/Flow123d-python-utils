@@ -615,7 +615,7 @@ class LatexBool (LatexUniversal):
 
     def _end_format_as_child (self, self_object, record_key, record):
         tex = texlist ()
-        tex.add (record_key.default.value)
+        tex.add (record_key.default.value) # todo LatexRecordKeyDefault
         tex.add ()
         tex.add_description_field (record_key.description)
 
@@ -662,7 +662,7 @@ class LatexFormatter (object):
                     tex.newline ()
                     tex.newline ()
                 except Exception as e:
-                    print e
+                    # print e
                     continue
 
         return tex
