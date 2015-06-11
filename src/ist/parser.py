@@ -32,16 +32,24 @@ def json2html(input_file='examples/example.json', output_file='../../docs/input_
         json_object = json.load(fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
     html_content = HTMLFormatter.format(json_object)
+    html_nav = HTMLFormatter.navigation_bar(json_object)
 
     html_body = htmltree('body')
     with html_body.open('div', '', { 'class': 'jumbotron' }):
         with html_body.open('div', '', { 'class': 'container' }):
-            html_body.add(html_content.current())
+            with html_body.open('h1', 'Flow123d '):
+                html_body.tag('small', 'input reference')
+
+            with html_body.open('div', attrib={ 'class': 'col-md-9' }):
+                html_body.add(html_content.current())
+            with html_body.open('div', attrib={ 'class': 'col-md-3' }):
+                html_body.add(html_nav.current())
 
     html_head = htmltree('head')
     html_head.tag('title', 'Flow123d input reference')
     html_head.style('css/main.css')
     html_head.style('css/bootstrap.min.css')
+    html_head.script('js/bootstrap.min.js')
 
     html = htmltree('html')
     html.add(html_head.current())
@@ -57,7 +65,7 @@ json2html()
 # markdown_example = md_latex.prepare(markdown_example)
 # html_example = markdown.markdown(markdown_example, extensions=[
 # 'markdown.extensions.sane_lists',
-#     'markdown.extensions.nl2br',
-#     'ist.formatters.extensions.md_links'])
+# 'markdown.extensions.nl2br',
+# 'ist.formatters.extensions.md_links'])
 # html_example = md_latex.finish(html_example)
 # tree = ET.fromstring('<html_example>' + html_example + "</html_example>")

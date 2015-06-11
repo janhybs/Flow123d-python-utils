@@ -226,7 +226,7 @@ class RecordKey(DescriptionNode):
 
 class String(AbstractNode):
     __type__ = 'String'
-    __name_field__ = 'name'
+    __name_field__ = ''
     __value_field__ = 'name'
 
     _fields = AbstractNode._fields + [
@@ -237,7 +237,7 @@ class String(AbstractNode):
 
 class Double(AbstractNode):
     __type__ = 'Double'
-    __name_field__ = 'name'
+    __name_field__ = ''
     __value_field__ = 'range'
 
     _fields = AbstractNode._fields + [
@@ -249,7 +249,7 @@ class Double(AbstractNode):
 
 class Integer(AbstractNode):
     __type__ = 'Integer'
-    __name_field__ = 'name'
+    __name_field__ = ''
     __value_field__ = 'range'
 
     _fields = AbstractNode._fields + [
@@ -261,7 +261,7 @@ class Integer(AbstractNode):
 
 class FileName(AbstractNode):
     __type__ = 'FileName'
-    __name_field__ = 'name'
+    __name_field__ = ''
     __value_field__ = 'file_mode'
 
     _fields = AbstractNode._fields + [
@@ -273,7 +273,7 @@ class FileName(AbstractNode):
 
 class Bool(AbstractNode):
     __type__ = 'Bool'
-    __name_field__ = 'name'
+    __name_field__ = ''
     __value_field__ = ''
 
     _fields = AbstractNode._fields + [
@@ -284,7 +284,7 @@ class Bool(AbstractNode):
 
 class Array(AbstractNode):
     __type__ = 'Array'
-    __name_field__ = 'name'
+    __name_field__ = ''
     __value_field__ = 'range'
 
     _fields = AbstractNode._fields + [

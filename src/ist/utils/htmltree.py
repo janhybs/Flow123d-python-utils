@@ -3,6 +3,7 @@
 import cgi
 
 import xml.etree.ElementTree as ET
+import re
 
 
 class htmltree(object):
@@ -25,11 +26,20 @@ class htmltree(object):
     def add(self, element):
         return self.current().append(element)
 
+    def h(self, title, subtitle='', level='h3'):
+        if subtitle:
+            with self.open(level, '', self.generate_id(title, subtitle)):
+                with self.open('small'):
+                    self.tag('a', subtitle + '', self.generate_href(subtitle))
+                    self.span('::')
+                self.span(title)
+
     def h1(self, value='', attrib={ }):
         return self.tag('h1', value, attrib)
 
     def h2(self, value='', attrib={ }):
-        return self.tag('h2', value, attrib)
+        attrib.update(self.generate_id(value))
+        self.tag('h2', value, attrib)
 
     def h3(self, value='', attrib={ }):
         return self.tag('h3', value, attrib)
@@ -64,8 +74,8 @@ class htmltree(object):
     def li(self, value='', attrib={ }):
         return self.tag('li', value, attrib)
 
-    def href(self, href, value=''):
-        return self.tag('a', value if value else href, { 'href': href })
+    def link(self, target, text='', ns=''):
+        return self.tag('a', text if text else target, self.generate_href(target, ns))
 
     def open(self, tag_name, value='', attrib={ }):
         element = self.tag(tag_name, value, attrib)
@@ -73,7 +83,10 @@ class htmltree(object):
         return self
 
     def description(self, value):
-        return self.tag('div', value, { 'class': 'description' })
+        if value:
+            return self.tag('div', value, { 'class': 'description' })
+
+        return self.tag('div', 'no description provided', { 'class': 'description no-description' })
 
     def __enter__(self):
         self.counter += 1
@@ -93,4 +106,22 @@ class htmltree(object):
     def style(self, location):
         self.tag('link', '', { 'rel': 'stylesheet', 'type': 'text/css', 'media': 'screen', 'href': location })
 
+    def script(self, location):
+        self.tag('script', '', { 'type': 'text/js', 'src': location })
 
+    def id(self, id):
+        self.root.attrib['id'] = id
+
+    def _chain_values(self, value, sub_value=''):
+        return self._secure(value if not sub_value else sub_value + '-' + value)
+
+    def generate_id(self, value, sub_value=''):
+        return { 'id': self._chain_values(value, sub_value) }
+
+    def generate_href(self, value, sub_value=''):
+        return { 'href': '#' + self._chain_values(value, sub_value) }
+
+    def _secure(self, value=''):
+        value = re.sub(r'\W+', '-', value)
+        value = re.sub(r'-$', '', value)
+        return value
