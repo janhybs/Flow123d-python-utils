@@ -155,3 +155,14 @@ ul.nav-bar li {
     font-size: 0.8em;
     list-style: none;
 }
+
+.side-anchor {
+    margin-top: 10px;
+    margin-right: 10px;
+    font-size: 1.4em;
+    opacity: 0.2
+}
+
+.side-anchor:hover {
+    opacity: 1;
+}

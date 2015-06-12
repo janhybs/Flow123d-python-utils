@@ -33,11 +33,22 @@ class htmltree(object):
                     self.tag('a', subtitle + '', self.generate_href(subtitle))
                     self.span('::')
                 self.span(title)
+            return self
+        with self.open(level, ''):
+            with self.open('a', '', self.generate_href(title)):
+                self.span(title)
+        return self
 
     def h1(self, value='', attrib={ }):
         return self.tag('h1', value, attrib)
 
     def h2(self, value='', attrib={ }):
+        with self.open('span', '', { 'class': 'pull-right side-anchor' }):
+            href_attrib = self.generate_href(value)
+            href_attrib.update({'title': 'Permalink to this section'})
+            with self.open('a', '', href_attrib):
+                self.span(' ', { 'class': 'glyphicon glyphicon-link', 'aria-hidden': 'true' })
+
         attrib.update(self.generate_id(value))
         self.tag('h2', value, attrib)
 
@@ -107,13 +118,15 @@ class htmltree(object):
         self.tag('link', '', { 'rel': 'stylesheet', 'type': 'text/css', 'media': 'screen', 'href': location })
 
     def script(self, location):
-        self.tag('script', '', { 'type': 'text/js', 'src': location })
+        self.tag('script', '', { 'type': 'text/javascript', 'src': location })
 
     def id(self, id):
         self.root.attrib['id'] = id
 
     def _chain_values(self, value, sub_value=''):
-        return self._secure(value if not sub_value else sub_value + '-' + value)
+        chain = value if not sub_value else sub_value + '-' + value
+        # chain = re.sub(r'([a-z]+)([A-Z]+)', r'\1-\2', chain)
+        return self._secure(chain).lower()
 
     def generate_id(self, value, sub_value=''):
         return { 'id': self._chain_values(value, sub_value) }

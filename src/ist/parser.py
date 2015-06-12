@@ -45,11 +45,15 @@ def json2html(input_file='examples/example.json', output_file='../../docs/input_
             with html_body.open('div', attrib={ 'class': 'col-md-3' }):
                 html_body.add(html_nav.current())
 
+
     html_head = htmltree('head')
     html_head.tag('title', 'Flow123d input reference')
     html_head.style('css/main.css')
     html_head.style('css/bootstrap.min.css')
-    html_head.script('js/bootstrap.min.js')
+
+    html_body.script('js/jquery-2.1.3.min.js')
+    html_body.script('js/bootstrap.min.js')
+    html_body.script('js/main.js')
 
     html = htmltree('html')
     html.add(html_head.current())
