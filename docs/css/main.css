@@ -10,6 +10,12 @@ h1 {
   margin: 0 0 0 150px;
 }
 
+#input-reference h3{
+  color: #337ab7;
+  background-color: #F2F4F9;
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+}
+
 .record:before, .abstract-record:before, .selection:before {
     display: inline-block;
     position: relative;
@@ -46,7 +52,7 @@ h3 {
 
 .header-info:before {
     content: " < ";
-    padding-left: 10px;
+    padding-left: 5px;
     font-style: italic;
     /*font-family: Menlo,Monaco,Consolas,"Courier New",monospace;*/
     font-size: 1.2em;
@@ -75,7 +81,7 @@ body h2 {
 }
 
 body h3 {
-    font-size: 1.2em;
+    font-size: 1.1em;
     margin: 5px 0;
 }
 
@@ -83,16 +89,16 @@ body h3 small {
     font-size: 0.9em;
 }
 
-ul.item-list li:hover {
+#input-reference>section>ul.item-list>li:hover {
     box-shadow: inset 0px 0px 10px 0 rgba(0,0,0,0.15)
 }
 
-ul.item-list {
+#input-reference>section>ul.item-list {
     margin: 10px;
     padding: 0;
 }
 
-ul.item-list li {
+#input-reference>section>ul.item-list>li {
     padding: 10px;
     list-style: none;
     transition: box-shadow 0.2s;
@@ -108,8 +114,13 @@ ul.item-list li:nth-child(even) {
     border-left: 2px solid #DDD;
 }*/
 
-ul.item-list li:last-child {
+#input-reference>section>ul.item-list li:last-child {
     border: none
+}
+
+.jumbotron .description>p {
+    font-size: 15px;
+    display: inline
 }
 
 .description:before, .description:after {
@@ -165,4 +176,12 @@ ul.nav-bar li {
 
 .side-anchor:hover {
     opacity: 1;
+}
+
+.md-expression {
+    font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+    padding: 5px;
+    font-size: 1.1em;
+    /*color: red;
+    background: black;*/
 }
