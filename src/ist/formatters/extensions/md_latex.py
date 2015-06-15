@@ -82,7 +82,7 @@ class MdLatexSupport (object):
         return '<span class="md-expression">{{{}}}</span>'.format (latex)
 
     def prepare (self, html):
-        regex = r'\(\(([\w\d\s{}\[\]\\\?;$^?_/+!&=*<>~-]*?)\)\)'
+        regex = r'\(\(([\w\d\s{}\[\]\\\?;$^?_/+!&=*<>~ ()-]*?)\)\)'
 
         secured_html = re.sub (regex, self._match_prepare, html, re.S | re.M | re.UNICODE)
         return secured_html
