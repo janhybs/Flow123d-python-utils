@@ -157,7 +157,7 @@ class HTMLSelection(HTMLItemFormatter):
         with self.open('ul', attrib={ 'class': 'item-list' }):
             for selection_value in selection.values:
                 with self.open('li'):
-                    self.h(selection_value.name)
+                        self.h3(selection_value.name)
                     self.description(selection_value.description)
 
         return self
