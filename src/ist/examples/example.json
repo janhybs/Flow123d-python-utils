@@ -4,7 +4,7 @@
       "input_type": "Record",
       "type_name": "Root",
       "type_full_name": "Root",
-      "description": "Root record of JSON input for Flow123d.",
+      "description": "Root record of **JSON** input for Flow123d. Link to [[a_Problem]] or [[r_SequentialCoupling#keys#mesh]]",
       "attributes": [
         {
           "name": "attribute_1",
@@ -1036,67 +1036,67 @@
       "values": [
          {
             "name": "anisotropy",
-            "description": "Output of the field anisotropy $[-]$ (Anisotropy of the conductivity tensor.)."
+            "description": "Output of the field anisotropy (($[-]$)) (Anisotropy of the conductivity tensor.)."
          },
          {
             "name": "cross_section",
-            "description": "Output of the field cross_section $[m^{3-d}]$ (Complement dimension parameter (cross section for 1D, thickness for 2D).)."
+            "description": "Output of the field cross_section (($[m^{3-d}]$)) (Complement dimension parameter (cross section for 1D, thickness for 2D).)."
          },
          {
             "name": "conductivity",
-            "description": "Output of the field conductivity $[ms^{-1}]$ (Isotropic conductivity scalar.)."
+            "description": "Output of the field conductivity (($[ms^{-1}]$)) (Isotropic conductivity scalar.)."
          },
          {
             "name": "sigma",
-            "description": "Output of the field sigma $[-]$ (Transition coefficient between dimensions.)."
+            "description": "Output of the field sigma (($[-]$)) (Transition coefficient between dimensions.)."
          },
          {
             "name": "water_source_density",
-            "description": "Output of the field water_source_density $[s^{-1}]$ (Water source density.)."
+            "description": "Output of the field water_source_density (($[s^{-1}]$)) (Water source density.)."
          },
          {
             "name": "init_pressure",
-            "description": "Output of the field init_pressure $[m]$ (Initial condition as pressure)."
+            "description": "Output of the field init_pressure (($[m]$)) (Initial condition as pressure)."
          },
          {
             "name": "storativity",
-            "description": "Output of the field storativity $[m^{-1}]$ (Storativity.)."
+            "description": "Output of the field storativity (($[m^{-1}]$)) (Storativity.)."
          },
          {
             "name": "pressure_p0",
-            "description": "Output of the field pressure_p0 $[m]$."
+            "description": "Output of the field pressure_p0 (($[m]$))."
          },
          {
             "name": "pressure_p1",
-            "description": "Output of the field pressure_p1 $[m]$."
+            "description": "Output of the field pressure_p1 (($[m]$))."
          },
          {
             "name": "piezo_head_p0",
-            "description": "Output of the field piezo_head_p0 $[m]$."
+            "description": "Output of the field piezo_head_p0 (($[m]$))."
          },
          {
             "name": "velocity_p0",
-            "description": "Output of the field velocity_p0 $[ms^{-1}]$."
+            "description": "Output of the field velocity_p0 (($[ms^{-1}]$))."
          },
          {
             "name": "subdomain",
-            "description": "Output of the field subdomain $[-]$."
+            "description": "Output of the field subdomain (($[-]$))."
          },
          {
             "name": "region_id",
-            "description": "Output of the field region_id $[-]$."
+            "description": "Output of the field region_id (($[-]$))."
          },
          {
             "name": "pressure_diff",
-            "description": "Output of the field pressure_diff $[m]$."
+            "description": "Output of the field pressure_diff (($[m]$))."
          },
          {
             "name": "velocity_diff",
-            "description": "Output of the field velocity_diff $[ms^{-1}]$."
+            "description": "Output of the field velocity_diff (($[ms^{-1}]$))."
          },
          {
             "name": "div_diff",
-            "description": "Output of the field div_diff $[s^{-1}]$."
+            "description": "Output of the field div_diff (($[s^{-1}]$))."
          }
       ]
    },
@@ -1242,7 +1242,7 @@
          },
          {
             "key": "anisotropy",
-            "description": "Anisotropy of the conductivity tensor. $[-]$",
+            "description": "Anisotropy of the conductivity tensor. (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1251,7 +1251,7 @@
          },
          {
             "key": "cross_section",
-            "description": "Complement dimension parameter (cross section for 1D, thickness for 2D). $[m^{3-d}]$",
+            "description": "Complement dimension parameter (cross section for 1D, thickness for 2D). (($[m^{3-d}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1260,7 +1260,7 @@
          },
          {
             "key": "conductivity",
-            "description": "Isotropic conductivity scalar. $[ms^{-1}]$",
+            "description": "Isotropic conductivity scalar. (($[ms^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1269,7 +1269,7 @@
          },
          {
             "key": "sigma",
-            "description": "Transition coefficient between dimensions. $[-]$",
+            "description": "Transition coefficient between dimensions. (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1278,7 +1278,7 @@
          },
          {
             "key": "water_source_density",
-            "description": "Water source density. $[s^{-1}]$",
+            "description": "Water source density. (($[s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1287,7 +1287,7 @@
          },
          {
             "key": "bc_type",
-            "description": "Boundary condition type, possible values: $[-]$",
+            "description": "Boundary condition type, possible values: (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1296,7 +1296,7 @@
          },
          {
             "key": "bc_pressure",
-            "description": "Dirichlet BC condition value for pressure. $[m]$",
+            "description": "Dirichlet BC condition value for pressure. (($[m]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1305,7 +1305,7 @@
          },
          {
             "key": "bc_flux",
-            "description": "Flux in Neumman or Robin boundary condition. $[m^{4-d}s^{-1}]$",
+            "description": "Flux in Neumman or Robin boundary condition. (($[m^{4-d}s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1314,7 +1314,7 @@
          },
          {
             "key": "bc_robin_sigma",
-            "description": "Conductivity coefficient in Robin boundary condition. $[m^{3-d}s^{-1}]$",
+            "description": "Conductivity coefficient in Robin boundary condition. (($[m^{3-d}s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1323,7 +1323,7 @@
          },
          {
             "key": "init_pressure",
-            "description": "Initial condition as pressure $[m]$",
+            "description": "Initial condition as pressure (($[m]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1332,7 +1332,7 @@
          },
          {
             "key": "storativity",
-            "description": "Storativity. $[m^{-1}]$",
+            "description": "Storativity. (($[m^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -1405,7 +1405,7 @@
          },
          {
             "key": "value",
-            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n* vector of size N to enter diagonal matrix\n* vector of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
+            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n\n* vector of size N to enter diagonal matrix\n* vector of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -1530,7 +1530,7 @@
          },
          {
             "key": "value",
-            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
+            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -1587,7 +1587,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -1626,7 +1626,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -1672,7 +1672,7 @@
          },
          {
             "key": "value",
-            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n* vector of size N to enter diagonal matrix\n* vector of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
+            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n\n* vector of size N to enter diagonal matrix\n* vector of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -1779,7 +1779,7 @@
          },
          {
             "key": "value",
-            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
+            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -1818,7 +1818,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -1857,7 +1857,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -1903,7 +1903,7 @@
          },
          {
             "key": "value",
-            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n* vector of size N to enter diagonal matrix\n* vector of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
+            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n\n* vector of size N to enter diagonal matrix\n* vector of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -1962,7 +1962,7 @@
          },
          {
             "name": "robin",
-            "description": "Robin boundary condition. Water outflow equal to $sigma (h - h^R)$. Specify the transition coefficient by 'bc_sigma' and the reference pressure head or pieaozmetric head through 'bc_pressure' and 'bc_piezo_head' respectively."
+            "description": "Robin boundary condition. Water outflow equal to (($sigma (h - h^R)$)). Specify the transition coefficient by 'bc_sigma' and the reference pressure head or pieaozmetric head through 'bc_pressure' and 'bc_piezo_head' respectively."
          }
       ]
    },
@@ -1987,7 +1987,7 @@
          },
          {
             "key": "value",
-            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
+            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -2074,7 +2074,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -2113,7 +2113,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -2159,7 +2159,7 @@
          },
          {
             "key": "value",
-            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n* vector of size N to enter diagonal matrix\n* vector of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
+            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n\n* vector of size N to enter diagonal matrix\n* vector of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -2218,7 +2218,7 @@
          },
          {
             "key": "value",
-            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
+            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -2305,7 +2305,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -2344,7 +2344,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -3276,7 +3276,7 @@
          },
          {
             "key": "rock_density",
-            "description": "Rock matrix density. $[m^{-3}kg]$",
+            "description": "Rock matrix density. (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -3285,7 +3285,7 @@
          },
          {
             "key": "sorption_type",
-            "description": "Considered sorption is described by selected isotherm. If porosity on an element is equal or even higher than 1.0 (meaning no sorbing surface), then type 'none' will be selected automatically. $[-]$",
+            "description": "Considered sorption is described by selected isotherm. If porosity on an element is equal or even higher than 1.0 (meaning no sorbing surface), then type 'none' will be selected automatically. (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -3294,7 +3294,7 @@
          },
          {
             "key": "isotherm_mult",
-            "description": "Multiplication parameters (k, omega) in either Langmuir c_s = omega * (alpha*c_a)/(1- alpha*c_a) or in linear c_s = k * c_a isothermal description. $[kg^{-1}mol]$",
+            "description": "Multiplication parameters (k, omega) in either Langmuir c_s = omega * (alpha*c_a)/(1- alpha*c_a) or in linear c_s = k * c_a isothermal description. (($[kg^{-1}mol]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -3303,7 +3303,7 @@
          },
          {
             "key": "isotherm_other",
-            "description": "Second parameters (alpha, ...) defining isotherm  c_s = omega * (alpha*c_a)/(1- alpha*c_a). $[-]$",
+            "description": "Second parameters (alpha, ...) defining isotherm  c_s = omega * (alpha*c_a)/(1- alpha*c_a). (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -3312,7 +3312,7 @@
          },
          {
             "key": "init_conc_solid",
-            "description": "Initial solid concentration of substances. Vector, one value for every substance. $[kg^{-1}mol]$",
+            "description": "Initial solid concentration of substances. Vector, one value for every substance. (($[kg^{-1}mol]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -3358,7 +3358,7 @@
          },
          {
             "key": "value",
-            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n* vector of size N to enter diagonal matrix\n* vector of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
+            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n\n* vector of size N to enter diagonal matrix\n* vector of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -3451,7 +3451,7 @@
          },
          {
             "key": "value",
-            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
+            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -3538,7 +3538,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -3577,7 +3577,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -3623,7 +3623,7 @@
          },
          {
             "key": "value",
-            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n* vector of size N to enter diagonal matrix\n* vector of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
+            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n\n* vector of size N to enter diagonal matrix\n* vector of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -3730,7 +3730,7 @@
          },
          {
             "key": "value",
-            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
+            "description": "String, array of strings, or matrix of strings with formulas for individual entries of scalar, vector, or tensor value respectively.\nFor vector values, you can use just one string to enter homogeneous vector.\nFor square NxN-matrix values, you can use:\n\n* array of strings of size N to enter diagonal matrix\n* array of strings of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* just one string to enter (spatially variable) multiple of the unit matrix.\nFormula can contain variables x,y,z,t and usual operators and functions.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -3769,7 +3769,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -3808,7 +3808,7 @@
          },
          {
             "key": "field_name",
-            "description": "The values of the Field are read from the $ElementData section with field name given by this key.",
+            "description": "The values of the Field are read from the ```$ElementData``` section with field name given by this key.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -3835,27 +3835,27 @@
       "values": [
          {
             "name": "rock_density",
-            "description": "Output of the field rock_density $[m^{-3}kg]$ (Rock matrix density.)."
+            "description": "Output of the field rock_density (($[m^{-3}kg]$)) (Rock matrix density.)."
          },
          {
             "name": "sorption_type",
-            "description": "Output of the field sorption_type $[-]$ (Considered sorption is described by selected isotherm. If porosity on an element is equal or even higher than 1.0 (meaning no sorbing surface), then type 'none' will be selected automatically.)."
+            "description": "Output of the field sorption_type (($[-]$)) (Considered sorption is described by selected isotherm. If porosity on an element is equal or even higher than 1.0 (meaning no sorbing surface), then type 'none' will be selected automatically.)."
          },
          {
             "name": "isotherm_mult",
-            "description": "Output of the field isotherm_mult $[kg^{-1}mol]$ (Multiplication parameters (k, omega) in either Langmuir c_s = omega * (alpha*c_a)/(1- alpha*c_a) or in linear c_s = k * c_a isothermal description.)."
+            "description": "Output of the field isotherm_mult (($[kg^{-1}mol]$)) (Multiplication parameters (k, omega) in either Langmuir c_s = omega * (alpha*c_a)/(1- alpha*c_a) or in linear c_s = k * c_a isothermal description.)."
          },
          {
             "name": "isotherm_other",
-            "description": "Output of the field isotherm_other $[-]$ (Second parameters (alpha, ...) defining isotherm  c_s = omega * (alpha*c_a)/(1- alpha*c_a).)."
+            "description": "Output of the field isotherm_other (($[-]$)) (Second parameters (alpha, ...) defining isotherm  c_s = omega * (alpha*c_a)/(1- alpha*c_a).)."
          },
          {
             "name": "init_conc_solid",
-            "description": "Output of the field init_conc_solid $[kg^{-1}mol]$ (Initial solid concentration of substances. Vector, one value for every substance.)."
+            "description": "Output of the field init_conc_solid (($[kg^{-1}mol]$)) (Initial solid concentration of substances. Vector, one value for every substance.)."
          },
          {
             "name": "conc_solid",
-            "description": "Output of the field conc_solid $[m^{-3}kg]$."
+            "description": "Output of the field conc_solid (($[m^{-3}kg]$))."
          }
       ]
    },
@@ -3979,27 +3979,27 @@
       "values": [
          {
             "name": "rock_density",
-            "description": "Output of the field rock_density $[m^{-3}kg]$ (Rock matrix density.)."
+            "description": "Output of the field rock_density (($[m^{-3}kg]$)) (Rock matrix density.)."
          },
          {
             "name": "sorption_type",
-            "description": "Output of the field sorption_type $[-]$ (Considered sorption is described by selected isotherm. If porosity on an element is equal or even higher than 1.0 (meaning no sorbing surface), then type 'none' will be selected automatically.)."
+            "description": "Output of the field sorption_type (($[-]$)) (Considered sorption is described by selected isotherm. If porosity on an element is equal or even higher than 1.0 (meaning no sorbing surface), then type 'none' will be selected automatically.)."
          },
          {
             "name": "isotherm_mult",
-            "description": "Output of the field isotherm_mult $[kg^{-1}mol]$ (Multiplication parameters (k, omega) in either Langmuir c_s = omega * (alpha*c_a)/(1- alpha*c_a) or in linear c_s = k * c_a isothermal description.)."
+            "description": "Output of the field isotherm_mult (($[kg^{-1}mol]$)) (Multiplication parameters (k, omega) in either Langmuir c_s = omega * (alpha*c_a)/(1- alpha*c_a) or in linear c_s = k * c_a isothermal description.)."
          },
          {
             "name": "isotherm_other",
-            "description": "Output of the field isotherm_other $[-]$ (Second parameters (alpha, ...) defining isotherm  c_s = omega * (alpha*c_a)/(1- alpha*c_a).)."
+            "description": "Output of the field isotherm_other (($[-]$)) (Second parameters (alpha, ...) defining isotherm  c_s = omega * (alpha*c_a)/(1- alpha*c_a).)."
          },
          {
             "name": "init_conc_solid",
-            "description": "Output of the field init_conc_solid $[kg^{-1}mol]$ (Initial solid concentration of substances. Vector, one value for every substance.)."
+            "description": "Output of the field init_conc_solid (($[kg^{-1}mol]$)) (Initial solid concentration of substances. Vector, one value for every substance.)."
          },
          {
             "name": "conc_solid",
-            "description": "Output of the field conc_solid $[m^{-3}kg]$."
+            "description": "Output of the field conc_solid (($[m^{-3}kg]$))."
          }
       ]
    },
@@ -4123,27 +4123,27 @@
       "values": [
          {
             "name": "rock_density",
-            "description": "Output of the field rock_density $[m^{-3}kg]$ (Rock matrix density.)."
+            "description": "Output of the field rock_density (($[m^{-3}kg]$)) (Rock matrix density.)."
          },
          {
             "name": "sorption_type",
-            "description": "Output of the field sorption_type $[-]$ (Considered sorption is described by selected isotherm. If porosity on an element is equal or even higher than 1.0 (meaning no sorbing surface), then type 'none' will be selected automatically.)."
+            "description": "Output of the field sorption_type (($[-]$)) (Considered sorption is described by selected isotherm. If porosity on an element is equal or even higher than 1.0 (meaning no sorbing surface), then type 'none' will be selected automatically.)."
          },
          {
             "name": "isotherm_mult",
-            "description": "Output of the field isotherm_mult $[kg^{-1}mol]$ (Multiplication parameters (k, omega) in either Langmuir c_s = omega * (alpha*c_a)/(1- alpha*c_a) or in linear c_s = k * c_a isothermal description.)."
+            "description": "Output of the field isotherm_mult (($[kg^{-1}mol]$)) (Multiplication parameters (k, omega) in either Langmuir c_s = omega * (alpha*c_a)/(1- alpha*c_a) or in linear c_s = k * c_a isothermal description.)."
          },
          {
             "name": "isotherm_other",
-            "description": "Output of the field isotherm_other $[-]$ (Second parameters (alpha, ...) defining isotherm  c_s = omega * (alpha*c_a)/(1- alpha*c_a).)."
+            "description": "Output of the field isotherm_other (($[-]$)) (Second parameters (alpha, ...) defining isotherm  c_s = omega * (alpha*c_a)/(1- alpha*c_a).)."
          },
          {
             "name": "init_conc_solid",
-            "description": "Output of the field init_conc_solid $[kg^{-1}mol]$ (Initial solid concentration of substances. Vector, one value for every substance.)."
+            "description": "Output of the field init_conc_solid (($[kg^{-1}mol]$)) (Initial solid concentration of substances. Vector, one value for every substance.)."
          },
          {
             "name": "conc_immobile_solid",
-            "description": "Output of the field conc_immobile_solid $[m^{-3}kg]$."
+            "description": "Output of the field conc_immobile_solid (($[m^{-3}kg]$))."
          }
       ]
    },
@@ -4267,7 +4267,7 @@
          },
          {
             "key": "diffusion_rate_immobile",
-            "description": "Diffusion coefficient of non-equilibrium linear exchange between mobile and immobile zone. $[s^{-1}]$",
+            "description": "Diffusion coefficient of non-equilibrium linear exchange between mobile and immobile zone. (($[s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4276,7 +4276,7 @@
          },
          {
             "key": "porosity_immobile",
-            "description": "Porosity of the immobile zone. $[-]$",
+            "description": "Porosity of the immobile zone. (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4285,7 +4285,7 @@
          },
          {
             "key": "init_conc_immobile",
-            "description": "Initial concentration of substances in the immobile zone. $[m^{-3}kg]$",
+            "description": "Initial concentration of substances in the immobile zone. (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4312,19 +4312,19 @@
       "values": [
          {
             "name": "diffusion_rate_immobile",
-            "description": "Output of the field diffusion_rate_immobile $[s^{-1}]$ (Diffusion coefficient of non-equilibrium linear exchange between mobile and immobile zone.)."
+            "description": "Output of the field diffusion_rate_immobile (($[s^{-1}]$)) (Diffusion coefficient of non-equilibrium linear exchange between mobile and immobile zone.)."
          },
          {
             "name": "porosity_immobile",
-            "description": "Output of the field porosity_immobile $[-]$ (Porosity of the immobile zone.)."
+            "description": "Output of the field porosity_immobile (($[-]$)) (Porosity of the immobile zone.)."
          },
          {
             "name": "init_conc_immobile",
-            "description": "Output of the field init_conc_immobile $[m^{-3}kg]$ (Initial concentration of substances in the immobile zone.)."
+            "description": "Output of the field init_conc_immobile (($[m^{-3}kg]$)) (Initial concentration of substances in the immobile zone.)."
          },
          {
             "name": "conc_immobile",
-            "description": "Output of the field conc_immobile $[m^{-3}kg]$."
+            "description": "Output of the field conc_immobile (($[m^{-3}kg]$))."
          }
       ]
    },
@@ -4485,7 +4485,7 @@
          },
          {
             "key": "porosity",
-            "description": "Mobile porosity $[-]$",
+            "description": "Mobile porosity (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4494,7 +4494,7 @@
          },
          {
             "key": "sources_density",
-            "description": "Density of concentration sources. $[m^{-3}kgs^{-1}]$",
+            "description": "Density of concentration sources. (($[m^{-3}kgs^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4503,7 +4503,7 @@
          },
          {
             "key": "sources_sigma",
-            "description": "Concentration flux. $[s^{-1}]$",
+            "description": "Concentration flux. (($[s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4512,7 +4512,7 @@
          },
          {
             "key": "sources_conc",
-            "description": "Concentration sources threshold. $[m^{-3}kg]$",
+            "description": "Concentration sources threshold. (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4521,7 +4521,7 @@
          },
          {
             "key": "bc_conc",
-            "description": "Boundary conditions for concentrations. $[m^{-3}kg]$",
+            "description": "Boundary conditions for concentrations. (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4530,7 +4530,7 @@
          },
          {
             "key": "init_conc",
-            "description": "Initial concentrations. $[m^{-3}kg]$",
+            "description": "Initial concentrations. (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4566,31 +4566,31 @@
       "values": [
          {
             "name": "porosity",
-            "description": "Output of the field porosity $[-]$ (Mobile porosity)."
+            "description": "Output of the field porosity (($[-]$)) (Mobile porosity)."
          },
          {
             "name": "sources_density",
-            "description": "Output of the field sources_density $[m^{-3}kgs^{-1}]$ (Density of concentration sources.)."
+            "description": "Output of the field sources_density (($[m^{-3}kgs^{-1}]$)) (Density of concentration sources.)."
          },
          {
             "name": "sources_sigma",
-            "description": "Output of the field sources_sigma $[s^{-1}]$ (Concentration flux.)."
+            "description": "Output of the field sources_sigma (($[s^{-1}]$)) (Concentration flux.)."
          },
          {
             "name": "sources_conc",
-            "description": "Output of the field sources_conc $[m^{-3}kg]$ (Concentration sources threshold.)."
+            "description": "Output of the field sources_conc (($[m^{-3}kg]$)) (Concentration sources threshold.)."
          },
          {
             "name": "init_conc",
-            "description": "Output of the field init_conc $[m^{-3}kg]$ (Initial concentrations.)."
+            "description": "Output of the field init_conc (($[m^{-3}kg]$)) (Initial concentrations.)."
          },
          {
             "name": "conc",
-            "description": "Output of the field conc $[m^{-3}kg]$."
+            "description": "Output of the field conc (($[m^{-3}kg]$))."
          },
          {
             "name": "region_id",
-            "description": "Output of the field region_id $[-]$."
+            "description": "Output of the field region_id (($[-]$))."
          }
       ]
    },
@@ -4750,7 +4750,7 @@
          },
          {
             "key": "porosity",
-            "description": "Mobile porosity $[-]$",
+            "description": "Mobile porosity (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4759,7 +4759,7 @@
          },
          {
             "key": "sources_density",
-            "description": "Density of concentration sources. $[m^{-3}kgs^{-1}]$",
+            "description": "Density of concentration sources. (($[m^{-3}kgs^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4768,7 +4768,7 @@
          },
          {
             "key": "sources_sigma",
-            "description": "Concentration flux. $[s^{-1}]$",
+            "description": "Concentration flux. (($[s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4777,7 +4777,7 @@
          },
          {
             "key": "sources_conc",
-            "description": "Concentration sources threshold. $[m^{-3}kg]$",
+            "description": "Concentration sources threshold. (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4786,7 +4786,7 @@
          },
          {
             "key": "bc_conc",
-            "description": "Dirichlet boundary condition (for each substance). $[m^{-3}kg]$",
+            "description": "Dirichlet boundary condition (for each substance). (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4795,7 +4795,7 @@
          },
          {
             "key": "init_conc",
-            "description": "Initial concentrations. $[m^{-3}kg]$",
+            "description": "Initial concentrations. (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4804,7 +4804,7 @@
          },
          {
             "key": "disp_l",
-            "description": "Longitudal dispersivity (for each substance). $[m]$",
+            "description": "Longitudal dispersivity (for each substance). (($[m]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4813,7 +4813,7 @@
          },
          {
             "key": "disp_t",
-            "description": "Transversal dispersivity (for each substance). $[m]$",
+            "description": "Transversal dispersivity (for each substance). (($[m]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4822,7 +4822,7 @@
          },
          {
             "key": "diff_m",
-            "description": "Molecular diffusivity (for each substance). $[m^{2}s^{-1}]$",
+            "description": "Molecular diffusivity (for each substance). (($[m^{2}s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4831,7 +4831,7 @@
          },
          {
             "key": "fracture_sigma",
-            "description": "Coefficient of diffusive transfer through fractures (for each substance). $[-]$",
+            "description": "Coefficient of diffusive transfer through fractures (for each substance). (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4840,7 +4840,7 @@
          },
          {
             "key": "dg_penalty",
-            "description": "Penalty parameter influencing the discontinuity of the solution (for each substance). Its default value 1 is sufficient in most cases. Higher value diminishes the inter-element jumps. $[-]$",
+            "description": "Penalty parameter influencing the discontinuity of the solution (for each substance). Its default value 1 is sufficient in most cases. Higher value diminishes the inter-element jumps. (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4849,7 +4849,7 @@
          },
          {
             "key": "bc_type",
-            "description": "Boundary condition type, possible values: inflow, dirichlet, neumann, robin. $[-]$",
+            "description": "Boundary condition type, possible values: inflow, dirichlet, neumann, robin. (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4858,7 +4858,7 @@
          },
          {
             "key": "bc_flux",
-            "description": "Flux in Neumann boundary condition. $[m^{1-d}kgs^{-1}]$",
+            "description": "Flux in Neumann boundary condition. (($[m^{1-d}kgs^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4867,7 +4867,7 @@
          },
          {
             "key": "bc_robin_sigma",
-            "description": "Conductivity coefficient in Robin boundary condition. $[m^{4-d}s^{-1}]$",
+            "description": "Conductivity coefficient in Robin boundary condition. (($[m^{4-d}s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -4913,7 +4913,7 @@
          },
          {
             "key": "value",
-            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n* vector of size N to enter diagonal matrix\n* vector of size (N+1)*N/2 to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
+            "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n\n* vector of size N to enter diagonal matrix\n* vector of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.",
             "default": {
                "type": "obligatory",
                "value": "OBLIGATORY"
@@ -4952,7 +4952,7 @@
          },
          {
             "name": "robin",
-            "description": "Robin boundary condition. Water outflow equal to $sigma (h - h^R)$. "
+            "description": "Robin boundary condition. Water outflow equal to (($sigma (h - h^R)$)). "
          },
          {
             "name": "inflow",
@@ -5009,51 +5009,51 @@
       "values": [
          {
             "name": "porosity",
-            "description": "Output of the field porosity $[-]$ (Mobile porosity)."
+            "description": "Output of the field porosity (($[-]$)) (Mobile porosity)."
          },
          {
             "name": "sources_density",
-            "description": "Output of the field sources_density $[m^{-3}kgs^{-1}]$ (Density of concentration sources.)."
+            "description": "Output of the field sources_density (($[m^{-3}kgs^{-1}]$)) (Density of concentration sources.)."
          },
          {
             "name": "sources_sigma",
-            "description": "Output of the field sources_sigma $[s^{-1}]$ (Concentration flux.)."
+            "description": "Output of the field sources_sigma (($[s^{-1}]$)) (Concentration flux.)."
          },
          {
             "name": "sources_conc",
-            "description": "Output of the field sources_conc $[m^{-3}kg]$ (Concentration sources threshold.)."
+            "description": "Output of the field sources_conc (($[m^{-3}kg]$)) (Concentration sources threshold.)."
          },
          {
             "name": "init_conc",
-            "description": "Output of the field init_conc $[m^{-3}kg]$ (Initial concentrations.)."
+            "description": "Output of the field init_conc (($[m^{-3}kg]$)) (Initial concentrations.)."
          },
          {
             "name": "disp_l",
-            "description": "Output of the field disp_l $[m]$ (Longitudal dispersivity (for each substance).)."
+            "description": "Output of the field disp_l (($[m]$)) (Longitudal dispersivity (for each substance).)."
          },
          {
             "name": "disp_t",
-            "description": "Output of the field disp_t $[m]$ (Transversal dispersivity (for each substance).)."
+            "description": "Output of the field disp_t (($[m]$)) (Transversal dispersivity (for each substance).)."
          },
          {
             "name": "diff_m",
-            "description": "Output of the field diff_m $[m^{2}s^{-1}]$ (Molecular diffusivity (for each substance).)."
+            "description": "Output of the field diff_m (($[m^{2}s^{-1}]$)) (Molecular diffusivity (for each substance).)."
          },
          {
             "name": "conc",
-            "description": "Output of the field conc $[m^{-3}kg]$."
+            "description": "Output of the field conc (($[m^{-3}kg]$))."
          },
          {
             "name": "fracture_sigma",
-            "description": "Output of the field fracture_sigma $[-]$ (Coefficient of diffusive transfer through fractures (for each substance).)."
+            "description": "Output of the field fracture_sigma (($[-]$)) (Coefficient of diffusive transfer through fractures (for each substance).)."
          },
          {
             "name": "dg_penalty",
-            "description": "Output of the field dg_penalty $[-]$ (Penalty parameter influencing the discontinuity of the solution (for each substance). Its default value 1 is sufficient in most cases. Higher value diminishes the inter-element jumps.)."
+            "description": "Output of the field dg_penalty (($[-]$)) (Penalty parameter influencing the discontinuity of the solution (for each substance). Its default value 1 is sufficient in most cases. Higher value diminishes the inter-element jumps.)."
          },
          {
             "name": "region_id",
-            "description": "Output of the field region_id $[-]$."
+            "description": "Output of the field region_id (($[-]$))."
          }
       ]
    },
@@ -5204,7 +5204,7 @@
          },
          {
             "key": "bc_temperature",
-            "description": "Boundary value of temperature. $[K]$",
+            "description": "Boundary value of temperature. (($[K]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5213,7 +5213,7 @@
          },
          {
             "key": "init_temperature",
-            "description": "Initial temperature. $[K]$",
+            "description": "Initial temperature. (($[K]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5222,7 +5222,7 @@
          },
          {
             "key": "porosity",
-            "description": "Porosity. $[-]$",
+            "description": "Porosity. (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5231,7 +5231,7 @@
          },
          {
             "key": "fluid_density",
-            "description": "Density of fluid. $[m^{-3}kg]$",
+            "description": "Density of fluid. (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5240,7 +5240,7 @@
          },
          {
             "key": "fluid_heat_capacity",
-            "description": "Heat capacity of fluid. $[m^{2}s^{-2}K^{-1}]$",
+            "description": "Heat capacity of fluid. (($[m^{2}s^{-2}K^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5249,7 +5249,7 @@
          },
          {
             "key": "fluid_heat_conductivity",
-            "description": "Heat conductivity of fluid. $[mkgs^{-3}K^{-1}]$",
+            "description": "Heat conductivity of fluid. (($[mkgs^{-3}K^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5258,7 +5258,7 @@
          },
          {
             "key": "solid_density",
-            "description": "Density of solid (rock). $[m^{-3}kg]$",
+            "description": "Density of solid (rock). (($[m^{-3}kg]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5267,7 +5267,7 @@
          },
          {
             "key": "solid_heat_capacity",
-            "description": "Heat capacity of solid (rock). $[m^{2}s^{-2}K^{-1}]$",
+            "description": "Heat capacity of solid (rock). (($[m^{2}s^{-2}K^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5276,7 +5276,7 @@
          },
          {
             "key": "solid_heat_conductivity",
-            "description": "Heat conductivity of solid (rock). $[mkgs^{-3}K^{-1}]$",
+            "description": "Heat conductivity of solid (rock). (($[mkgs^{-3}K^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5285,7 +5285,7 @@
          },
          {
             "key": "disp_l",
-            "description": "Longitudal heat dispersivity in fluid. $[m]$",
+            "description": "Longitudal heat dispersivity in fluid. (($[m]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5294,7 +5294,7 @@
          },
          {
             "key": "disp_t",
-            "description": "Transversal heat dispersivity in fluid. $[m]$",
+            "description": "Transversal heat dispersivity in fluid. (($[m]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5303,7 +5303,7 @@
          },
          {
             "key": "fluid_thermal_source",
-            "description": "Thermal source density in fluid. $[m^{-1}kgs^{-3}]$",
+            "description": "Thermal source density in fluid. (($[m^{-1}kgs^{-3}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5312,7 +5312,7 @@
          },
          {
             "key": "solid_thermal_source",
-            "description": "Thermal source density in solid. $[m^{-1}kgs^{-3}]$",
+            "description": "Thermal source density in solid. (($[m^{-1}kgs^{-3}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5321,7 +5321,7 @@
          },
          {
             "key": "fluid_heat_exchange_rate",
-            "description": "Heat exchange rate in fluid. $[s^{-1}]$",
+            "description": "Heat exchange rate in fluid. (($[s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5330,7 +5330,7 @@
          },
          {
             "key": "solid_heat_exchange_rate",
-            "description": "Heat exchange rate of source in solid. $[s^{-1}]$",
+            "description": "Heat exchange rate of source in solid. (($[s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5339,7 +5339,7 @@
          },
          {
             "key": "fluid_ref_temperature",
-            "description": "Reference temperature of source in fluid. $[K]$",
+            "description": "Reference temperature of source in fluid. (($[K]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5348,7 +5348,7 @@
          },
          {
             "key": "solid_ref_temperature",
-            "description": "Reference temperature in solid. $[K]$",
+            "description": "Reference temperature in solid. (($[K]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5357,7 +5357,7 @@
          },
          {
             "key": "fracture_sigma",
-            "description": "Coefficient of diffusive transfer through fractures (for each substance). $[-]$",
+            "description": "Coefficient of diffusive transfer through fractures (for each substance). (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5366,7 +5366,7 @@
          },
          {
             "key": "dg_penalty",
-            "description": "Penalty parameter influencing the discontinuity of the solution (for each substance). Its default value 1 is sufficient in most cases. Higher value diminishes the inter-element jumps. $[-]$",
+            "description": "Penalty parameter influencing the discontinuity of the solution (for each substance). Its default value 1 is sufficient in most cases. Higher value diminishes the inter-element jumps. (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5375,7 +5375,7 @@
          },
          {
             "key": "bc_type",
-            "description": "Boundary condition type, possible values: inflow, dirichlet, neumann, robin. $[-]$",
+            "description": "Boundary condition type, possible values: inflow, dirichlet, neumann, robin. (($[-]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5384,7 +5384,7 @@
          },
          {
             "key": "bc_flux",
-            "description": "Flux in Neumann boundary condition. $[m^{1-d}kgs^{-1}]$",
+            "description": "Flux in Neumann boundary condition. (($[m^{1-d}kgs^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5393,7 +5393,7 @@
          },
          {
             "key": "bc_robin_sigma",
-            "description": "Conductivity coefficient in Robin boundary condition. $[m^{4-d}s^{-1}]$",
+            "description": "Conductivity coefficient in Robin boundary condition. (($[m^{4-d}s^{-1}]$))",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"
@@ -5435,83 +5435,83 @@
       "values": [
          {
             "name": "init_temperature",
-            "description": "Output of the field init_temperature $[K]$ (Initial temperature.)."
+            "description": "Output of the field init_temperature (($[K]$)) (Initial temperature.)."
          },
          {
             "name": "porosity",
-            "description": "Output of the field porosity $[-]$ (Porosity.)."
+            "description": "Output of the field porosity (($[-]$)) (Porosity.)."
          },
          {
             "name": "fluid_density",
-            "description": "Output of the field fluid_density $[m^{-3}kg]$ (Density of fluid.)."
+            "description": "Output of the field fluid_density (($[m^{-3}kg]$)) (Density of fluid.)."
          },
          {
             "name": "fluid_heat_capacity",
-            "description": "Output of the field fluid_heat_capacity $[m^{2}s^{-2}K^{-1}]$ (Heat capacity of fluid.)."
+            "description": "Output of the field fluid_heat_capacity (($[m^{2}s^{-2}K^{-1}]$)) (Heat capacity of fluid.)."
          },
          {
             "name": "fluid_heat_conductivity",
-            "description": "Output of the field fluid_heat_conductivity $[mkgs^{-3}K^{-1}]$ (Heat conductivity of fluid.)."
+            "description": "Output of the field fluid_heat_conductivity (($[mkgs^{-3}K^{-1}]$)) (Heat conductivity of fluid.)."
          },
          {
             "name": "solid_density",
-            "description": "Output of the field solid_density $[m^{-3}kg]$ (Density of solid (rock).)."
+            "description": "Output of the field solid_density (($[m^{-3}kg]$)) (Density of solid (rock).)."
          },
          {
             "name": "solid_heat_capacity",
-            "description": "Output of the field solid_heat_capacity $[m^{2}s^{-2}K^{-1}]$ (Heat capacity of solid (rock).)."
+            "description": "Output of the field solid_heat_capacity (($[m^{2}s^{-2}K^{-1}]$)) (Heat capacity of solid (rock).)."
          },
          {
             "name": "solid_heat_conductivity",
-            "description": "Output of the field solid_heat_conductivity $[mkgs^{-3}K^{-1}]$ (Heat conductivity of solid (rock).)."
+            "description": "Output of the field solid_heat_conductivity (($[mkgs^{-3}K^{-1}]$)) (Heat conductivity of solid (rock).)."
          },
          {
             "name": "disp_l",
-            "description": "Output of the field disp_l $[m]$ (Longitudal heat dispersivity in fluid.)."
+            "description": "Output of the field disp_l (($[m]$)) (Longitudal heat dispersivity in fluid.)."
          },
          {
             "name": "disp_t",
-            "description": "Output of the field disp_t $[m]$ (Transversal heat dispersivity in fluid.)."
+            "description": "Output of the field disp_t (($[m]$)) (Transversal heat dispersivity in fluid.)."
          },
          {
             "name": "fluid_thermal_source",
-            "description": "Output of the field fluid_thermal_source $[m^{-1}kgs^{-3}]$ (Thermal source density in fluid.)."
+            "description": "Output of the field fluid_thermal_source (($[m^{-1}kgs^{-3}]$)) (Thermal source density in fluid.)."
          },
          {
             "name": "solid_thermal_source",
-            "description": "Output of the field solid_thermal_source $[m^{-1}kgs^{-3}]$ (Thermal source density in solid.)."
+            "description": "Output of the field solid_thermal_source (($[m^{-1}kgs^{-3}]$)) (Thermal source density in solid.)."
          },
          {
             "name": "fluid_heat_exchange_rate",
-            "description": "Output of the field fluid_heat_exchange_rate $[s^{-1}]$ (Heat exchange rate in fluid.)."
+            "description": "Output of the field fluid_heat_exchange_rate (($[s^{-1}]$)) (Heat exchange rate in fluid.)."
          },
          {
             "name": "solid_heat_exchange_rate",
-            "description": "Output of the field solid_heat_exchange_rate $[s^{-1}]$ (Heat exchange rate of source in solid.)."
+            "description": "Output of the field solid_heat_exchange_rate (($[s^{-1}]$)) (Heat exchange rate of source in solid.)."
          },
          {
             "name": "fluid_ref_temperature",
-            "description": "Output of the field fluid_ref_temperature $[K]$ (Reference temperature of source in fluid.)."
+            "description": "Output of the field fluid_ref_temperature (($[K]$)) (Reference temperature of source in fluid.)."
          },
          {
             "name": "solid_ref_temperature",
-            "description": "Output of the field solid_ref_temperature $[K]$ (Reference temperature in solid.)."
+            "description": "Output of the field solid_ref_temperature (($[K]$)) (Reference temperature in solid.)."
          },
          {
             "name": "temperature",
-            "description": "Output of the field temperature $[K]$."
+            "description": "Output of the field temperature (($[K]$))."
          },
          {
             "name": "fracture_sigma",
-            "description": "Output of the field fracture_sigma $[-]$ (Coefficient of diffusive transfer through fractures (for each substance).)."
+            "description": "Output of the field fracture_sigma (($[-]$)) (Coefficient of diffusive transfer through fractures (for each substance).)."
          },
          {
             "name": "dg_penalty",
-            "description": "Output of the field dg_penalty $[-]$ (Penalty parameter influencing the discontinuity of the solution (for each substance). Its default value 1 is sufficient in most cases. Higher value diminishes the inter-element jumps.)."
+            "description": "Output of the field dg_penalty (($[-]$)) (Penalty parameter influencing the discontinuity of the solution (for each substance). Its default value 1 is sufficient in most cases. Higher value diminishes the inter-element jumps.)."
          },
          {
             "name": "region_id",
-            "description": "Output of the field region_id $[-]$."
+            "description": "Output of the field region_id (($[-]$))."
          }
       ]
    },
