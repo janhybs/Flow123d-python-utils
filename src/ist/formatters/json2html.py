@@ -307,14 +307,35 @@ class HTMLFormatter(object):
     def navigation_bar(items):
         html = htmltree('div')
 
+        def cmp(a, b):
+
+            try:
+                name_a = a.get_name()
+            except:
+                name_a = None
+
+            try:
+                name_b = b.get_name()
+            except:
+                name_b = None
+
+            if name_a > name_b:
+                return 1
+
+            if name_a < name_b:
+                return -1
+            return 0
+
+        sorted_items = sorted(items, cmp=cmp)
+
         html.bold('Records: ')
-        HTMLFormatter._add_items(items, html, 'Record')
+        HTMLFormatter._add_items(sorted_items, html, 'Record')
 
         html.bold('Abstract record: ')
-        HTMLFormatter._add_items(items, html, 'AbstractRecord')
+        HTMLFormatter._add_items(sorted_items, html, 'AbstractRecord')
 
         html.bold('Selections: ')
-        HTMLFormatter._add_items(items, html, 'Selection')
+        HTMLFormatter._add_items(sorted_items, html, 'Selection')
 
         return html
 
