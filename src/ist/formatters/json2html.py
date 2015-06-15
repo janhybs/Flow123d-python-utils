@@ -148,7 +148,6 @@ class HTMLSelection(HTMLItemFormatter):
 
         self.description(record_key.description)
 
-
     def format(self, selection):
         with self.open('header'):
             self.h2(selection.name)
@@ -157,7 +156,7 @@ class HTMLSelection(HTMLItemFormatter):
         with self.open('ul', attrib={ 'class': 'item-list' }):
             for selection_value in selection.values:
                 with self.open('li'):
-                        self.h3(selection_value.name)
+                    self.h3(selection_value.name)
                     self.description(selection_value.description)
 
         return self
@@ -320,7 +319,7 @@ class HTMLFormatter(object):
         return html
 
     @staticmethod
-    def _add_items (items, html, type=None):
+    def _add_items(items, html, type=None):
         with html.open('ul', attrib={ 'class': 'nav-bar' }):
             for item in items:
                 if issubclass(item.__class__, ComplexNode):
@@ -328,7 +327,7 @@ class HTMLFormatter(object):
                     if not item.include_in_format():
                         continue
 
-                    if type and not item.input_type == type :
+                    if type and not item.input_type == type:
                         continue
 
                     with html.open('li'):
