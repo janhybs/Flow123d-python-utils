@@ -4,9 +4,12 @@ import cgi
 
 import xml.etree.ElementTree as ET
 import re
+from ist.formatters.markdown2html import markdown2html
 
 
 class htmltree(object):
+    m2h = markdown2html()
+
     def __init__(self, tag_name='div', cls='', *args, **kwargs):
         self.attrib = { 'class': cls } if cls else { }
         self.tag_name = tag_name
@@ -14,9 +17,9 @@ class htmltree(object):
         self.counter = 0
         self.roots = [self.root]
 
-    def tag(self, tag_name, value='', attrib={ }):
+    def tag(self, tag_name, value='', attrib={ }, no_escape=True):
         element = ET.Element(tag_name, attrib)
-        element.text = cgi.escape(value)
+        element.text = cgi.escape(value) if not no_escape else value
         self.current().append(element)
         return element
 
@@ -45,7 +48,7 @@ class htmltree(object):
     def h2(self, value='', attrib={ }):
         with self.open('span', '', { 'class': 'pull-right side-anchor' }):
             href_attrib = self.generate_href(value)
-            href_attrib.update({'title': 'Permalink to this section'})
+            href_attrib.update({ 'title': 'Permalink to this section' })
             with self.open('a', '', href_attrib):
                 self.span(' ', { 'class': 'glyphicon glyphicon-link', 'aria-hidden': 'true' })
 
@@ -94,10 +97,14 @@ class htmltree(object):
         return self
 
     def description(self, value):
-        if value:
-            return self.tag('div', value, { 'class': 'description' })
+        if not value:
+            return self.tag('div', 'no description provided', { 'class': 'description no-description' })
 
-        return self.tag('div', 'no description provided', { 'class': 'description no-description' })
+        value = self.m2h.parse(value, reduce_to_tree=True)
+        value.attrib['class'] = 'description'
+        self.current().append(value)
+        # return self.tag('div', value, { 'class': 'description' }, no_escape=True)
+
 
     def __enter__(self):
         self.counter += 1
@@ -123,18 +130,19 @@ class htmltree(object):
     def id(self, id):
         self.root.attrib['id'] = id
 
-    def _chain_values(self, value, sub_value=''):
-        chain = value if not sub_value else sub_value + '-' + value
-        # chain = re.sub(r'([a-z]+)([A-Z]+)', r'\1-\2', chain)
-        return self._secure(chain).lower()
-
     def generate_id(self, value, sub_value=''):
-        return { 'id': self._chain_values(value, sub_value) }
+        return { 'id': htmltree.chain_values(value, sub_value) }
 
     def generate_href(self, value, sub_value=''):
-        return { 'href': '#' + self._chain_values(value, sub_value) }
+        return { 'href': '#' + htmltree.chain_values(value, sub_value) }
 
-    def _secure(self, value=''):
+    @staticmethod
+    def secure(value):
         value = re.sub(r'\W+', '-', value)
         value = re.sub(r'-$', '', value)
         return value
+
+    @staticmethod
+    def chain_values(value, sub_value=''):
+        chain = value if not sub_value else sub_value + '-' + value
+        return htmltree.secure(chain).lower()
