@@ -62,7 +62,7 @@ class MdLinks (Pattern):
             p.text = 'attribute value here'
             return p
 
-        if type.lower () in ('record', 'abstractrecord', 'selection'):
+        if type.lower () in ('record', 'abstractrecord', 'selection', 'r', 'a', 's', 'ar'):
 
             # find item which is desired
             (name, type, link) = Globals.get_url_by_name (label)
