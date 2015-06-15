@@ -3,9 +3,11 @@
 
 #
 import json
+from ist.formatters.extensions.md_latex import MdLatexSupport
 
 from ist.formatters.json2html import HTMLFormatter
 from ist.formatters.json2latex import LatexFormatter
+from ist.formatters.markdown2html import markdown2html
 from ist.nodes import TypedList
 from ist.utils.htmltree import htmltree
 
@@ -27,7 +29,7 @@ def json2latex(input_file='examples/example.json', output_file='../../docs/input
         fp.write(latex_result)
 
 
-def json2html(input_file='examples/example.json', output_file='../../docs/input_reference_red.html'):
+def json2html(input_file='examples/example.json', output_file='../../docs/index.html'):
     with open(input_file, 'r') as fp:
         json_object = json.load(fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
@@ -45,14 +47,15 @@ def json2html(input_file='examples/example.json', output_file='../../docs/input_
             with html_body.open('div', attrib={ 'class': 'col-md-3' }):
                 html_body.add(html_nav.current())
 
-
     html_head = htmltree('head')
     html_head.tag('title', 'Flow123d input reference')
     html_head.style('css/main.css')
     html_head.style('css/bootstrap.min.css')
+    html_head.style('css/katex.min.css')
 
     html_body.script('js/jquery-2.1.3.min.js')
     html_body.script('js/bootstrap.min.js')
+    html_body.script('js/katex.min.js')
     html_body.script('js/main.js')
 
     html = htmltree('html')
@@ -60,16 +63,12 @@ def json2html(input_file='examples/example.json', output_file='../../docs/input_
     html.add(html_body.current())
 
     with open(output_file, 'w') as fp:
+        fp.write(r'<!DOCTYPE html>')
         fp.write(html.dump())
 
 
-json2html()
+if __name__ == '__main__':
+    json2html()
 
-# md_latex = MdLatexSupport()
-# markdown_example = md_latex.prepare(markdown_example)
-# html_example = markdown.markdown(markdown_example, extensions=[
-# 'markdown.extensions.sane_lists',
-# 'markdown.extensions.nl2br',
-# 'ist.formatters.extensions.md_links'])
-# html_example = md_latex.finish(html_example)
-# tree = ET.fromstring('<html_example>' + html_example + "</html_example>")
+    # m2h = markdown2html()
+    # print m2h.parse('Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square NxN-matrix values, you can use:\n\n* vector of size N to enter diagonal matrix\n* vector of size (($(N+1)*N/2$)) to enter symmetric matrix (upper triangle, row by row)\n* scalar to enter multiple of the unit matrix.')
