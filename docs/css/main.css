@@ -1,5 +1,5 @@
 .record, .abstract-record, .selection {
-  border-bottom: 1px solid #999;
+  /*border-bottom: 1px solid #999;*/
 }
 
 h1 {
@@ -7,12 +7,13 @@ h1 {
 }
 
 #input-reference {
-  margin: 0 0 0 150px;
+  margin: 0 0 0 0; /*150px*/;
 }
 
-#input-reference h3{
+#input-reference h3 {
   color: #337ab7;
-  background-color: #F2F4F9;
+  background-color: rgba(255,255,255,0.5);
+  border-radius: 5px;
   font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
 }
 
@@ -20,9 +21,9 @@ h1 {
     display: inline-block;
     position: relative;
     width: 150px;
-    text-align: right;
-    top: 35px;
-    left: -155px;
+    text-align: left;/*right;*/
+    top: 0;/*35px;*/
+    left: 0;/*-155px;*/
     color: #666;
     font-size: 0.8em;
     /*font-weight: bold;*/
@@ -39,9 +40,8 @@ h1 {
 }
 
 header {
-  /*border: 1px solid red;*/
-  background: rgb(250, 250, 250);
-  padding: 5px;
+  background: rgba(250, 250, 250, .5);
+  padding: 5px 5px 5px 15px;
   margin-bottom: 10px;
 }
 
@@ -49,40 +49,8 @@ h3 {
     display: inline-block;
 }
 
-
-.header-info:before {
-    content: " < ";
-    padding-left: 5px;
-    font-style: italic;
-    /*font-family: Menlo,Monaco,Consolas,"Courier New",monospace;*/
-    font-size: 1.2em;
-    color: #999;
-}
-
-
 .skew {
     font-style: italic;
-}
-
-.header-info:after {
-    content: " >";
-    font-style: italic;
-    /*font-family: Menlo,Monaco,Consolas,"Courier New",monospace;*/
-    font-size: 1.2em;
-    color: #999;
-}
-
-.header-info {
-    /*font-family: Menlo,Monaco,Consolas,"Courier New",monospace;*/
-}
-
-body h2 {
-    margin: 5px 0;
-}
-
-body h3 {
-    font-size: 1.1em;
-    margin: 5px 0;
 }
 
 body h3 small {
@@ -90,7 +58,7 @@ body h3 small {
 }
 
 #input-reference>section>ul.item-list>li:hover {
-    box-shadow: inset 0px 0px 10px 0 rgba(0,0,0,0.15)
+    /*box-shadow: inset 0px 0px 10px 0 rgba(0,0,0,0.15)*/
 }
 
 #input-reference>section>ul.item-list {
@@ -146,12 +114,16 @@ ul.item-list li:nth-child(even) {
     font-variant: small-caps;
 }
 
-.shortcut {
+.shortcut, .shortcut-r {
     color: #999;
 }
 
 .shortcut:after {
     content: ": ";
+}
+
+.shortcut-r:before {
+    content: " :";
 }
 
 
@@ -184,4 +156,83 @@ ul.nav-bar li {
     font-size: 1.1em;
     /*color: red;
     background: black;*/
+}
+
+.leading-text {
+    color: #666;
+    opacity: 0.9;
+}
+
+.item-key-value {
+    text-align: right;
+    font-size: 0.9em;
+    line-height: 16px;
+    float: right;
+}
+
+
+body h2 {
+    margin: 5px 0;
+}
+
+body h3 {
+    font-size: 1.3em;
+    margin: 5px 0;
+    line-height: 18px;
+    padding: 5px;
+}
+
+
+.chevron:before {
+    content: " <";
+    padding: 0 2px 1px;
+    font-style: italic;
+    font-size: 1.2em;
+    color: #999;
+}
+
+.chevron:after {
+    content: ">";
+    padding: 0 1px 2px;
+    font-style: italic;
+    font-size: 1.2em;
+    color: #999;
+}
+
+
+#input-reference .record {
+    background: #D0E0EF;}
+#input-reference .record h3, #input-reference .record a {
+    color: #337ab7;}
+#input-reference .record a:hover {
+    color: #23527c;}
+
+
+#input-reference .abstract-record {
+    background: #E1F2DF;}
+#input-reference .abstract-record h3, #input-reference .abstract-record a {
+    color: #308B26;}
+#input-reference .abstract-record a:hover {
+    color: #276F1F;}
+
+#input-reference .selection {
+    background: #F0DCF2;}
+#input-reference .selection h3,#input-reference .selection a {
+    color: #9A2DA6;}
+#input-reference .selection a:hover {
+    color: #7B2384;}
+
+.abstract-record em {
+    padding-left: 10px;
+}
+
+
+body .abc-list {
+  text-align: right;
+  padding-right: 0
+}
+
+body .tree-list {
+  text-align: left;
+  padding-left: 0;
 }

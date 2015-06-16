@@ -29,12 +29,13 @@ class htmltree(object):
     def add(self, element):
         return self.current().append(element)
 
-    def h(self, title, subtitle='', level='h3'):
+    def h(self, title, subtitle='', level='h3', hide_sub=True):
         if subtitle:
             with self.open(level, '', self.generate_id(title, subtitle)):
-                with self.open('small'):
-                    self.tag('a', subtitle + '', self.generate_href(subtitle))
-                    self.span('::')
+                if not hide_sub:
+                    with self.open('small'):
+                        self.tag('a', subtitle + '', self.generate_href(subtitle))
+                        self.span('::')
                 self.span(title)
             return self
         with self.open(level, ''):
@@ -52,7 +53,7 @@ class htmltree(object):
             with self.open('a', '', href_attrib):
                 self.span(' ', { 'class': 'glyphicon glyphicon-link', 'aria-hidden': 'true' })
 
-        attrib.update(self.generate_id(value))
+        # attrib.update(self.generate_id(value))
         self.tag('h2', value, attrib)
 
     def h3(self, value='', attrib={ }):
@@ -74,6 +75,9 @@ class htmltree(object):
         return self.tag('ol', value, attrib)
 
     def span(self, value='', attrib={ }):
+        return self.tag('span', value, attrib)
+
+    def info(self, value='', attrib={"class": 'leading-text'}):
         return self.tag('span', value, attrib)
 
     def div(self, value='', attrib={ }):

@@ -34,7 +34,8 @@ def json2html(input_file='examples/example.json', output_file='../../docs/index.
         json_object = json.load(fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
     html_content = HTMLFormatter.format(json_object)
-    html_nav = HTMLFormatter.navigation_bar(json_object)
+    html_nav_abc = HTMLFormatter.abc_navigation_bar(json_object)
+    html_nav_tree = HTMLFormatter.tree_navigation_bar(json_object)
 
     html_body = htmltree('body')
     with html_body.open('div', '', { 'class': 'jumbotron' }):
@@ -42,12 +43,23 @@ def json2html(input_file='examples/example.json', output_file='../../docs/index.
             with html_body.open('h1', 'Flow123d '):
                 html_body.tag('small', 'input reference')
 
-            with html_body.open('div', attrib={ 'class': 'col-md-9' }):
+            # with html_body.open('div', attrib={'class': 'btn-group', 'data-toggle': 'buttons'}):
+            # btn_cls = attrib={'class': 'btn btn-default active btn-filter'}
+            #     html_body.tag('a', 'Records', btn_cls)
+            #     html_body.tag('a', 'Abstract records', btn_cls)
+            #     html_body.tag('a', 'Selections', btn_cls)
+
+            with html_body.open('div', attrib={ 'class': 'col-md-2 tree-list' }):
+                html_body.add(html_nav_tree.current())
+            with html_body.open('div', attrib={ 'class': 'col-md-8 input-reference' }):
                 html_body.add(html_content.current())
-            with html_body.open('div', attrib={ 'class': 'col-md-3' }):
-                html_body.add(html_nav.current())
+                first_record = html_body.current()._children[0]._children[0]
+                first_record.attrib['class'] = first_record.attrib['class'].replace('hidden', '')
+            with html_body.open('div', attrib={ 'class': 'col-md-2 abc-list' }):
+                html_body.add(html_nav_abc.current())
 
     html_head = htmltree('head')
+
     html_head.tag('title', 'Flow123d input reference')
     html_head.style('css/main.css')
     html_head.style('css/bootstrap.min.css')

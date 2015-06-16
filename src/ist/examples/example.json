@@ -158,7 +158,7 @@
          },
          {
             "key": "sets",
-            "description": "List of region set definitions. There are three region sets implicitly defined:\nALL (all regions of the mesh), BOUNDARY (all boundary regions), and BULK (all bulk regions)",
+            "description": "List of region set definitions. There are three region sets implicitly defined:\n\n* ALL (all regions of the mesh)\n* BOUNDARY (all boundary regions)\n* BULK (all bulk regions)",
             "default": {
                "type": "optional",
                "value": "OPTIONAL"

@@ -102,11 +102,11 @@ class NumberRange(ISTNode):
         self.always_visible = always_visible
 
     replacements = {
-        '2147483647': '',
-        '4294967295': '',
-        '-2147483647': '',
-        '1.79769e+308': '',
-        '-1.79769e+308': '',
+        '2147483647': 'INT32 MAX',
+        '4294967295': 'UINT32 MAX',
+        '-2147483647': 'INT32 MIN',
+        '1.79769e+308': '+inf',
+        '-1.79769e+308': '-inf',
         '': 'unknown range'
     }
 
@@ -120,17 +120,21 @@ class NumberRange(ISTNode):
         """
         Wheather is information within this instance beneficial
         """
-        return self._format() in ('[0, ]', '[, ]')
+        return self._format() in ('[0, ]', '[, ]', '(-inf, +inf)')
 
     def _format(self):
         """
         Method will will return string representation of this instance
         :return:
         """
-        return '[{}, {}]'.format(
-            self.replacements.get(str(self.min), self.min),
-            self.replacements.get(str(self.max), self.max)
-        )
+        min_value = self.replacements.get(str(self.min), str(self.min))
+        max_value = self.replacements.get(str(self.max), str(self.max))
+        l_brace = '(' if min_value.find('inf') != -1 else '['
+        r_brace = ')' if max_value.find('inf') != -1 else ']'
+
+        return '{l_brace}{min_value}, {max_value}{r_brace}'.format(
+            l_brace=l_brace, r_brace=r_brace,
+            min_value=min_value, max_value=max_value)
 
     def copy(self):
         return NumberRange(self.always_visible)
