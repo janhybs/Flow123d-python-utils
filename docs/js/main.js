@@ -1,3 +1,12 @@
+function isFilterOneMode () {
+    return $('.btn-filter-one').hasClass('active');
+}
+
+function fixSelection () {
+    if (isFilterOneMode ()) {
+    
+    }
+}
 
 $(function() {
 
@@ -13,15 +22,34 @@ $(function() {
       katex.render (code, element, { displayMode: false });
     });
 
+    $('.btn-filter-one').click(function(){
+        $(this).toggleClass('active');
+        if ()
+    });
+
     $('.btn-filter').click(function(){
-        console.log (this);
-    })
+        var isActive = $(this).hasClass('active');
+        var type = '.'+$(this).data('type');
+
+        if (!isActive) {
+            $(type).removeClass('hidden');
+        } else {
+            $(type).addClass('hidden');
+        }
+
+    });
 
   $(window).on('hashchange',function(){
-    var hash = document.location.hash;
-    var section = $('[name=' + hash.slice(1) + ']');
-    $('.main-section').addClass ('hidden');
-    section.removeClass('hidden');
+    if (isFilterOneMode ())) {
+        var hash = document.location.hash;
+        var section = $('[data-name=' + hash.slice(1) + ']');
+        $('.main-section').addClass ('hidden');
+        section.removeClass('hidden');
+    }else{
+        if (!$('.btn-filter').hasClass('active')) {
+            $($('.btn-filter').first()).click();
+        }
+    }
   });
 
   $('a[href*=#]:not([href=#])').click(function() {

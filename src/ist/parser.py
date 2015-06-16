@@ -43,11 +43,16 @@ def json2html(input_file='examples/example.json', output_file='../../docs/index.
             with html_body.open('h1', 'Flow123d '):
                 html_body.tag('small', 'input reference')
 
-            # with html_body.open('div', attrib={'class': 'btn-group', 'data-toggle': 'buttons'}):
-            # btn_cls = attrib={'class': 'btn btn-default active btn-filter'}
-            #     html_body.tag('a', 'Records', btn_cls)
-            #     html_body.tag('a', 'Abstract records', btn_cls)
-            #     html_body.tag('a', 'Selections', btn_cls)
+            with html_body.open('div', attrib={ 'class': 'btn-group', 'data-toggle': 'buttons' }):
+                btn_cls = dict({ 'class': 'btn btn-default btn-filter' })
+                btn_cls['data-type'] = 'record'
+                html_body.tag('a', 'Records', btn_cls)
+                btn_cls['data-type'] = 'abstract-record'
+                html_body.tag('a', 'Abstract records', btn_cls)
+                btn_cls['data-type'] = 'selection'
+                html_body.tag('a', 'Selections', btn_cls)
+
+            html_body.tag('a', 'Filter one', attrib={ 'class': 'btn btn-default btn-filter-one' })
 
             with html_body.open('div', attrib={ 'class': 'col-md-2 tree-list' }):
                 html_body.add(html_nav_tree.current())
