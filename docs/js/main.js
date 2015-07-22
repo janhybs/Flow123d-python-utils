@@ -4,7 +4,7 @@ function isFilterOneMode () {
 
 function fixSelection () {
     if (isFilterOneMode ()) {
-    
+
     }
 }
 
@@ -24,7 +24,6 @@ $(function() {
 
     $('.btn-filter-one').click(function(){
         $(this).toggleClass('active');
-        if ()
     });
 
     $('.btn-filter').click(function(){
@@ -40,7 +39,7 @@ $(function() {
     });
 
   $(window).on('hashchange',function(){
-    if (isFilterOneMode ())) {
+    if (isFilterOneMode ()) {
         var hash = document.location.hash;
         var section = $('[data-name=' + hash.slice(1) + ']');
         $('.main-section').addClass ('hidden');

@@ -12,7 +12,6 @@ Task size           942
 Run process count   1
 Run started         2015-04-21 14:29:39
 Run ended           2015-04-21 14:29:41
-Run duration        2.0
 
                         tag                         call count max time  max/min t avg time    total                             source                              line    
 
