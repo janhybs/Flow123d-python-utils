@@ -1,7 +1,5 @@
 # encoding: utf-8
 # author:   Jan Hybs
-from markdown import markdown
-from ist.utils.texlist import texlist
 import xml.etree.ElementTree as ET
 
 
@@ -12,11 +10,13 @@ class Html2Latex (object):
     }
 
     def __init__ (self, element):
-        if type (element) is str:
+        if type (element) in (str, unicode):
             tree = ET.fromstring ('<html_example>' + element + "</html_example>")
             self.el = tree
         else:
             self.el = element
+
+        from ist.utils.texlist import texlist
         self.tex = texlist ()
 
     def extend_children (self):
@@ -33,7 +33,9 @@ class Html2Latex (object):
         return self.el.tail if self.el.tail else ''
 
     def add_tail (self):
-        self.tex.append (self.tail ())
+        if self.tail():
+            with self.tex:
+                self.tex.append (self.tail ())
 
     def get_list_type (self):
         return self.list_types.get (self.el.tag, 'itemize')
@@ -47,9 +49,10 @@ class Html2Latex (object):
 
         if self.tag_is ('p'):
             with self.tex:
-                self.tex.append (self.text ())
+                with self.tex:
+                    self.tex.append (self.text ())
                 self.extend_children ()
-            self.add_tail ()
+                self.add_tail ()
             self.tex.newline ()
 
         elif self.tag_is ('h1'):
@@ -91,14 +94,16 @@ class Html2Latex (object):
             self.add_tail ()
 
 
+        # so far, code tag will be monospaced only
         elif self.tag_is ('code'):
-            self.tex.open_element ('lstlisting')
-            self.tex.newline ()
-            self.tex.append (self.text ())
-            self.extend_children ()
-            self.tex.newline ()
-            self.tex.close_element ('lstlisting')
-            self.add_tail ()
+            # self.tex.open_element ('lstlisting')
+            # self.tex.newline ()
+            self.tex.slash('ttfamily ')
+            self.tex.append (self.text ().replace('\$', '\$'))
+            # self.extend_children ()
+            # self.tex.newline ()
+            # self.tex.close_element ('lstlisting')
+            # self.add_tail ()
 
         elif self.tag_is ('span'):
             self.tex.append (self.text ())
