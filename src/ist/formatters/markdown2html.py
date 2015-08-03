@@ -19,5 +19,7 @@ class markdown2html(object):
 
         if not reduce_to_tree:
             return html
-
-        return ET.fromstring('<' + reduce_tag + '>' + html + '</' + reduce_tag + '>')
+        try:
+            return ET.fromstring(html)
+        except Exception as e:
+            return ET.fromstring('<' + reduce_tag + '>' + html + '</' + reduce_tag + '>')
