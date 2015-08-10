@@ -2,7 +2,7 @@
 # author:   Jan Hybs
 
 #
-import json
+import json, datetime
 
 from ist.formatters.json2html import HTMLFormatter
 from ist.formatters.json2latex import LatexFormatter
@@ -18,10 +18,11 @@ class ProfilerJSONDecoder(json.JSONDecoder):
         return lst
 
 
-class ISTFormatter (object):
+class ISTFormatter(object):
     """
     Class for formatting json to other formats
     """
+
     @staticmethod
     def json2latex(input_file='examples/example.json', output_file='../../docs/input_reference_red.tex'):
         """
@@ -56,50 +57,98 @@ class ISTFormatter (object):
         html_nav_abc = HTMLFormatter.abc_navigation_bar(json_object)
         html_nav_tree = HTMLFormatter.tree_navigation_bar(json_object)
 
+        max_cols = 12
+        if 'right-list' not in skip_block_creation or 'left-list' not in skip_block_creation:
+            max_cols -= 3
+
         html_body = htmltree('body')
-        with html_body.open('div', '', { 'class': 'jumbotron' }):
-            with html_body.open('div', '', { 'class': 'container' }):
+        generated = 'Generated {:s}'.format(datetime.datetime.today().strftime('%d-%m-%Y %X'))
+        html_body.span(generated, id='info-generated')
+        with html_body.open('div', '', cls='jumbotron', id='top'):
+            with html_body.open('div', '', cls='container'):
 
                 if 'title' not in skip_block_creation:
                     with html_body.open('h1', 'Flow123d '):
                         html_body.tag('small', 'input reference')
 
-                if 'button-control' not in skip_block_creation:
-                    with html_body.open('div', attrib={'id': 'btn-filter-one-wrapper'}):
-                        html_body.tag('input', '', attrib={
-                            'type': 'checkbox',
-                            'class': 'btn btn-default',
-                            'id': ' btn-filter-one',
-                            'data-toggle': 'toggle',
-                            'data-on': 'Single-item',
-                            'data-off': 'Multi-item'
-                            })
-                    with html_body.open('div', attrib={ 'class': 'btn-group filter-btns', 'data-toggle': 'buttons' }):
-                        btn_cls = dict({ 'class': 'btn btn-default btn-filter' })
-                        btn_cls['data-type'] = 'record'
-                        html_body.tag('a', 'Records', btn_cls)
-                        btn_cls['data-type'] = 'abstract-record'
-                        html_body.tag('a', 'Abstract records', btn_cls)
-                        btn_cls['data-type'] = 'selection'
-                        html_body.tag('a', 'Selections', btn_cls)
+                if 'search' not in skip_block_creation:
+                    with html_body.open('div', cls='form-group has-default has-feedback search-wrapper'):
+                        html_body.tag('span', cls='glyphicon glyphicon-search form-control-feedback')
+                        html_body.tag('input', type='text', cls='form-control', id='search',
+                                      placeholder='type to search')
 
-                if 'left-list' not in skip_block_creation:
-                    with html_body.open('div', attrib={ 'class': 'col-md-2 tree-list' }):
-                        html_body.add(html_nav_tree.current())
+                with html_body.open('div', cls='row'):
+                    if 'right-list' not in skip_block_creation or 'left-list' not in skip_block_creation:
+                        with html_body.open('div', cls="col-md-3 tree-list"):
+                            with html_body.open('ul', cls="nav nav-tabs", role="tablist"):
+                                classes = ['', 'active']
 
-                if 'ist' not in skip_block_creation:
-                    with html_body.open('div', attrib={ 'class': 'col-md-8 input-reference' }):
-                        html_body.add(html_content.current())
+                                if 'left-list' not in skip_block_creation:
+                                    with html_body.open('li', cls=classes.pop(), role="presentation"):
+                                        html_body.tag('a', 'Tree', attrib={
+                                            'role': 'rab',
+                                            'aria-controls': 'tree-view',
+                                            'data-toggle': 'tab'
+                                        })
 
-                        # show specified element by given id
-                        for child in html_body.current()._children[0]:
-                            if child.attrib['id'].lower() == focus_element_id.lower():
-                                child.attrib['class'] = child.attrib['class'].replace('hidden', '')
-                            # print child.attrib['id'], child.attrib['class']
+                                if 'right-list' not in skip_block_creation:
+                                    with html_body.open('li', role="presentation", cls=classes.pop()):
+                                        html_body.tag('a', 'Abcd', attrib={
+                                            'role': 'rab',
+                                            'aria-controls': 'abc-view',
+                                            'data-toggle': 'tab'
+                                        }, )
 
-                if 'right-list' not in skip_block_creation:
-                    with html_body.open('div', attrib={ 'class': 'col-md-2 abc-list' }):
-                        html_body.add(html_nav_abc.current())
+                            with html_body.open('div', cls='tab-content'):
+                                classes = ['tab-pane', 'tab-pane active']
+                                if 'left-list' not in skip_block_creation:
+                                    with html_body.open('div', role='tabpanel', cls=classes.pop(), id='tree-view'):
+                                        html_body.add(html_nav_tree.current())
+                                if 'right-list' not in skip_block_creation:
+                                    with html_body.open('div', role='tabpanel', cls=classes.pop(), id='abc-view'):
+                                        html_body.add(html_nav_abc.current())
+
+                    if 'ist' not in skip_block_creation:
+                        with html_body.open('div', cls='col-md-{:d} input-reference'.format(max_cols)):
+
+                            if 'button-control' not in skip_block_creation:
+                                with html_body.open('div', id='button-control', cls='row'):
+                                    with html_body.open('div', cls='col-md-12'):
+                                        with html_body.open('div', id='btn-filter-one-wrapper'):
+                                            html_body.tag('input', '', attrib={
+                                                'type': 'checkbox',
+                                                'class': 'btn btn-default',
+                                                'id': 'btn-filter-one',
+                                                'data-toggle': 'toggle',
+                                                'data-on': 'Single-item',
+                                                'data-off': 'Multi-item',
+                                                'checked': 'checked'
+                                            })
+                                        with html_body.open('div', cls='btn-group filter-btns'):
+                                            btn_cls = dict()
+
+                                            btn_cls['data-type'] = 'record'
+                                            btn_cls['class'] = 'btn btn-warning btn-filter'
+                                            html_body.tag('a', 'Records', btn_cls)
+
+                                            btn_cls['data-type'] = 'abstract-record'
+                                            btn_cls['class'] = 'btn btn-success btn-filter'
+                                            html_body.tag('a', 'Abstract records', btn_cls)
+
+                                            btn_cls['data-type'] = 'selection'
+                                            btn_cls['class'] = 'btn btn-info btn-filter'
+                                            html_body.tag('a', 'Selections', btn_cls)
+
+                            with html_body.open('div', cls='row'):
+                                with html_body.open('a', id='top-link-block', title='Scroll to top',
+                                                    href='#input-reference', cls='well well-sm'):
+                                    html_body.span(cls='glyphicon glyphicon-menu-up')
+                                html_body.add(html_content.current())
+
+                            # show specified element by given id
+                            for child in html_body.current()._children[0]:
+                                if child.attrib['id'].lower() == focus_element_id.lower():
+                                    child.attrib['class'] = child.attrib['class'].replace('hidden', '')
 
         html_head = htmltree('head')
 
@@ -125,7 +174,7 @@ class ISTFormatter (object):
 
 
 if __name__ == '__main__':
-    formatter = ISTFormatter ()
+    formatter = ISTFormatter()
     formatter.json2latex(
         input_file='/home/jan-hybs/Dokumenty/Flow123d-python-utils/src/ist/examples/example.json',
         output_file='/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/doc/reference_manual/input_reference.tex'
@@ -135,5 +184,5 @@ if __name__ == '__main__':
         input_file='/home/jan-hybs/Dokumenty/Flow123d-python-utils/src/ist/examples/example.json',
         output_file='/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/doc/reference_manual/input_reference.html',
         focus_element_id='root',
-        skip_block_creation=['title','left-list', 'right-list']
+        # skip_block_creation=['title', 'left-list', 'right-list', 'search', 'button-control']
     )
