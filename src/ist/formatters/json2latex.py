@@ -117,7 +117,7 @@ class LatexSelection (LatexItemFormatter):
             try:
                 # with tex:
                 tex.hyperB ("kjh")
-                # tex.add_description_field ("hkjhjkh")
+                tex.add_description_field ("hkjhjkh")
             except Exception as e:
                 print e
             return tex

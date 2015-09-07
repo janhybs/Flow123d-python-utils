@@ -90,12 +90,8 @@ class texlist(list):
         :param ns: optional namespace
         :return: self
         """
-        if __debug__:
-            self.tag('hyperB', self.secure((ns if ns.endswith('::') else ns + '::') + value))
-            self.add(self.escape((ns if ns.endswith('::') else ns + '::') + value))
-        else:
-            self.tag('hyperB', self.secure((ns if ns.endswith('::') else ns + '::') + value))
-            self.add(self.escape(value))
+        self.tag('hyperB', self.secure((ns if ns.endswith('::') else ns + '::') + value))
+        self.add(self.escape(value))
         return self
 
     def slash(self, value=''):
