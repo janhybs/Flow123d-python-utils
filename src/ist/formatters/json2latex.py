@@ -113,10 +113,18 @@ class LatexSelection (LatexItemFormatter):
     def format (self, selection):
         tex = texlist (self.tag_name)
 
+        try:
+            print selection.values
+            print [selection_value for selection_value in selection.values]
+        except Exception as e:
+            print e
+
+        return tex
         with tex.element ():
             with tex:
                 tex.hyperB (selection.name)
             tex.add_description_field (selection.description)
+
 
             for selection_value in selection.values:
                 tex.newline ()
