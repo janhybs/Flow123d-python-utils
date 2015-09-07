@@ -121,9 +121,9 @@ class LatexSelection (LatexItemFormatter):
 
 
         with tex.element ():
-            with tex:
-                tex.hyperB (selection.name)
-            tex.add_description_field (selection.description)
+            # with tex:
+            #     tex.hyperB (selection.name)
+            # tex.add_description_field (selection.description)
             return tex
 
             for selection_value in selection.values:
