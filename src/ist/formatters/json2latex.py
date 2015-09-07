@@ -115,13 +115,11 @@ class LatexSelection (LatexItemFormatter):
 
         with tex.element ():
             try:
-                print selection.name
-                print selection.description
+                with tex:
+                    tex.hyperB (selection.name)
+                tex.add_description_field (selection.description
             except Exception as e:
                 print e
-            # with tex:
-            #     tex.hyperB (selection.name)
-            # tex.add_description_field (selection.description)
             return tex
 
             for selection_value in selection.values:
