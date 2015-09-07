@@ -92,6 +92,7 @@ class texlist(list):
         """
         self.tag('hyperB', self.secure((ns if ns.endswith('::') else ns + '::') + value))
         self.add(self.escape(value))
+        print __debug__
         return self
 
     def slash(self, value=''):
