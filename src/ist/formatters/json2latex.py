@@ -114,6 +114,7 @@ class LatexSelection (LatexItemFormatter):
         tex = texlist (self.tag_name)
 
         # with tex.element ():
+        print '-'*60
         print 'attrs: '
         try:
             with tex:
