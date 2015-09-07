@@ -120,6 +120,7 @@ class LatexSelection (LatexItemFormatter):
                     tex.add_description_field (selection.description)
             except Exception as e:
                 print e
+                raise e
             return tex
 
             for selection_value in selection.values:
