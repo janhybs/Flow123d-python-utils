@@ -436,6 +436,7 @@ class LatexRecord (LatexItemFormatter):
 
     def format (self, record):
         tex = texlist (self.tag_name)
+        return tex
         reference_list = record.implements
 
         with tex.element ():
@@ -463,10 +464,9 @@ class LatexRecord (LatexItemFormatter):
 
             # record keys
             for record_key in record.keys:
-                pass
-                # tex.newline ()
-                # fmt = LatexFormatter.get_formatter_for (record_key)
-                # tex.extend (fmt.format (record_key, record))
+                tex.newline ()
+                fmt = LatexFormatter.get_formatter_for (record_key)
+                tex.extend (fmt.format (record_key, record))
             tex.newline ()
 
         return tex
