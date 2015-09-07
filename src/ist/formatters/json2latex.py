@@ -112,9 +112,7 @@ class LatexSelection (LatexItemFormatter):
 
     def format (self, selection):
         tex = texlist (self.tag_name)
-        with tex:
-            tex.hyperB ("kjh")
-            
+
         with tex.element ():
             try:
                 # with tex:
