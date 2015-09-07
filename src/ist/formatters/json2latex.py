@@ -114,13 +114,37 @@ class LatexSelection (LatexItemFormatter):
         tex = texlist (self.tag_name)
 
         # with tex.element ():
+        print 'attrs: '
+        try:
+            with tex:
+                print selection.name
+                print selection.description
+        except Exception as e:
+            print e
+        print '-'*60
+
+
+        print 'methods: '
+        try:
+            with tex:
+                tex.hyperB ("foo")
+                tex.add_description_field ("bar")
+        except Exception as e:
+            print e
+        print '-'*60
+
+
+        print 'both: '
         try:
             with tex:
                 tex.hyperB (selection.name)
                 tex.add_description_field (selection.description)
         except Exception as e:
             print e
-            raise e
+        print '-'*60
+
+
+
         return tex
 
         for selection_value in selection.values:
