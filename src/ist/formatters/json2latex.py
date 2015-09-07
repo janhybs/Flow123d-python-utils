@@ -115,9 +115,9 @@ class LatexSelection (LatexItemFormatter):
 
         with tex.element ():
             try:
-                with tex:
-                    tex.hyperB (selection.name)
-                    tex.add_description_field (selection.description)
+                # with tex:
+                tex.hyperB (selection.name)
+                tex.add_description_field (selection.description)
             except Exception as e:
                 print e
             return tex
