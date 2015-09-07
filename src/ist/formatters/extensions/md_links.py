@@ -26,8 +26,7 @@ def build_url (label, base, end):
 
 class MdLinkExtension (Extension):
     def __init__ (self, *args, **kwargs):
-        self.config = {
-        }
+        self.config = {}
 
         super (MdLinkExtension, self).__init__ (*args, **kwargs)
 
@@ -37,7 +36,7 @@ class MdLinkExtension (Extension):
         # append to end of inline patterns
         # WIKILINK_RE = r'\[\[([\w0-9_ -]+)\]\]'
         WIKILINK_RE = r'\[\[([\w0-9-]+_[\w0-9_#-]+)\]\]'
-        wikilinkPattern = MdLinks (WIKILINK_RE, self.getConfigs ())
+        wikilinkPattern = MdLinks (WIKILINK_RE, {})
         wikilinkPattern.md = md
         md.inlinePatterns.add ('mdlinks', wikilinkPattern, "<not_strong")
 
