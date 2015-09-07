@@ -206,6 +206,8 @@ class texlist(list):
         # add debug info
         if exception_type:
             print exception_type, exception_value, traceback
+            traceback.print_exception(exception_type, exception_value, traceback)
+            traceback.print_stack()
             raise exception_value
 
         self.counter -= 1
