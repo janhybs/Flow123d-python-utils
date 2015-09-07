@@ -241,6 +241,7 @@ class LatexAbstractRecord (LatexItemFormatter):
 
     def format (self, abstract_record):
         tex = texlist (self.tag_name)
+        return tex
         with tex.element ():
             with tex:
                 tex.hyperB (abstract_record.name)
