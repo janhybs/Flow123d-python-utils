@@ -11,6 +11,7 @@ Package contains:
 
 @url https://github.com/flow123d/flow123d
 """
+import os
 import sys
 import system.versions
 from utils.logger import Logger
@@ -22,7 +23,6 @@ import datetime
 import importlib
 
 logger = Logger(__name__)
-
 
 class ProfilerJSONDecoder (json.JSONDecoder):
     """Class overriding JSONDecoder which possess default python json decoding method.
@@ -117,26 +117,33 @@ class ProfilerFormatter (object):
     def convert(self, json_location, output_file=None, formatter="SimpleTableFormatter", styles=[]):
         """Converts file @ json_location to output_file (if set) using given formatter name"""
         # read file to JSON
+        logger.info('Processing file "%s"', json_location)
+
+        if not os.path.exists(json_location):
+            logger.error('File "%s" does not exists', json_location)
+            raise IOError('Empty json file {:s}'.format(json_location))
+
         try:
             with open(json_location, 'r') as fp:
                 json_data = json.load(fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
                 if not json_data:
                     logger.error('Empty json file "%s"', json_location)
-                    sys.exit (1)
+                    raise IOError('Empty json file {:s}'.format(json_location))
 
                 if 'program-name' not in json_data:
-                    logger.error('No "program-name" in json file "%s"', json_location)
-                    sys.exit (1)
+                    logger.error('No "program-name" field in json file "%s"', json_location)
+                    raise IOError('No "program-name" field in json file {:s}'.format(json_location))
 
                 if json_data['program-name'] != 'Flow123d':
                     logger.error('Incorrect "program-name" value in json file "%s"', json_location)
-                    sys.exit (1)
+                    raise IOError('Incorrect "program-name" value in json file {:s}'.format(json_location))
 
         except Exception as ex:
             # return string with message on error
             logger.exception('Error while parsing json file ' + json_location, ex)
-            sys.exit (1)
+            logger.error("File size: %d %s", os.stat(json_location).st_size, str(os.stat(json_location)))
+            raise ex
 
 
         try:
@@ -151,24 +158,22 @@ class ProfilerFormatter (object):
         except Exception as ex:
             # return string with message on error
             logger.exception('Error while formatting file ' + json_location, ex)
-            sys.exit (1)
+            raise ex
 
         try:
             # if output file is specified write result there
             if output_file is not None:
                 with open(output_file, "w") as fp:
                     fp.write(output)
-                print '{} file generated'.format(output_file)
+                logger.info('File "%s" generated', output_file)
             # otherwise just print result to stdout
             else:
                 print output
         except Exception as ex:
             # return string with message on error
             logger.exception('Cannot save file ' + output_file, ex)
-            sys.exit (1)
+            raise ex
 
-
-        # return True on success
         return True
 
 
