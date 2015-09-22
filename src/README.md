@@ -33,36 +33,7 @@ Old license will be regonized as license if it starts **at the beginning of the 
 * Flag ```-e``` or ```--end``` (default is ```*/```)
 
   Value should be end sequence of the old license.
-  
 
-### New license
-User can specify new license which will replace old one. If no license is specified old license will be removed.
-
-* Flag ```-l``` or ```--license``` default ```None```
-
-  Absolute or relative path to file containing new license
-  
-### Placeholders
-User can specify in license files placeholders which will be processed and replaced. Some placeholders are present by default:
-
-* **```filepath```**  - absolute path currently processed file,
-* **```filename```**  - file name of currently processed file,
-* **```datetime```**  - current system date
-
-if user specifies directory, where is git root, more default values will be available
-
-* Flag ```-g``` or ```--git``` git root directory
-
-#### Custom placeholders
-
-* Flag ```-o``` or ```--option``` (can be used multiple times)
-
-  Value should be in form of ```NAME:VALUE```
-
-#### Using placeholders in license file
-Placeholders need to be wrapped in braces to be recognized. E.g. ```{filename}```.
-Placeholders can be also formated using [this specification](https://docs.python.org/2/library/string.html#format-specification-mini-language).
-  
 ### New license
 User can specify new license which will replace old one. If no license is specified old license will be removed.
 
