@@ -1,6 +1,50 @@
 # encoding: utf-8
 # author:   Jan Hybs
 
+"""
+This script is simple iface to license_manager module. Script is used for finding and replacing licenses in given files/locations
+Script is expected to run as main python file. Script takes arguments from console and calls methods of module.
+
+
+Usage: license_manager_script.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -l FILENAME, --license=FILENAME
+                        Absolute or relative path to file containing new
+                        license, if not specified, license will be only
+                        removed
+  -f FILENAME, --file=FILENAME
+                        Absolute or relative path to file which will be
+                        processed
+  -d DIRNAME, --dir=DIRNAME
+                        Absolute or relative path to dir which will be
+                        recursively processed
+  -g DIRNAME, --git=DIRNAME
+                        Location of git repository (will add additional
+                        information to license)
+  -s START_SEQ, --start=START_SEQ
+                        Start sequence of license, default is '/*!'
+  -e END_SEQ, --end=END_SEQ
+                        End sequence of license, default is '*/'
+  -o NAME:VALUE, --option=NAME:VALUE
+                        Additional formatting variables which will be replaced
+                        In license test by using {variable_name} placeholder
+                        format syntax you can replace these placeholders
+                        dynamically. There are also built in variables:
+                        filename, filepath, datetime  You can also format
+                        placeholders e.g.: {variable:|^10s} will center value
+                        in 10 char e.g. call script with -o foo:bar
+                        in license {foo:|^11s}
+                        will produce ||||bar||||
+                        You can use python format syntax for string only
+                        Also date syntax with field datetime e.g.:
+                        {datetime:%d:%m:%Y}
+                        Additionally if -g or --git is specified other built
+                        names will be accessible:
+                        last_change, last_author, last_email for each file
+                        'branch' globally
+"""
 
 import sys
 import pathfix
