@@ -218,7 +218,8 @@ def create_parser():
                       help="If no license was found, skip file, default is %default")
 
     parser.add_option("-v", "--old-variables", dest="old_variables", default=True, action="store_false",
-                      help="Process doxygen variables, default is %default")
+                      help="Process doxygen variables, default is %default. One-liner variables are in {_name_} format."
+                           "{_name_} variables will contain whole formated line.")
 
     parser.add_option("-w", "--whitespace", dest="whitespace", default=False, action="store_true",
                       help="If set, whitespace around license as well as at the beginning of each "
