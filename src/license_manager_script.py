@@ -217,6 +217,9 @@ def create_parser():
     parser.add_option("-r", "--replace-only", dest="replace_only", default=False, action="store_true",
                       help="If no license was found, skip file, default is %default")
 
+    parser.add_option("-v", "--old-variables", dest="old_variables", default=True, action="store_false",
+                      help="Process doxygen variables, default is %default")
+
     parser.add_option("-w", "--whitespace", dest="whitespace", default=False, action="store_true",
                       help="If set, whitespace around license as well as at the beginning of each "
                            "file will be stripped. After new license two \\n will be added")
@@ -285,7 +288,8 @@ def main():
         license_end=options.license_end,
         variables=variables,
         replace_only=options.replace_only,
-        whitespace=options.whitespace
+        whitespace=options.whitespace,
+        old_variables=options.old_variables
     )
     manager.add_locations(options.files, options.dirs)
     manager.add_git(options.git)
