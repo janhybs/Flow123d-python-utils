@@ -11,6 +11,54 @@ from utils.logger import Logger
 logger = Logger(__name__)
 
 
+class DoxySection(object):
+    def __init__(self, lines=[], formatted=True, section='', obligatory=False):
+        self.lines = lines[:]
+        self.formatted = formatted
+        self.section = section
+        self.obligatory = obligatory
+
+    def add(self, line):
+        l = line
+        if self.formatted:
+            l = l.lstrip('* /')
+            l = l.rstrip(' \t\r')
+        else:
+            l = re.sub(r'^\s+\*/?\s?', '', l)
+
+        self.lines.append(l)
+
+    def _fix_lines(self):
+        self.lines.reverse()
+        for line in self.lines:
+            if not line:
+                self.lines.remove(line)
+            else:
+                break
+        self.lines.reverse()
+
+    def value(self):
+        self._fix_lines()
+        lines = self.lines[:]
+
+        if self.formatted:
+            if not self.lines and self.obligatory:
+                lines = [''] if not self.lines else self.lines
+            elif not self.lines and not self.obligatory:
+                return ''
+
+
+        if self.formatted:
+            result = '\n * @{:7s} {:s}'.format(self.section, *lines)
+            for line in lines[1:]:
+                result += '\n *  {space:7s} {line:s}'.format(space='', line=line)
+        else:
+            result = '\n * @{:7s} '.format(self.section)
+            for line in lines:
+                result += '\n * {line:s}'.format(line=line)
+        return result
+
+
 class LicenseManager(object):
     """
     Class for adding/removing or replacing license in given files and folders
@@ -95,59 +143,62 @@ class LicenseManager(object):
         for file_path in self.files:
             self.process_file(file_path)
 
+    def _find_section(self, line):
+        l = line
+        l = l.lstrip('* /')
+        l = l.rstrip(' \t\r')
+        simple_section = re.findall(r'@([a-zA-Z]+)[ \t]+(.+)', l)
+
+        if simple_section:
+            return simple_section[0][0], simple_section[0][1]
+
+        complex_section = re.findall(r'@([a-zA-Z]+)', l)
+        if complex_section:
+            return complex_section[0], None
+        return None, None
+
     def add_old_variables(self, variables, old_license):
         # basic variables used in old license
         basic_vars = {
-            'brief': [''],
-            'ingroup': [],
-            'author': [],
-            'date': [],
-            'file': [os.path.basename(variables['filepath'])]
+            'brief': DoxySection(section='brief', obligatory=True),
+            'ingroup': DoxySection(section='ingroup'),
+            'author': DoxySection(section='author'),
+            'date': DoxySection(section='date'),
+            'section': DoxySection(section='section'),
+            'todo': DoxySection(section='todo'),
+            'file': DoxySection([os.path.basename(variables['filepath'])], section='file')
         }
 
         # find old variables
         section = None
         old_vars = { }
         for line in old_license.split('\n'):
-            line = line.lstrip('* /')
-            line = line.rstrip('\r')
-            if not line.strip():
-                section = None
-                continue
+            new_section_name, new_section_value = self._find_section(line)
+            if new_section_name:
+                doxy = DoxySection()
+                doxy.section = new_section_name
+                doxy.formatted = bool(new_section_value)
+                old_vars[new_section_name] = doxy
+                section = new_section_name
 
-            result = re.findall(r'@([a-zA-Z]+)[ \t]+(.+)', line)
-            if result:
-                var_name, var_value = result[0]
-                var_value = var_value.strip()
-                old_vars[var_name] = [var_value]
-                section = var_name
+                if new_section_value:
+                    doxy.add(new_section_value)
             elif section:
-                old_vars[var_name].append(line)
+                old_vars[section].add(line)
 
-        # max_length = 7#len(max(old_vars.keys(), key=len)) + 1
         new_vars = basic_vars.copy()
         new_vars.update(old_vars)
+        new_vars['brief'].obligatory = True
         keys = new_vars.keys()
 
         # create _name_ variables
-        for key, values in new_vars.items():
-            if not values:
-                new_vars['_' + key + '_'] = ''
-                continue
-
-            if values[0].strip() == '???':
-                new_vars['_' + key + '_'] = ' '
-                continue
-
-            fmt = '\n * @{:7s} {:s}' + '\n *  {space:7s} {:s}'.join([''] * len(values))
-            new_vars['_' + key + '_'] = fmt.format(key, *values, space='')
+        for key, doxy in new_vars.items():
+            new_vars['_' + key + '_'] = doxy.value()
+            new_vars[key] = ' '.join(doxy.lines)
 
         # add them to variable reference
         variables.update(new_vars)
 
-        # convert lists to str
-        for key in keys:
-            variables[key] = '\n'.join(variables[key])
 
     def process_file(self, file_path):
         """
