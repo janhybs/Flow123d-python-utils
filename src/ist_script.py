@@ -73,7 +73,6 @@ def main():
     # convert to tex format
     if options.format.lower() in ('tex', 'latex'):
         Logger.instance().info('Formatting ist to tex format')
-        return
         formatter.json2latex(options.input, options.output)
         sys.exit(0)
 

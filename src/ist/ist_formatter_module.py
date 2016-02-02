@@ -3,7 +3,7 @@
 
 #
 from __future__ import absolute_import
-print "----------------"
+
 import json, datetime
 from ist.formatters.json2html import HTMLFormatter
 from ist.formatters.json2latex import LatexFormatter
@@ -65,7 +65,6 @@ class ISTFormatter(object):
         for child in html_content.current():
             if child.attrib['id'].lower() == focus_element_id.lower():
                 child.attrib['class'] = child.attrib['class'].replace('hidden', '')
-                print "Element {:s} is displayed".format(child.attrib['id'])
                 break
 
         max_cols = 12
