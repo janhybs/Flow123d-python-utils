@@ -75,7 +75,7 @@ class ISTNode(object):
         return self.__class__()
 
     def __repr__(self):
-        return '<{self.__class__.__name__}[{self.id}] {self._fields}>'.format(self=self)
+        return '<{self.__class__.__name__}[{self.id}]>'.format(self=self)
 
 
 class Reference(ISTNode):

@@ -19,18 +19,15 @@ Options:
                         'tex' or 'html' output
 
 """
-
 import pathfix
-
 pathfix.append_to_path()
 
 import system.versions
-
 system.versions.require_version_2()
 
 import sys
 from optparse import OptionParser
-from ist.ist_formatter_module import ISTFormatter
+from utils.logger import Logger
 
 
 def create_parser():
@@ -42,6 +39,8 @@ def create_parser():
                       help="Absolute or relative path output file which will be generated/overwritten")
     parser.add_option("-f", "--format", dest="format", metavar="FORMAT", default="tex",
                       help="tex|html output format")
+    parser.add_option("--log", dest="loglevel", metavar="LEVEL", default="warning",
+                      help="Logging level default is %default, options are (debug, info, warning, error, critical)")
     parser.set_usage("""%prog [options]""")
     return parser
 
@@ -51,12 +50,12 @@ def parse_args(parser):
     (options, args) = parser.parse_args()
 
     if options.input is None:
-        print "Error: No input file specified!"
+        Logger.instance().warning("Error: No input file specified!")
         parser.print_help()
         sys.exit(1)
 
     if options.output is None:
-        print "Error: No output file specified!"
+        Logger.instance().warning("Error: No output file specified!")
         parser.print_help()
         sys.exit(1)
 
@@ -65,22 +64,26 @@ def parse_args(parser):
 
 def main():
     parser = create_parser()
-    (options, args) = parse_args(parser)
+    options, args = parse_args(parser)
 
     # create instance of formatter
+    from ist.ist_formatter_module import ISTFormatter
     formatter = ISTFormatter()
 
     # convert to tex format
     if options.format.lower() in ('tex', 'latex'):
+        Logger.instance().info('Formatting ist to tex format')
+        return
         formatter.json2latex(options.input, options.output)
         sys.exit(0)
 
     # convert to HTML format
     if options.format.lower() in ('html', 'html5', 'www', 'htm'):
+        Logger.instance().info('Formatting ist to html format')
         formatter.json2html(options.input, options.output)
         sys.exit(0)
 
-    print "Error: Unsupported format '{:s}'".format(options.format)
+    Logger.instance().error("Error: Unsupported format '{:s}'".format(options.format))
     sys.exit(1)
 
 

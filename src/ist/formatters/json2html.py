@@ -7,7 +7,6 @@ from ist.nodes import ISTNode, ComplexNode
 from ist.utils.htmltree import htmltree
 
 from utils.logger import Logger
-logger = Logger(__name__)
 
 class NotImplementedException(Exception):
     pass
@@ -282,7 +281,6 @@ class HTMLAbstractRecord(HTMLItemFormatter):
         with self.open('ul', attrib={ 'class': 'item-list' }):
             for descendant in abstract_record.implementations:
                 reference = descendant.get_reference()
-                print descendant, reference
                 with self.open('li'):
                     self.link(reference.type_name)
                     self.info(' - ')
@@ -360,7 +358,7 @@ class HTMLRecordKey(HTMLItemFormatter):
             fmt.format_as_child(reference, record_key, record)
             self.add(fmt.current())
         except NotImplementedException as e:
-            print ' <<Missing formatter for {}>>'.format(type(reference))
+            Logger.instance().info(' <<Missing formatter for {}>>'.format(type(reference)))
             raise e
 
 
@@ -391,21 +389,21 @@ class HTMLFormatter(object):
         """
         html = htmltree('div')
         html.id('input-reference')
-        logger.info('Processing items...')
+        Logger.instance().info('Processing items...')
+
         for item in items:
-            logger.info(' - item ' + str(item))
             # format only IST nodes
             if not issubclass(item.__class__, ISTNode):
-                logger.info(' - item type not supported: %s' % str(item))
+                Logger.instance().info(' - item type not supported: %s' % str(item))
                 continue
 
             # do no format certain objects
             if not item.include_in_format():
-                logger.info(' - item skipped')
+                Logger.instance().info(' - item skipped: %s' % str(item))
                 continue
 
             try:
-                logger.info(' - item formatting...')
+                Logger.instance().info(' - formatting item: %s' % str(item))
                 fmt = HTMLFormatter.get_formatter_for(item)
                 fmt.format(item)
                 html.add(fmt.current())
