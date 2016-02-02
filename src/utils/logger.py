@@ -5,7 +5,7 @@ import datetime
 
 logging.basicConfig(
     filename='python.log',
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s %(name)s %(levelname)-4s: %(message)s'
 )
 
@@ -17,7 +17,7 @@ class Logger(object):
         # add console log
         if __debug__:
             stream = logging.StreamHandler()
-            stream.setLevel(logging.WARNING)
+            stream.setLevel(logging.INFO)
             self.logger.addHandler(stream)
 
         with open('python.log', 'a+') as fp:
