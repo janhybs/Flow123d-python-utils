@@ -7,7 +7,6 @@ from __future__ import absolute_import
 import json, datetime
 from ist.formatters.json2html import HTMLFormatter
 from ist.formatters.json2latex import LatexFormatter
-from ist.nodes import TypedList
 from ist.utils.htmltree import htmltree
 
 from utils.logger import Logger
@@ -16,10 +15,7 @@ from utils.logger import Logger
 class ProfilerJSONDecoder(json.JSONDecoder):
     def decode(self, json_string):
         default_obj = super(ProfilerJSONDecoder, self).decode(json_string)
-        ist_nodes = default_obj.get('ist_nodes')
-        lst = TypedList()
-        lst.parse(ist_nodes)
-        return lst
+        return default_obj
 
 
 class ISTFormatter(object):
@@ -28,38 +24,33 @@ class ISTFormatter(object):
     """
 
     @staticmethod
-    def json2latex(input_file='examples/example.json', output_file='../../docs/input_reference_red.tex'):
+    def json2latex(items, output_file='../../docs/input_reference_red.tex'):
         """
         Method converts given json file to latex output file
-        :param input_file:
+        :param items:  list of parsed IST items
         :param output_file:
         :return:
         """
-        with open(input_file, 'r') as fp:
-            json_object = json.load(fp, encoding="utf-8", cls=ProfilerJSONDecoder)
 
-        latex_result = ''.join(LatexFormatter.format(json_object))
+        latex_result = ''.join(LatexFormatter.format(items))
         with open(output_file, 'w') as fp:
             fp.write(latex_result)
 
 
     @staticmethod
-    def json2html(input_file, output_file, focus_element_id='root', skip_block_creation=[]):
+    def json2html(items, output_file, focus_element_id='root', skip_block_creation=[]):
         """
         Method converts given input file to single html output file
-        :param input_file:  input json file
+        :param items:  list of parsed IST items
         :param output_file: output html file
         :param focus_element_id: id of element which will be visible, default root
         :param skip_block_creation: list of items which won't be created:
          [title, button-control, left-list, ist, right-list]
         :return:
         """
-        with open(input_file, 'r') as fp:
-            json_object = json.load(fp, encoding="utf-8", cls=ProfilerJSONDecoder)
-
-        html_content = HTMLFormatter.format(json_object)
-        html_nav_abc = HTMLFormatter.abc_navigation_bar(json_object)
-        html_nav_tree = HTMLFormatter.tree_navigation_bar(json_object)
+        html_content = HTMLFormatter.format(items)
+        html_nav_abc = HTMLFormatter.abc_navigation_bar(items)
+        html_nav_tree = HTMLFormatter.tree_navigation_bar(items)
 
         # show specified element by given id
         for child in html_content.current():

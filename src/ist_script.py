@@ -19,6 +19,7 @@ Options:
                         'tex' or 'html' output
 
 """
+import json
 import pathfix
 pathfix.append_to_path()
 
@@ -28,6 +29,25 @@ system.versions.require_version_2()
 import sys
 from optparse import OptionParser
 from utils.logger import Logger
+
+from ist.nodes import TypeRecord, TypeAbstract, TypeSelection, TypeString, TypeDouble, TypeInteger, TypeBool, TypeArray, \
+    TypeParameter, TypeFilename
+
+
+# all acceptable input_type values
+registered_nodes = {
+    'Record': TypeRecord,
+    'AbstractRecord': TypeAbstract,
+    'Abstract': TypeAbstract,
+    'Selection': TypeSelection,
+    'String': TypeString,
+    'Double': TypeDouble,
+    'Integer': TypeInteger,
+    'FileName': TypeFilename,
+    'Bool': TypeBool,
+    'Array': TypeArray,
+    'Parameter': TypeParameter
+}
 
 
 def create_parser():
@@ -70,16 +90,33 @@ def main():
     from ist.ist_formatter_module import ISTFormatter
     formatter = ISTFormatter()
 
+    # read input json file
+    with file(options.input, 'r') as fp:
+        json_data = json.load(fp)
+        json_data = json_data['ist_nodes'] if 'ist_nodes' in json_data else json_data
+
+        # filter out unsupported types, they won't be formatted
+        items = list()
+        for json_item in json_data:
+            input_type = json_item['input_type'] if 'input_type' in json_item else None
+            if input_type in registered_nodes:
+
+                item = registered_nodes[input_type]()
+                item.parse(json_item)
+                items.append(item)
+            else:
+                Logger.instance().info(' - item type not supported: %s' % str(item))
+
     # convert to tex format
     if options.format.lower() in ('tex', 'latex'):
         Logger.instance().info('Formatting ist to tex format')
-        formatter.json2latex(options.input, options.output)
+        formatter.json2latex(items, options.output)
         sys.exit(0)
 
     # convert to HTML format
     if options.format.lower() in ('html', 'html5', 'www', 'htm'):
         Logger.instance().info('Formatting ist to html format')
-        formatter.json2html(options.input, options.output)
+        formatter.json2html(items, options.output)
         sys.exit(0)
 
     Logger.instance().error("Error: Unsupported format '{:s}'".format(options.format))

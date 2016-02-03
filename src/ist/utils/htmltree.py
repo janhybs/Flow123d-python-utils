@@ -1,5 +1,7 @@
-# encoding: utf-8
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 # author:   Jan Hybs
+
 import cgi
 
 import xml.etree.ElementTree as ET
