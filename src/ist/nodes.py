@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 
-from ist.extras import TypeSelectionValue, TypeReference, TypeRecordKey, TypeRange
+from ist.extras import TypeSelectionValue, TypeReference, TypeRecordKey, TypeRange, TypeAttributes
 from ist.base import Field, Parsable, Dict, InputType, List
 
 
@@ -13,7 +13,7 @@ class TypeSelection(Parsable):
     :type values             : list[ist.extras.TypeSelectionValue]
     :type name               : unicode
     :type input_type         : InputType
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     :type description        : unicode
     """
     __fields__ = [
@@ -21,7 +21,7 @@ class TypeSelection(Parsable):
         Field("values", t=List, subtype=TypeSelectionValue),
         Field(["name", "type_name"]),
         Field("input_type", t=InputType),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
         Field("description"),
     ]
 
@@ -36,16 +36,15 @@ class TypeSelection(Parsable):
     def include_in_format(self):
         return self.name.find('TYPE') == -1
 
-
 class TypeRecord(Parsable):
     """
     Class defining "Record" type in IST
     :type id                 : unicode
     :type keys               : list[ist.extras.TypeRecordKey]
     :type name               : unicode
-    :type implements         : list[ist.extras.TypeReference]
+    :type implements         : List[ist.extras.TypeReference]
     :type input_type         : InputType
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     :type description        : unicode
     :type reducible_to_key   : unicode
     """
@@ -55,7 +54,7 @@ class TypeRecord(Parsable):
         Field(["name", "type_name"]),
         Field("implements", t=List, subtype=TypeReference),
         Field("input_type", t=InputType),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
         Field("description"),
         Field("reducible_to_key"),
     ]
@@ -70,23 +69,22 @@ class TypeRecord(Parsable):
         self.description = None
         self.reducible_to_key = None
 
-
 class TypeAbstract(Parsable):
     """
     Class defining "Abstract" type in IST
     :type id                 : unicode
     :type name               : unicode
     :type input_type         : InputType
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     :type description        : unicode
-    :type implementations    : list[ist.extras.TypeReference]
+    :type implementations    : List[ist.extras.TypeReference]
     :type default_descendant : unicode
     """
     __fields__ = [
         Field("id", index=True),
         Field(["name", "type_name"]),
         Field("input_type", t=InputType),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
         Field("description"),
         Field("implementations", t=List, subtype=TypeReference),
         Field("default_descendant", t=TypeReference),
@@ -108,13 +106,13 @@ class TypeString(Parsable):
     :type id                 : unicode
     :type name               : unicode
     :type input_type         : InputType
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     """
     __fields__ = [
         Field("id", index=True),
         Field(["name", "type_name"]),
         Field("input_type", t=InputType),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
     ]
 
     def __init__(self):
@@ -131,14 +129,14 @@ class TypeDouble(Parsable):
     :type range              : ist.extras.TypeRange
     :type name               : unicode
     :type input_type         : InputType
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     """
     __fields__ = [
         Field("id", index=True),
         Field("range", t=TypeRange),
         Field(["name", "type_name"]),
         Field("input_type", t=InputType),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
     ]
 
     def __init__(self):
@@ -155,14 +153,14 @@ class TypeFilename(Parsable):
     :type id                 : unicode
     :type name               : unicode
     :type file_mode          : unicode
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     :type input_type         : InputType
     """
     __fields__ = [
         Field("id", index=True),
         Field(["name", "type_name"]),
         Field("file_mode"),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
         Field("input_type", t=InputType),
     ]
 
@@ -180,13 +178,13 @@ class TypeBool(Parsable):
     :type id                 : unicode
     :type name               : unicode
     :type input_type         : InputType
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     """
     __fields__ = [
         Field("id", index=True),
         Field(["name", "type_name"]),
         Field("input_type", t=InputType),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
     ]
 
     def __init__(self):
@@ -203,14 +201,14 @@ class TypeInteger(Parsable):
     :type range              : ist.extras.TypeRange
     :type name               : unicode
     :type input_type         : InputType
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     """
     __fields__ = [
         Field("id", index=True),
         Field("range", t=TypeRange),
         Field(["name", "type_name"]),
         Field("input_type", t=InputType),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
     ]
 
     def __init__(self):
@@ -229,7 +227,7 @@ class TypeArray(Parsable):
     :type subtype            : ist.extras.TypeReference
     :type name               : unicode
     :type input_type         : InputType
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     """
     __fields__ = [
         Field("id", index=True),
@@ -237,7 +235,7 @@ class TypeArray(Parsable):
         Field("subtype", t=TypeReference),
         Field(["name", "type_name"]),
         Field("input_type", t=InputType),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
     ]
 
     def __init__(self):
@@ -255,13 +253,13 @@ class TypeParameter(Parsable):
     :type id                 : unicode
     :type name               : unicode
     :type input_type         : InputType
-    :type attributes         : dict
+    :type attributes         : ist.extras.TypeAttributes
     """
     __fields__ = [
         Field("id", index=True),
         Field(["name", "type_name"]),
         Field("input_type", t=InputType),
-        Field("attributes", t=Dict),
+        Field("attributes", t=TypeAttributes),
     ]
 
     def __init__(self):

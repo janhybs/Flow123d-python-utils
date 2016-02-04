@@ -4,12 +4,9 @@ from __future__ import absolute_import
 
 import cgi
 from ist.utils.htmltree import htmltree
-from ist.base import InputType
+from ist.base import InputType, NotImplementedException
 
 from utils.logger import Logger
-
-class NotImplementedException(Exception):
-    pass
 
 
 class HTMLItemFormatter(htmltree):
@@ -24,6 +21,230 @@ class HTMLItemFormatter(htmltree):
 
     def format(self, *args, **kwargs):
         raise NotImplementedException('Not implemented yet')
+
+
+class HTMLSelection(HTMLItemFormatter):
+    """
+    Class representing Selection node in IST
+    """
+    def __init__(self):
+        super(HTMLSelection, self).__init__(cls='main-section selection hidden')
+
+    def format_as_child(self, self_selection, record_key, record):
+        """
+        :type record: ist.nodes.TypeRecord
+        :type record_key: ist.extras.TypeRecordKey
+        :type self_selection: ist.nodes.TypeSelection
+        """
+        self.root.attrib['class'] = 'child-selection'
+        with self.open('div', attrib={ 'class': 'item-key-value' }):
+            with self.open('span', attrib={ 'class': 'item-key' }):
+                self.info('Selection ')
+            with self.open('span', attrib={ 'class': 'item-value chevron' }):
+                if self_selection.include_in_format():
+                    self.link_to_main(self_selection)
+                else:
+                    self.span(self_selection.name)
+
+            self.tag('br')
+            HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
+
+        self.h(record_key.key, record.name)
+
+        self.description(record_key.description)
+
+    def format(self, selection):
+        """
+        :type selection: ist.nodes.TypeSelection
+        """
+        self.root.attrib['id'] = htmltree.chain_values(selection.id)
+        self.root.attrib['data-name'] = htmltree.chain_values(selection.name)
+        with self.open('header'):
+            self.main_section_title(selection)
+            self.description(selection.description)
+
+        if selection.values:
+            self.italic('Values', attrib={ 'class': 'section-list' })
+            with self.open('ul', attrib={ 'class': 'item-list' }):
+                for selection_value in selection.values:
+                    with self.open('li'):
+                        self.h3(selection_value.name)
+                        self.description(selection_value.description)
+
+        if selection.attributes.parameters:
+            self.italic('Parameters', attrib={ 'class': 'section-list' })
+            with self.open('ul', attrib={ 'class': 'item-list' }):
+                for param in selection.attributes.parameters:
+                    reference = param.reference.get_reference()
+                    with self.open('li'):
+                        with self.open('section', attrib={'class': 'record-param'}):
+                            self.h3(param.name)
+                            self.span(str(reference.input_type))
+                            self.info(' type of ')
+                            self.link_to_main(reference)
+
+        return self
+
+
+class HTMLRecord(HTMLItemFormatter):
+    """
+    Class representing record node in IST
+    """
+    def __init__(self):
+        super(HTMLRecord, self).__init__(cls='main-section record hidden')
+
+    def format_as_child(self, self_record, record_key, record):
+        """
+        :type self_record: ist.nodes.TypeRecord
+        :type record: ist.nodes.TypeRecord
+        :type record_key: ist.extras.TypeRecordKey
+        """
+        self.root.attrib['class'] = 'child-record'
+        with self.open('div', attrib={ 'class': 'item-key-value' }):
+            with self.open('span', attrib={ 'class': 'item-key' }):
+                self.info('Record ')
+            with self.open('span', attrib={ 'class': 'item-value chevron' }):
+                if self_record.include_in_format():
+                    self.link_to_main(self_record)
+                else:
+                    self.span(self_record.name)
+
+            self.tag('br')
+            HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
+
+        self.h(record_key.key, record.name)
+
+        self.description(record_key.description)
+
+    def format(self, record):
+        """
+        :type record: ist.nodes.TypeRecord
+        """
+        self.root.attrib['id'] = htmltree.chain_values(record.id)
+        self.root.attrib['data-name'] = htmltree.chain_values(record.name)
+        with self.open('header'):
+            self.main_section_title(record)
+
+            if record.attributes.generic_type:
+                with self.open('div'):
+                    self.italic('Generic type: ')
+                    self.link_to_main(record.attributes.generic_type.get_reference())
+
+            if record.reducible_to_key:
+                with self.open('div'):
+                    self.italic('Constructible from key: ')
+                    self.link(record.reducible_to_key, ns=record.name)
+
+            if record.implements:
+                with self.open('div'):
+                    self.italic('Implements abstract type: ')
+                    with self.open('ul'):
+                        for reference in record.implements:
+                            with self.open('li'):
+                                self.link_to_main(reference.get_reference())
+
+            self.italic('Description', attrib={ 'class': 'section-list' })
+            self.description(record.description)
+
+        if record.keys:
+            self.italic('Keys', attrib={ 'class': 'section-list' })
+            with self.open('ul', attrib={ 'class': 'item-list' }):
+                for record_key in record.keys:
+                    if not record_key.include_in_format():
+                        continue
+                    with self.open('li'):
+                        fmt = HTMLFormatter.get_formatter_for(record_key)
+                        fmt.format(record_key, record)
+                        self.add(fmt.current())
+
+        if record.attributes.parameters:
+            self.italic('Parameters', attrib={ 'class': 'section-list' })
+            with self.open('ul', attrib={ 'class': 'item-list' }):
+                for param in record.attributes.parameters:
+                    reference = param.reference.get_reference()
+                    with self.open('li'):
+                        with self.open('section', attrib={'class': 'record-param'}):
+                            self.h3(param.name)
+                            self.span(str(reference.input_type))
+                            self.info(' type of ')
+                            self.link_to_main(reference)
+
+
+class HTMLAbstractRecord(HTMLItemFormatter):
+    """
+    Class representing AbstractRecord node in IST
+    """
+    def __init__(self):
+        super(HTMLAbstractRecord, self).__init__(cls='main-section abstract-record hidden')
+
+    def format_as_child(self, abstract_record, record_key, record):
+        """
+        :type abstract_record: ist.nodes.TypeAbstract
+        :type record: ist.nodes.TypeRecord
+        :type record_key: ist.extras.TypeRecordKey
+        """
+        self.root.attrib['class'] = 'child-abstract-record'
+        with self.open('div', attrib={ 'class': 'item-key-value' }):
+            with self.open('span', attrib={ 'class': 'item-key' }):
+                self.info('abstract type ')
+            with self.open('span', attrib={ 'class': 'item-value chevron' }):
+                if abstract_record.include_in_format():
+                    self.link_to_main(abstract_record)
+                else:
+                    self.span(abstract_record.name)
+
+            self.tag('br')
+            HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
+
+        self.h(record_key.key, record.name)
+        self.description(record_key.description)
+
+    def format(self, abstract_record):
+        """
+        :type abstract_record: ist.nodes.TypeAbstract
+        """
+        self.root.attrib['id'] = htmltree.chain_values(abstract_record.id)
+        self.root.attrib['data-name'] = htmltree.chain_values(abstract_record.name)
+        with self.open('header'):
+            self.main_section_title(abstract_record)
+
+            if abstract_record.default_descendant:
+                reference = abstract_record.default_descendant.get_reference()
+                with self.open('div'):
+                    self.italic('Default descendant ')
+                    self.link_to_main(reference)
+
+            if abstract_record.attributes.generic_type:
+                with self.open('div'):
+                    self.italic('Generic type: ')
+                    self.link_to_main(abstract_record.attributes.generic_type.get_reference())
+
+            self.italic('Description', attrib={ 'class': 'section-list' })
+            self.description(abstract_record.description)
+
+        if abstract_record.implementations:
+            self.italic('Implementations', attrib={ 'class': 'section-list' })
+            with self.open('ul', attrib={ 'class': 'item-list' }):
+                for descendant in abstract_record.implementations:
+                    reference = descendant.get_reference()
+                    with self.open('li'):
+                        with self.open('section', attrib={'class': 'record-param'}):
+                            with self.open('h3'):
+                                self.link_to_main(reference)
+                            self.span(reference.description)
+
+        if abstract_record.attributes.parameters:
+            self.italic('Parameters', attrib={ 'class': 'section-list' })
+            with self.open('ul', attrib={ 'class': 'item-list' }):
+                for param in abstract_record.attributes.parameters:
+                    reference = param.reference.get_reference()
+                    with self.open('li'):
+                        with self.open('section', attrib={'class': 'record-param'}):
+                            self.h3(param.name)
+                            self.span(str(reference.input_type))
+                            self.info(' type of ')
+                            self.link_to_main(reference)
+
 
 
 class HTMLUniversal(HTMLItemFormatter):
@@ -217,181 +438,14 @@ class HTMLArray(HTMLUniversal):
                     self.info(' ')
                     self.span(cgi.escape(str(self_array.range)))
                 self.info(' of ')
-                self.span(subtype.input_type)
+                self.span(str(subtype.input_type))
 
             if subtype.input_type == InputType.MAIN_TYPE:
                 with self.open('span', attrib={ 'class': 'item-value chevron' }):
-                    self.link(subtype.name)
+                    self.link_to_main(subtype)
 
             self.tag('br')
             HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
-
-
-class HTMLSelection(HTMLItemFormatter):
-    """
-    Class representing Selection node in IST
-    """
-    def __init__(self):
-        super(HTMLSelection, self).__init__(cls='main-section selection hidden')
-
-    def format_as_child(self, self_selection, record_key, record):
-        """
-        :type record: ist.nodes.TypeRecord
-        :type record_key: ist.extras.TypeRecordKey
-        :type self_selection: ist.nodes.TypeSelection
-        """
-        self.root.attrib['class'] = 'child-selection'
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
-                self.info('Selection ')
-            with self.open('span', attrib={ 'class': 'item-value chevron' }):
-                if self_selection.include_in_format():
-                    self.link(self_selection.name)
-                else:
-                    self.span(self_selection.name)
-
-            self.tag('br')
-            HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
-
-        self.h(record_key.key, record.name)
-
-        self.description(record_key.description)
-
-    def format(self, selection):
-        """
-        :type selection: ist.nodes.TypeSelection
-        """
-        self.root.attrib['id'] = htmltree.chain_values(selection.name)
-        self.root.attrib['data-name'] = htmltree.chain_values(selection.name)
-        with self.open('header'):
-            self.h2(selection.name)
-            self.description(selection.description)
-
-        with self.open('ul', attrib={ 'class': 'item-list' }):
-            for selection_value in selection.values:
-                with self.open('li'):
-                    self.h3(selection_value.name)
-                    self.description(selection_value.description)
-
-        return self
-
-
-class HTMLAbstractRecord(HTMLItemFormatter):
-    """
-    Class representing AbstractRecord node in IST
-    """
-    def __init__(self):
-        super(HTMLAbstractRecord, self).__init__(cls='main-section abstract-record hidden')
-
-    def format_as_child(self, abstract_record, record_key, record):
-        """
-        :type abstract_record: ist.nodes.TypeAbstract
-        :type record: ist.nodes.TypeRecord
-        :type record_key: ist.extras.TypeRecordKey
-        """
-        self.root.attrib['class'] = 'child-abstract-record'
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
-                self.info('abstract type ')
-            with self.open('span', attrib={ 'class': 'item-value chevron' }):
-                if abstract_record.include_in_format():
-                    self.link(abstract_record.name)
-                else:
-                    self.span(abstract_record.name)
-
-            self.tag('br')
-            HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
-
-        self.h(record_key.key, record.name)
-        self.description(record_key.description)
-
-    def format(self, abstract_record):
-        """
-        :type abstract_record: ist.nodes.TypeAbstract
-        """
-        self.root.attrib['id'] = htmltree.chain_values(abstract_record.name)
-        self.root.attrib['data-name'] = htmltree.chain_values(abstract_record.name)
-        with self.open('header'):
-            self.h2(abstract_record.name)
-
-            if abstract_record.default_descendant:
-                reference = abstract_record.default_descendant.get_reference()
-                self.italic('Default descendant ')
-                self.link(reference.name)
-
-            self.description(abstract_record.description)
-
-        self.italic('Implemented by:')
-        with self.open('ul', attrib={ 'class': 'item-list' }):
-            for descendant in abstract_record.implementations:
-                reference = descendant.get_reference()
-                with self.open('li'):
-                    self.link(reference.name)
-                    self.info(' - ')
-                    self.span(reference.description)
-
-
-class HTMLRecord(HTMLItemFormatter):
-    """
-    Class representing record node in IST
-    """
-    def __init__(self):
-        super(HTMLRecord, self).__init__(cls='main-section record hidden')
-
-    def format_as_child(self, self_record, record_key, record):
-        """
-        :type self_record: ist.nodes.TypeRecord
-        :type record: ist.nodes.TypeRecord
-        :type record_key: ist.extras.TypeRecordKey
-        """
-        self.root.attrib['class'] = 'child-record'
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
-                self.info('Record ')
-            with self.open('span', attrib={ 'class': 'item-value chevron' }):
-                if self_record.include_in_format():
-                    self.link(self_record.name)
-                else:
-                    self.span(self_record.name)
-
-            self.tag('br')
-            HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
-
-        self.h(record_key.key, record.name)
-
-        self.description(record_key.description)
-
-    def format(self, record):
-        """
-        :type record: ist.nodes.TypeRecord
-        """
-        self.root.attrib['id'] = htmltree.chain_values(record.name)
-        self.root.attrib['data-name'] = htmltree.chain_values(record.name)
-        reference_list = record.implements
-        with self.open('header'):
-            self.h2(record.name)
-
-            if reference_list:
-                for reference in reference_list:
-                    self.italic('implements abstract type: ')
-                    self.link(reference.get_reference().name)
-
-            if record.reducible_to_key:
-                if reference_list:
-                    self.tag('br')
-                self.italic('constructible from key: ')
-                self.link(record.reducible_to_key, ns=record.name)
-
-            self.description(record.description)
-
-        with self.open('ul', attrib={ 'class': 'item-list' }):
-            for record_key in record.keys:
-                if not record_key.include_in_format():
-                    continue
-                with self.open('li'):
-                    fmt = HTMLFormatter.get_formatter_for(record_key)
-                    fmt.format(record_key, record)
-                    self.add(fmt.current())
 
 
 class HTMLRecordKey(HTMLItemFormatter):
@@ -415,7 +469,7 @@ class HTMLRecordKey(HTMLItemFormatter):
             self.add(fmt.current())
         except NotImplementedException as e:
             Logger.instance().info(' <<Missing formatter for {}>>'.format(type(reference)))
-            raise e
+            # raise e
 
 
 class HTMLFormatter(object):

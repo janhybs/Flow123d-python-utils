@@ -105,6 +105,13 @@ class Parsable(object):
         return input_type is not None and input_type == InputType.MAIN_TYPE
 
 
+    @property
+    def debug_name(self):
+        # if getattr(self, 'name', None) and getattr(self, 'id', None):
+        #     return '{self.name}[{self.id}]'.format(self=self)
+        return self.name
+
+
 class List(list):
     def __init__(self):
         super(List, self).__init__()
@@ -126,6 +133,9 @@ class List(list):
                 self.append(item)
         return self
 
+    def is_single(self):
+        return len(self) == 1
+
 
 class Dict(dict):
     def parse(self, json_data):
@@ -135,3 +145,6 @@ class Dict(dict):
 
     def __getattr__(self, item):
         return self.get(item, None)
+
+class NotImplementedException(Exception):
+    pass

@@ -7,6 +7,7 @@ from __future__ import absolute_import
 import json, datetime
 from ist.formatters.json2html import HTMLFormatter
 from ist.formatters.json2latex import LatexFormatter
+from ist.globals import Globals
 from ist.utils.htmltree import htmltree
 
 from utils.logger import Logger
@@ -48,6 +49,7 @@ class ISTFormatter(object):
          [title, button-control, left-list, ist, right-list]
         :return:
         """
+        g = Globals
         html_content = HTMLFormatter.format(items)
         html_nav_abc = HTMLFormatter.abc_navigation_bar(items)
         html_nav_tree = HTMLFormatter.tree_navigation_bar(items)
@@ -118,12 +120,11 @@ class ISTFormatter(object):
                                         with html_body.open('div', id='btn-filter-one-wrapper'):
                                             html_body.tag('input', '', attrib={
                                                 'type': 'checkbox',
-                                                'class': 'btn btn-default',
+                                                'class': 'btn btn-default off',
                                                 'id': 'btn-filter-one',
                                                 'data-toggle': 'toggle',
                                                 'data-on': 'Single-item',
                                                 'data-off': 'Multi-item',
-                                                'checked': 'checked'
                                             })
                                         with html_body.open('div', cls='btn-group filter-btns'):
                                             btn_cls = dict()
@@ -133,7 +134,7 @@ class ISTFormatter(object):
                                             html_body.tag('a', 'Records', btn_cls)
 
                                             btn_cls['data-type'] = 'abstract-record'
-                                            btn_cls['class'] = 'btn btn-success btn-filter'
+                                            btn_cls['class'] = 'btn btn-success btn-filter active'
                                             html_body.tag('a', 'Abstract records', btn_cls)
 
                                             btn_cls['data-type'] = 'selection'

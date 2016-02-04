@@ -3,7 +3,7 @@
 # author:   Jan Hybs
 
 from ist.globals import Globals
-from ist.base import Parsable, Field
+from ist.base import Parsable, Field, List
 
 
 class TypeReference(Parsable):
@@ -27,6 +27,14 @@ class TypeReference(Parsable):
         or ist.nodes.TypeParameter or ist.nodes.TypeFilename or ist.nodes.TypeBool
         """
         return Globals.items[self.reference]
+
+    @property
+    def target(self):
+        return self.get_reference()
+
+    def __repr__(self):
+        ref = self.get_reference().input_type
+        return '{self.reference}={ref}'.format(self=self, ref=ref)
 
 
 class TypeSelectionValue(Parsable):
@@ -79,6 +87,9 @@ class TypeRecordKey(Parsable):
         self.default = None
         self.description = None
 
+    def include_in_format(self):
+        return True
+
 
 class TypeRange(Parsable):
     __fields__ = []
@@ -94,7 +105,7 @@ class TypeRange(Parsable):
 
     def parse(self, json_data={ }):
         self.min = json_data[0]
-        self.max = json_data[0]
+        self.max = json_data[1]
         return self
 
     def __init__(self):
@@ -128,3 +139,54 @@ class TypeRange(Parsable):
         is True
         """
         return self._format() if self.always_visible or not self.is_pointless() else ''
+
+
+class TypeAttributeParameter(Parsable):
+    """
+    :type name           : unicode
+    :type reference      : ist.extras.TypeReference
+    """
+    __fields__ = [
+    ]
+
+    def __init__(self):
+        self.name = None
+        self.reference = None
+
+    def parse(self, json_data={ }):
+        item = json_data.items()[0]
+        self.name = str(item[0])
+        self.reference = TypeReference().parse(item[1])
+        return self
+
+    def __repr__(self):
+        if self.name and self.reference:
+            return '<{self.name} -> {self.reference}>'.format(self=self)
+        return '<>'
+
+
+class TypeAttributes(Parsable):
+    """
+    :type obsolete       : unicode
+    :type link_name      : unicode
+    :type parameters     : list[TypeAttributeParameter]
+    :type generic_type   : ist.extras.TypeReference
+    """
+    __fields__ = [
+        Field('obsolete', t=bool),
+        Field('link_name', index=True),
+        Field('parameters', t=List, subtype=TypeAttributeParameter),
+        Field('generic_type', t=TypeReference),
+    ]
+
+    def __init__(self):
+        self.obsolete = None
+        self.link_name = None
+        self.parameters = None
+        self.generic_type = None
+
+    def __repr__(self):
+        if self.obsolete is None and self.link_name is None \
+                and self.parameters is None and self.generic_type is None:
+            return '{}'
+        return super(TypeAttributes, self).__repr__()
