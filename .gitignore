@@ -46,3 +46,9 @@ Temporary Items
 /mount.sh
 /umount.sh
 /copy_util.py
+
+src/**/*.json
+src/**/*.html
+src/**/*.tex
+src/**/*.txt
+src/**/*.log
