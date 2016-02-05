@@ -41,6 +41,7 @@ class TypeSelectionValue(Parsable):
     """
     :type name           : unicode
     :type description    : unicode
+    :type parent         : Parsable
     """
     __fields__ = [
         Field('name'),
@@ -48,14 +49,22 @@ class TypeSelectionValue(Parsable):
     ]
 
     def __init__(self):
+        super(TypeSelectionValue, self).__init__()
         self.name = None
         self.description = None
+
+    @property
+    def href_id(self):
+        if self.parent:
+            return '{self.parent.href_id}_{self.name}'.format(self=self)
+        return self.name
 
 
 class TypeRecordKeyDefault(Parsable):
     """
     :type type           : unicode
     :type value          : unicode
+    :type parent         : Parsable
     """
     __fields__ = [
         Field('type'),
@@ -63,6 +72,7 @@ class TypeRecordKeyDefault(Parsable):
     ]
 
     def __init__(self):
+        super(TypeRecordKeyDefault, self).__init__()
         self.type = None
         self.value = None
 
@@ -73,15 +83,17 @@ class TypeRecordKey(Parsable):
     :type type           : ist.extras.TypeReference
     :type default        : ist.extras.TypeRecordKeyDefault
     :type description    : unicode
+    :type parent         : Parsable
     """
     __fields__ = [
         Field('key'),
         Field('type', t=TypeReference),
-        Field('default', t=TypeRecordKeyDefault),
+        Field('default', t=TypeRecordKeyDefault, link_to_parent=True),
         Field('description'),
     ]
 
     def __init__(self):
+        super(TypeRecordKey, self).__init__()
         self.key = None
         self.type = None
         self.default = None
@@ -89,6 +101,18 @@ class TypeRecordKey(Parsable):
 
     def include_in_format(self):
         return True
+
+    @property
+    def href_id(self):
+        if self.parent:
+            return '{self.parent.href_id}-{self.key}'.format(self=self)
+        return self.key
+
+    @property
+    def href_name(self):
+        if self.parent:
+            return '{self.parent.href_name}->{self.key}'.format(self=self)
+        return self.key
 
 
 class TypeRange(Parsable):
@@ -180,6 +204,7 @@ class TypeAttributes(Parsable):
     ]
 
     def __init__(self):
+        super(TypeAttributes, self).__init__()
         self.obsolete = None
         self.link_name = None
         self.parameters = None

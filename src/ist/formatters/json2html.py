@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 import cgi
+from ist.globals import Globals
 from ist.utils.htmltree import htmltree
 from ist.base import InputType, NotImplementedException
 
@@ -13,6 +14,7 @@ class HTMLItemFormatter(htmltree):
     """
     Simple formatter class
     """
+
     def __init__(self, cls):
         super(HTMLItemFormatter, self).__init__('section', cls)
 
@@ -27,6 +29,7 @@ class HTMLSelection(HTMLItemFormatter):
     """
     Class representing Selection node in IST
     """
+
     def __init__(self):
         super(HTMLSelection, self).__init__(cls='main-section selection hidden')
 
@@ -49,16 +52,15 @@ class HTMLSelection(HTMLItemFormatter):
             self.tag('br')
             HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
 
-        self.h(record_key.key, record.name)
-
+        self.item_list_title(record_key)
         self.description(record_key.description)
 
     def format(self, selection):
         """
         :type selection: ist.nodes.TypeSelection
         """
-        self.root.attrib['id'] = htmltree.chain_values(selection.id)
-        self.root.attrib['data-name'] = htmltree.chain_values(selection.name)
+        self.root.attrib['id'] = selection.href_id
+        self.root.attrib['data-name'] = htmltree.secure(selection.name)
 
         if selection.attributes.obsolete:
             self.root.attrib['data-obsolete'] = '1'
@@ -81,7 +83,7 @@ class HTMLSelection(HTMLItemFormatter):
                 for param in selection.attributes.parameters:
                     reference = param.reference.get_reference()
                     with self.open('li'):
-                        with self.open('section', attrib={'class': 'record-param'}):
+                        with self.open('section', attrib={ 'class': 'record-param' }):
                             self.h3(param.name)
                             self.span(str(reference.input_type))
                             self.info(' type of ')
@@ -94,6 +96,7 @@ class HTMLRecord(HTMLItemFormatter):
     """
     Class representing record node in IST
     """
+
     def __init__(self):
         super(HTMLRecord, self).__init__(cls='main-section record hidden')
 
@@ -116,7 +119,7 @@ class HTMLRecord(HTMLItemFormatter):
             self.tag('br')
             HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
 
-        self.h(record_key.key, record.name)
+        self.item_list_title(record_key)
 
         self.description(record_key.description)
 
@@ -124,8 +127,8 @@ class HTMLRecord(HTMLItemFormatter):
         """
         :type record: ist.nodes.TypeRecord
         """
-        self.root.attrib['id'] = htmltree.chain_values(record.id)
-        self.root.attrib['data-name'] = htmltree.chain_values(record.name)
+        self.root.attrib['id'] = record.href_id
+        self.root.attrib['data-name'] = htmltree.secure(record.name)
         with self.open('header'):
             self.main_section_title(record)
 
@@ -137,7 +140,7 @@ class HTMLRecord(HTMLItemFormatter):
             if record.reducible_to_key:
                 with self.open('div'):
                     self.italic('Constructible from key: ')
-                    self.link(record.reducible_to_key, ns=record.name)
+                    self.link_to_main(record.reducible_to_key)
 
             if record.implements:
                 with self.open('div'):
@@ -167,7 +170,7 @@ class HTMLRecord(HTMLItemFormatter):
                 for param in record.attributes.parameters:
                     reference = param.reference.get_reference()
                     with self.open('li'):
-                        with self.open('section', attrib={'class': 'record-param'}):
+                        with self.open('section', attrib={ 'class': 'record-param' }):
                             self.h3(param.name)
                             self.span(str(reference.input_type))
                             self.info(' type of ')
@@ -178,6 +181,7 @@ class HTMLAbstractRecord(HTMLItemFormatter):
     """
     Class representing AbstractRecord node in IST
     """
+
     def __init__(self):
         super(HTMLAbstractRecord, self).__init__(cls='main-section abstract-record hidden')
 
@@ -200,22 +204,22 @@ class HTMLAbstractRecord(HTMLItemFormatter):
             self.tag('br')
             HTMLRecordKeyDefault(self).format_as_child(record_key.default, record_key, record)
 
-        self.h(record_key.key, record.name)
+        self.item_list_title(record_key)
         self.description(record_key.description)
 
     def format(self, abstract_record):
         """
         :type abstract_record: ist.nodes.TypeAbstract
         """
-        self.root.attrib['id'] = htmltree.chain_values(abstract_record.id)
-        self.root.attrib['data-name'] = htmltree.chain_values(abstract_record.name)
+        self.root.attrib['id'] = abstract_record.href_id
+        self.root.attrib['data-name'] = htmltree.secure(abstract_record.name)
         with self.open('header'):
             self.main_section_title(abstract_record)
 
             if abstract_record.default_descendant:
                 reference = abstract_record.default_descendant.get_reference()
                 with self.open('div'):
-                    self.italic('Default descendant ')
+                    self.italic('Default descendant: ')
                     self.link_to_main(reference)
 
             if abstract_record.attributes.generic_type:
@@ -232,7 +236,7 @@ class HTMLAbstractRecord(HTMLItemFormatter):
                 for descendant in abstract_record.implementations:
                     reference = descendant.get_reference()
                     with self.open('li'):
-                        with self.open('section', attrib={'class': 'record-param'}):
+                        with self.open('section', attrib={ 'class': 'record-param' }):
                             with self.open('h3'):
                                 self.link_to_main(reference)
                             self.span(reference.description)
@@ -243,23 +247,23 @@ class HTMLAbstractRecord(HTMLItemFormatter):
                 for param in abstract_record.attributes.parameters:
                     reference = param.reference.get_reference()
                     with self.open('li'):
-                        with self.open('section', attrib={'class': 'record-param'}):
+                        with self.open('section', attrib={ 'class': 'record-param' }):
                             self.h3(param.name)
                             self.span(str(reference.input_type))
                             self.info(' type of ')
                             self.link_to_main(reference)
 
 
-
 class HTMLUniversal(HTMLItemFormatter):
     """
     More abstract formatter class for strings, booleans, and other simple elements
     """
+
     def __init__(self):
         super(HTMLUniversal, self).__init__(cls='simple-element')
 
     def _start_format_as_child(self, self_object, record_key, record):
-        self.h(record_key.key, record.name)
+        self.item_list_title(record_key)
 
     def _format_as_child(self, self_object, record_key, record):
         raise NotImplementedException('Not implemented yet')
@@ -286,6 +290,7 @@ class HTMLRecordKeyDefault(object):
     """
     Class representing default value in record key
     """
+
     def __init__(self, html):
         self.html = html if html is not None else htmltree('div', 'record-key-default')
         self.format_rules = {
@@ -344,6 +349,7 @@ class HTMLInteger(HTMLUniversal):
     """
     Class representing int
     """
+
     def _format_as_child(self, self_int, record_key, record):
         """
         :type self_int: ist.nodes.TypeInteger
@@ -361,6 +367,7 @@ class HTMLDouble(HTMLUniversal):
     """
     Class representing double
     """
+
     def _format_as_child(self, self_double, record_key, record):
         """
         :type self_double: ist.nodes.TypeDouble
@@ -378,6 +385,7 @@ class HTMLBool(HTMLUniversal):
     """
     Class representing boolean
     """
+
     def _format_as_child(self, self_bool, record_key, record):
         """
         :type self_bool: ist.nodes.TypeBool
@@ -396,6 +404,7 @@ class HTMLString(HTMLUniversal):
     """
     Class representing string
     """
+
     def _format_as_child(self, self_fn, record_key, record):
         """
         :type self_fn: ist.nodes.TypeString
@@ -411,6 +420,7 @@ class HTMLFileName(HTMLUniversal):
     """
     Class representing filename type
     """
+
     def _format_as_child(self, self_fn, record_key, record):
         """
         :type self_fn: ist.nodes.TypeFilename
@@ -428,6 +438,7 @@ class HTMLArray(HTMLUniversal):
     """
     Class representing Array structure
     """
+
     def _format_as_child(self, self_array, record_key, record):
         """
         :type self_array: ist.nodes.TypeArray
@@ -456,6 +467,7 @@ class HTMLRecordKey(HTMLItemFormatter):
     """
     Class representing one record key
     """
+
     def __init__(self):
         super(HTMLRecordKey, self).__init__(cls='record-key')
 
@@ -574,7 +586,7 @@ class HTMLFormatter(object):
     @staticmethod
     def _add_items(items, html, type=None, reverse=False):
         """
-        :type items: list[ist.base.TypeSelection]
+        :type items: list[ist.nodes.TypeSelection]
         """
         prev_name = ''
         with html.open('ul', attrib={ 'class': 'nav-bar' }):
@@ -592,14 +604,14 @@ class HTMLFormatter(object):
 
                     prev_name = item.name
 
-                    with html.open('li', attrib={'data-name': item.name}):
-                        with html.open('a', '', html.generate_href(item.name)):
+                    with html.open('li', attrib={ 'data-name': item.name }):
+                        with html.open('a', '', { 'href': '#' + item.href_id }):
                             if reverse:
-                                html.span(item.name)
+                                html.span(item.href_name)
                                 html.span(str(item.input_type)[0], attrib={ 'class': 'shortcut-r' })
                             else:
                                 html.span(str(item.input_type)[0], attrib={ 'class': 'shortcut' })
-                                html.span(item.name)
+                                html.span(item.href_name)
 
     @staticmethod
     def __cmp(a, b):

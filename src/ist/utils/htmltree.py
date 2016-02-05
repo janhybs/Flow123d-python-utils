@@ -55,7 +55,7 @@ class htmltree(object):
         """
         return self.current().append(element)
 
-    def h(self, title, subtitle='', level='h3', hide_subtitle=True):
+    def item_list_title(self, item_field):
         """
         Method creates and appends header with level
         If subtitle is given href to title will consist of subtitle
@@ -66,17 +66,8 @@ class htmltree(object):
         :param hide_subtitle: hide subtitle section
         :return:
         """
-        if subtitle:
-            with self.open(level, '', self.generate_id(title, subtitle)):
-                if not hide_subtitle:
-                    with self.open('small'):
-                        self.tag('a', subtitle + '', self.generate_href(subtitle))
-                        self.span('::')
-                self.span(title)
-            return self
-        with self.open(level, ''):
-            with self.open('a', '', self.generate_href(title)):
-                self.span(title)
+        with self.open('h3', attrib={'id': item_field.href_id}):
+            self.span(item_field.get('name', 'key', 'href_name'))
         return self
 
     def main_section_title(self, item, attrib={ }, **kwargs):
@@ -86,11 +77,11 @@ class htmltree(object):
         :type item: ist.nodes.TypeSelection or ist.nodes.TypeRecord or ist.nodes.TypeAbstract
         """
         with self.open('span', '', { 'class': 'pull-right side-anchor' }):
-            href_attrib = self.generate_href(item.id)
+            href_attrib = { 'href': '#' + item.href_id }
             href_attrib.update({ 'title': 'Permalink to this section' })
             with self.open('a', '', href_attrib):
                 self.span(' ', { 'class': 'glyphicon glyphicon-link', 'aria-hidden': 'true' })
-        self.tag('h2', item.name, attrib, **kwargs)
+        self.tag('h2', item.href_name, attrib, **kwargs)
 
     def mark_as_obsolete(self, element):
         """
@@ -232,7 +223,7 @@ class htmltree(object):
         :type item: ist.nodes.TypeSelection or ist.nodes.TypeRecord or ist.nodes.TypeAbstract
         """
         # return self.tag('a', item.name + '(' + item.id + ')', self.generate_href(item.id))
-        return self.tag('a', item.name, self.generate_href(item.id))
+        return self.tag('a', item.href_name, {'href': '#'+item.href_id})
 
     def open(self, tag_name, value='', attrib={ }, **kwargs):
         """
@@ -320,24 +311,6 @@ class htmltree(object):
         :param id: id value
         """
         self.root.attrib['id'] = id
-
-    def generate_id(self, value, sub_value=''):
-        """
-        Method generates dict with id based on given value and sub_value
-        :param value: id main value
-        :param sub_value: id optional sub value part
-        :return: dict with id key
-        """
-        return { 'id': htmltree.chain_values(value, sub_value) }
-
-    def generate_href(self, value, sub_value=''):
-        """
-        Method generates dict with href based on given value and sub_value
-        :param value: href main value
-        :param sub_value: id optional sub value part
-        :return: dict with href key
-        """
-        return { 'href': '#' + htmltree.chain_values(value, sub_value) }
 
     @staticmethod
     def secure(value):

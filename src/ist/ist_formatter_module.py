@@ -65,6 +65,7 @@ class ISTFormatter(object):
             max_cols -= 3
 
         html_body = htmltree('body')
+        html_body.id('top')
         generated = 'Generated {:s}'.format(datetime.datetime.today().strftime('%d-%m-%Y %X'))
         html_body.span(generated, id='info-generated')
         with html_body.open('div', '', cls='jumbotron', id='top'):
@@ -143,7 +144,7 @@ class ISTFormatter(object):
 
                             with html_body.open('div', cls='row'):
                                 with html_body.open('a', id='top-link-block', title='Scroll to top',
-                                                    href='#input-reference', cls='well well-sm'):
+                                                    href='#top', cls='well well-sm'):
                                     html_body.span(cls='glyphicon glyphicon-menu-up')
                                 html_body.add(html_content.current())
 
