@@ -26,8 +26,8 @@
             "id": "116e136c9d8060ca",
             "input_type": "Selection",
             "type_name": "DG_output_fields",
-            "attributes": {},
-            "description": "Auxiliary Selection",
+            "attributes": {"obsolete": true},
+            "description": "Auxiliary Selection [[r_root#flow123d_version]] or [[root]]",
             "values": [
                 {
                     "name": "init_temperature",
