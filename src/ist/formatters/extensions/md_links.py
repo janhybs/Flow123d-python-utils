@@ -16,6 +16,7 @@ from markdown.inlinepatterns import Pattern
 from markdown.util import etree
 import re
 from ist.globals import Globals
+from utils.logger import Logger
 
 
 def build_url(label, base, end):
@@ -37,7 +38,7 @@ class MdLinkExtension(Extension):
 
         # append to end of inline patterns
         # WIKILINK_RE = r'\[\[([\w0-9_ -]+)\]\]'
-        WIKILINK_RE = r'\[\[([\w0-9_#-]+)\]\]'
+        WIKILINK_RE = r'\[\[([\w0-9_#:-]+)\]\]'
         wikilinkPattern = MdLinks(WIKILINK_RE, { })
         wikilinkPattern.md = md
         md.inlinePatterns.add('mdlinks', wikilinkPattern, "<not_strong")
@@ -48,47 +49,47 @@ class MdLinks(Pattern):
         super(MdLinks, self).__init__(pattern)
         self.config = config
 
-    def handleMatch(self, m):
-        if m.group(2).strip():
-            label = m.group(2).strip()
-            parts = label.split("_", 1)
-            if len(parts) == 1:
-                t = 'auto'
-                label = parts[0]
-            else:
-                t = parts[0]
-                label = parts[1]
-            element = self.build_element(t, label)
+    def handleMatch(self, match):
+        if match.group(2).strip():
+            label = match.group(2).strip()
+            link_type = ''
+            pos = label.find('#')
+            if pos != -1:
+                opts = ('r', 'record', 's', 'selection', 'a', 'abstract', 'ar')
+                if label[:pos] in opts:
+                    link_type = label[:pos]
+                    label = label[pos+1:]
+
+            element = self.build_element(link_type, label)
             return element
         else:
             return ''
 
-    def build_element(self, t, label):
-        if t.lower() == 'attribute':
-            p = etree.Element('p')
-            p.text = 'attribute value here'
-            return p
+    @staticmethod
+    def build_element(link_type, label):
 
-        if t.lower() in ('record', 'abstractrecord', 'selection', 'r', 'a', 's', 'ar', 'auto'):
+        # find item which is desired
+        link_text = None
+        if label.find(':') != -1:
+            link_text = label[label.find(':') + 1:]
+            label = label[:label.find(':')]
 
-            # find item which is desired
-            result = Globals.get_url_by_name(label)
-            item = result[0]
-            item_field = result[1]
-            a = etree.Element('a')
+        result = Globals.get_url_by_name(label, link_type)
+        item = result[0]
+        item_field = result[1]
+        a = etree.Element('a')
 
-            if item_field:
-                a.text = item_field.href_name
-                a.set('href', '#{item_field.href_id}'.format(item_field=item_field))
+        if item_field:
+            a.text = link_text or item_field.href_name
+            a.set('href', '#{item_field.href_id}'.format(item_field=item_field))
 
-            elif item:
-                a.text = item.href_name
-                a.set('href', '#{item.href_id}'.format(item=item))
-
-            return a
-
-        print 'unknown type'
-        return None
+        elif item:
+            a.text = link_text or item.href_name
+            a.set('href', '#{item.href_id}'.format(item=item))
+        else:
+            Logger.instance().warning('Link not found %s %s' % (link_type, label) )
+            return ''
+        return a
 
 
 def makeExtension(*args, **kwargs):
