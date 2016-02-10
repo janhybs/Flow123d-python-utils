@@ -55,7 +55,7 @@ class htmltree(object):
         """
         return self.current().append(element)
 
-    def item_list_title(self, item_field):
+    def item_list_title(self, item_field, add_link=False, add_id=True):
         """
         Method creates and appends header with level
         If subtitle is given href to title will consist of subtitle
@@ -66,8 +66,13 @@ class htmltree(object):
         :param hide_subtitle: hide subtitle section
         :return:
         """
-        with self.open('h3', attrib={'id': item_field.href_id}):
-            self.span(item_field.get('name', 'key', 'href_name'))
+        if add_link:
+            with self.open('a', attrib={'href': '#'+item_field.href_id}):
+                self.item_list_title(item_field, add_link=False, add_id=add_id)
+        else:
+            attrib = {'id': item_field.href_id} if add_id else {}
+            with self.open('h3', attrib=attrib):
+                self.span(item_field.get('name', 'key', 'href_name'))
         return self
 
     def main_section_title(self, item, attrib={ }, **kwargs):
@@ -76,20 +81,25 @@ class htmltree(object):
           to this href
         :type item: ist.nodes.TypeSelection or ist.nodes.TypeRecord or ist.nodes.TypeAbstract
         """
-        with self.open('span', '', { 'class': 'pull-right side-anchor' }):
-            href_attrib = { 'href': '#' + item.href_id }
-            href_attrib.update({ 'title': 'Permalink to this section' })
-            with self.open('a', '', href_attrib):
-                self.span(' ', { 'class': 'glyphicon glyphicon-link', 'aria-hidden': 'true' })
-        self.tag('h2', item.href_name, attrib, **kwargs)
+        # with self.open('span', '', { 'class': 'pull-right side-anchor' }):
+        #     href_attrib = { 'href': '#' + item.href_id }
+        #     href_attrib.update({ 'title': 'Permalink to this section' })
+        #     with self.open('a', '', href_attrib):
+        #         self.span(' ', { 'class': 'glyphicon glyphicon-link', 'aria-hidden': 'true' })
+        with self.open('h2'):
+            self.tag('a', item.href_name, attrib={ 'href': '#' + item.href_id })
+        # self.tag('h2', item.href_name, attrib, **kwargs)
 
     def mark_as_obsolete(self, element):
         """
         :type item: ist.nodes.TypeSelection or ist.nodes.TypeRecord or ist.nodes.TypeAbstract
         """
-        self.tag('p', 'This element is marked as obsolete and may not be present in next version',
-                 attrib={ 'class': 'obsolete' }
-        )
+        with self.open('div', cls='obsolete'):
+            self.tag('p', 'Obsolete', cls='obsolete-title')
+            self.description(element.attributes.obsolete)
+
+    def add_clear(self):
+        self.div('', cls='clear')
 
     def h2(self, value='', attrib={ }, **kwargs):
         """
@@ -218,12 +228,12 @@ class htmltree(object):
         """
         return self.tag('a', text if text else target, attrib=self.generate_href(target, ns))
 
-    def link_to_main(self, item):
+    def link_to_main(self, item, text=None):
         """
         :type item: ist.nodes.TypeSelection or ist.nodes.TypeRecord or ist.nodes.TypeAbstract
         """
         # return self.tag('a', item.name + '(' + item.id + ')', self.generate_href(item.id))
-        return self.tag('a', item.href_name, {'href': '#'+item.href_id})
+        return self.tag('a', text or item.href_name, {'href': '#'+item.href_id})
 
     def open(self, tag_name, value='', attrib={ }, **kwargs):
         """
@@ -253,7 +263,6 @@ class htmltree(object):
         value.attrib['class'] = 'description'
         self.add(value)
         # return self.tag('div', value, { 'class': 'description' }, no_escape=True)
-
 
     def __enter__(self):
         """

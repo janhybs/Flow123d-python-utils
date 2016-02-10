@@ -10,10 +10,11 @@ from utils.logger import Logger
 
 
 class InputType(object):
-    SELECTION = 1
-    RECORD = 2
-    ABSTRACT = 4
-    ABSTRACTRECORD = 4
+    UNKNOWN = 0
+    SELECTION = 4
+    RECORD = 1
+    ABSTRACT = 2
+    ABSTRACTRECORD = ABSTRACT
     ARRAY = 8
     INTEGER = 16
     DOUBLE = 32
@@ -44,7 +45,7 @@ class InputType(object):
         return 'UNKNOWN'
 
     def parse(self, value):
-        self.value = getattr(self, value.upper())
+        self.value = getattr(self, value.upper(), InputType.UNKNOWN)
         return self
 
 
@@ -90,6 +91,10 @@ class Parsable(object):
     def __init__(self):
         self.parent = None
         self.unique_name = None
+        self.references = list()
+
+    def add_ref(self, ref):
+        self.references.append(ref)
 
     def parse(self, json_data={ }):
         for field in self.__fields__:
@@ -138,8 +143,8 @@ class Parsable(object):
         if link_name was specified in attributes, it will be used
         :return:
         """
-        if getattr(self, 'attributes', None) and self.attributes.link_name:
-            return self.attributes.link_name
+        # if getattr(self, 'attributes', None) and self.attributes.link_name:
+        #     return self.attributes.link_name
 
         # if getattr(self, 'unique_name', None):
         #     return self.unique_name
@@ -158,11 +163,11 @@ class Parsable(object):
         # if getattr(self, 'attributes', None) and self.attributes.link_name:
         #     return self.attributes.link_name
         #
-        # if getattr(self, 'unique_name', None):
-        #     return htmltree.secure(self.unique_name)
+        if getattr(self, 'unique_name', None):
+            return htmltree.secure(self.unique_name)
         #
-        # if getattr(self, 'name', None):
-        #     return htmltree.secure(self.name)
+        if getattr(self, 'name', None):
+            return htmltree.secure(self.name)
 
         if getattr(self, 'id', None):
             return htmltree.secure(self.id)
@@ -201,6 +206,23 @@ class Parsable(object):
         :type parent: Parsable
         """
         self.parent = parent
+
+    def get_references(self):
+        return list(set(self.references))
+        # result = []
+        # for item in Globals.iterate():
+        #     for key in getattr(item, 'keys', []):
+        #         if key.type.get_reference().id == self.id:
+        #             result.append(item)
+        #         if key.type.get_reference().input_type == InputType.ARRAY:
+        #             if key.type.get_reference().subtype.get_reference().id == self.id:
+        #                 result.append(item)
+        #
+        #     for imp in getattr(item, 'implementations', []):
+        #         if imp.get_reference().id == self.id:
+        #             result.append(item)
+        #
+        # return list(set(result))
 
 
 class List(list):

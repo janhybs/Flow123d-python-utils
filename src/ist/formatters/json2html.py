@@ -40,10 +40,10 @@ class HTMLSelection(HTMLItemFormatter):
         :type self_selection: ist.nodes.TypeSelection
         """
         self.root.attrib['class'] = 'child-selection'
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
+        with self.open('div', attrib={'class': 'item-key-value'}):
+            with self.open('span', attrib={'class': 'item-key'}):
                 self.info('Selection ')
-            with self.open('span', attrib={ 'class': 'item-value chevron' }):
+            with self.open('span', attrib={'class': 'item-value chevron'}):
                 if self_selection.include_in_format():
                     self.link_to_main(self_selection)
                 else:
@@ -65,25 +65,36 @@ class HTMLSelection(HTMLItemFormatter):
         if selection.attributes.obsolete:
             self.root.attrib['data-obsolete'] = '1'
             self.mark_as_obsolete(selection)
+
         with self.open('header'):
+            refs = selection.get_references()
+            if refs:
+                with self.open('div', cls='references'):
+                    self.info('used in: ')
+                    self.tag('br')
+                    for ref in refs:
+                        with self.open('span'):
+                            self.link_to_main(ref)
+                            if refs.index(ref) != len(refs)-1:
+                                self.info(', ')
             self.main_section_title(selection)
             self.description(selection.description)
 
         if selection.values:
-            self.italic('Values', attrib={ 'class': 'section-list' })
-            with self.open('ul', attrib={ 'class': 'item-list' }):
+            self.italic('Values', attrib={'class': 'section-list'})
+            with self.open('ul', attrib={'class': 'item-list'}):
                 for selection_value in selection.values:
                     with self.open('li'):
-                        self.h3(selection_value.name)
+                        self.item_list_title(selection_value)
                         self.description(selection_value.description)
 
         if selection.attributes.parameters:
-            self.italic('Parameters', attrib={ 'class': 'section-list' })
-            with self.open('ul', attrib={ 'class': 'item-list' }):
+            self.italic('Parameters', attrib={'class': 'section-list'})
+            with self.open('ul', attrib={'class': 'item-list'}):
                 for param in selection.attributes.parameters:
                     reference = param.reference.get_reference()
                     with self.open('li'):
-                        with self.open('section', attrib={ 'class': 'record-param' }):
+                        with self.open('section', attrib={'class': 'record-param'}):
                             self.h3(param.name)
                             self.span(str(reference.input_type))
                             self.info(' type of ')
@@ -107,10 +118,10 @@ class HTMLRecord(HTMLItemFormatter):
         :type record_key: ist.extras.TypeRecordKey
         """
         self.root.attrib['class'] = 'child-record'
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
+        with self.open('div', attrib={'class': 'item-key-value'}):
+            with self.open('span', attrib={'class': 'item-key'}):
                 self.info('Record ')
-            with self.open('span', attrib={ 'class': 'item-value chevron' }):
+            with self.open('span', attrib={'class': 'item-value chevron'}):
                 if self_record.include_in_format():
                     self.link_to_main(self_record)
                 else:
@@ -129,7 +140,22 @@ class HTMLRecord(HTMLItemFormatter):
         """
         self.root.attrib['id'] = record.href_id
         self.root.attrib['data-name'] = htmltree.secure(record.name)
+
+        if record.attributes.obsolete:
+            self.root.attrib['data-obsolete'] = '1'
+            self.mark_as_obsolete(record)
+
         with self.open('header'):
+            refs = record.get_references()
+            if refs:
+                with self.open('div', cls='references'):
+                    self.info('used in: ')
+                    self.tag('br')
+                    for ref in refs:
+                        with self.open('span'):
+                            self.link_to_main(ref)
+                            if refs.index(ref) != len(refs)-1:
+                                self.info(', ')
             self.main_section_title(record)
 
             if record.attributes.generic_type:
@@ -150,31 +176,147 @@ class HTMLRecord(HTMLItemFormatter):
                             with self.open('li'):
                                 self.link_to_main(reference.get_reference())
 
-            self.italic('Description', attrib={ 'class': 'section-list' })
+            self.italic('Description', attrib={'class': 'section-list'})
             self.description(record.description)
 
         if record.keys:
-            self.italic('Keys', attrib={ 'class': 'section-list' })
-            with self.open('ul', attrib={ 'class': 'item-list' }):
+            self.italic('Keys', attrib={'class': 'section-list'})
+            with self.open('ul', attrib={'class': 'item-list'}):
                 for record_key in record.keys:
                     if not record_key.include_in_format():
                         continue
                     with self.open('li'):
-                        fmt = HTMLFormatter.get_formatter_for(record_key)
-                        fmt.format(record_key, record)
-                        self.add(fmt.current())
+                        with self.open('section', attrib={'class': 'record-key'}):
+                            self.item_list_title(record_key, add_link=True)
+                            self.format_key(record_key)
+                            self.description(record_key.description)
+                            self.add_clear()
+                            # fmt = HTMLFormatter.get_formatter_for(record_key)
+                            # fmt.format(record_key, record)
+                            # self.add(fmt.current())
 
         if record.attributes.parameters:
-            self.italic('Parameters', attrib={ 'class': 'section-list' })
-            with self.open('ul', attrib={ 'class': 'item-list' }):
+            self.italic('Parameters', attrib={'class': 'section-list'})
+            with self.open('ul', attrib={'class': 'item-list'}):
                 for param in record.attributes.parameters:
                     reference = param.reference.get_reference()
                     with self.open('li'):
-                        with self.open('section', attrib={ 'class': 'record-param' }):
+                        with self.open('section', attrib={'class': 'record-param'}):
                             self.h3(param.name)
                             self.span(str(reference.input_type))
                             self.info(' type of ')
                             self.link_to_main(reference)
+
+    def format_key(self, record_key):
+        """
+
+        :type record_key: ist.extras.TypeRecordKey
+        """
+        if record_key.type.get_reference():
+            reference = record_key.type.get_reference()
+            input_type = reference.input_type
+
+            if input_type == InputType.STRING:
+                with self.open('ul', cls='side-info'):
+                    with self.open('li'):
+                        with self.open('div', attrib={'class': 'item-key-value'}):
+                            with self.open('span', attrib={'class': 'item-key'}):
+                                self.span('String (generic)')
+
+            if input_type == InputType.BOOL:
+                with self.open('ul', cls='side-info'):
+                    with self.open('li'):
+                        with self.open('div', attrib={'class': 'item-key-value'}):
+                            with self.open('span', attrib={'class': 'item-key'}):
+                                self.span('Bool (generic)')
+
+            if input_type == InputType.DOUBLE:
+                with self.open('ul', cls='side-info'):
+                    with self.open('li'):
+                        with self.open('div', attrib={'class': 'item-key-value'}):
+                            with self.open('span', attrib={'class': 'item-key'}):
+                                self.info('Double ')
+                            with self.open('span', attrib={'class': 'item-value'}):
+                                self.span(str(reference.range))
+
+            if input_type == InputType.INTEGER:
+                with self.open('ul', cls='side-info'):
+                    with self.open('li'):
+                        with self.open('div', attrib={'class': 'item-key-value'}):
+                            with self.open('span', attrib={'class': 'item-key'}):
+                                self.info('Integer ')
+                            with self.open('span', attrib={'class': 'item-value'}):
+                                self.span(str(reference.range))
+
+            if input_type == InputType.FILENAME:
+                with self.open('ul', cls='side-info'):
+                    with self.open('li'):
+                        with self.open('div', attrib={'class': 'item-key-value'}):
+                            with self.open('span', attrib={'class': 'item-key'}):
+                                self.info('file name')
+                            with self.open('span', attrib={'class': 'item-value chevron'}):
+                                self.span(reference.file_mode)
+
+            if input_type == InputType.ARRAY:
+                subtype = reference.subtype.get_reference()
+                with self.open('ul', cls='side-info'):
+                    with self.open('li'):
+                        with self.open('span', attrib={'class': 'item-key'}):
+                            self.info(' Array')
+                            if str(reference.range):
+                                self.info(' ')
+                                self.span(cgi.escape(str(reference.range)))
+
+                    with self.open('li'):
+                        if not subtype.input_type == InputType.MAIN_TYPE:
+                            self.info(' of ')
+                            self.span(str(subtype.input_type))
+                        else:
+                            # self.tag('br')
+                            if not subtype.attributes.generic_type:
+                                self.info(' of ')
+                                with self.open('span', attrib={'class': 'item-value chevron'}):
+                                    self.link_to_main(subtype)
+                        self.add_genericity(subtype)
+
+            if input_type == InputType.MAIN_TYPE:
+                with self.open('ul', cls='side-info'):
+                    with self.open('li'):
+                        if not reference.attributes.generic_type:
+                            with self.open('span', attrib={'class': 'item-key'}):
+                                self.span(str(reference.input_type))
+                            with self.open('span', attrib={'class': 'item-value chevron'}):
+                                self.link_to_main(reference)
+                        else:
+                            with self.open('span', attrib={'class': 'item-value chevron'}):
+                                self.link_to_main(reference, text='instance')
+                            self.info(' of ')
+                            with self.open('span', attrib={'class': 'item-key'}):
+                                self.span(str(reference.input_type))
+                        self.add_genericity(reference)
+
+    def add_genericity(self, item):
+        if not item.attributes.generic_type:
+            return
+        generic_class = item.attributes.generic_type.get_reference()
+        generic_impl = item
+        with self.open('li'):
+            self.info(' generic type')
+            with self.open('span', attrib={'class': 'item-value chevron'}):
+                self.link_to_main(generic_class)
+
+        for param in generic_impl.attributes.parameters:
+            # self.tag('br')
+            with self.open('li'):
+                self.info('parameter ')
+                self.span(param.name)
+                self.info(' = ')
+                # with self.open('span', attrib={'class': 'item-value chevron'}):
+                reference = param.reference.get_reference()
+                if not reference.input_type == InputType.MAIN_TYPE:
+                    self.span(str(reference.input_type))
+                else:
+                    self.link_to_main(reference)
 
 
 class HTMLAbstractRecord(HTMLItemFormatter):
@@ -192,10 +334,10 @@ class HTMLAbstractRecord(HTMLItemFormatter):
         :type record_key: ist.extras.TypeRecordKey
         """
         self.root.attrib['class'] = 'child-abstract-record'
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
+        with self.open('div', attrib={'class': 'item-key-value'}):
+            with self.open('span', attrib={'class': 'item-key'}):
                 self.info('abstract type ')
-            with self.open('span', attrib={ 'class': 'item-value chevron' }):
+            with self.open('span', attrib={'class': 'item-value chevron'}):
                 if abstract_record.include_in_format():
                     self.link_to_main(abstract_record)
                 else:
@@ -213,7 +355,23 @@ class HTMLAbstractRecord(HTMLItemFormatter):
         """
         self.root.attrib['id'] = abstract_record.href_id
         self.root.attrib['data-name'] = htmltree.secure(abstract_record.name)
+
+        if abstract_record.attributes.obsolete:
+            self.root.attrib['data-obsolete'] = '1'
+            self.mark_as_obsolete(abstract_record)
+
         with self.open('header'):
+            refs = abstract_record.get_references()
+            if refs:
+                with self.open('div', cls='references'):
+                    self.info('used in: ')
+                    self.tag('br')
+                    for ref in refs:
+                        with self.open('span'):
+                            self.link_to_main(ref)
+                            if refs.index(ref) != len(refs)-1:
+                                self.info(', ')
+
             self.main_section_title(abstract_record)
 
             if abstract_record.default_descendant:
@@ -227,27 +385,27 @@ class HTMLAbstractRecord(HTMLItemFormatter):
                     self.italic('Generic type: ')
                     self.link_to_main(abstract_record.attributes.generic_type.get_reference())
 
-            self.italic('Description', attrib={ 'class': 'section-list' })
+            self.italic('Description', attrib={'class': 'section-list'})
             self.description(abstract_record.description)
 
         if abstract_record.implementations:
-            self.italic('Implementations', attrib={ 'class': 'section-list' })
-            with self.open('ul', attrib={ 'class': 'item-list' }):
+            self.italic('Implementations', attrib={'class': 'section-list'})
+            with self.open('ul', attrib={'class': 'item-list'}):
                 for descendant in abstract_record.implementations:
                     reference = descendant.get_reference()
                     with self.open('li'):
-                        with self.open('section', attrib={ 'class': 'record-param' }):
+                        with self.open('section', attrib={'class': 'record-param'}):
                             with self.open('h3'):
                                 self.link_to_main(reference)
                             self.span(reference.description)
 
         if abstract_record.attributes.parameters:
-            self.italic('Parameters', attrib={ 'class': 'section-list' })
-            with self.open('ul', attrib={ 'class': 'item-list' }):
+            self.italic('Parameters', attrib={'class': 'section-list'})
+            with self.open('ul', attrib={'class': 'item-list'}):
                 for param in abstract_record.attributes.parameters:
                     reference = param.reference.get_reference()
                     with self.open('li'):
-                        with self.open('section', attrib={ 'class': 'record-param' }):
+                        with self.open('section', attrib={'class': 'record-param'}):
                             self.h3(param.name)
                             self.span(str(reference.input_type))
                             self.info(' type of ')
@@ -321,7 +479,7 @@ class HTMLRecordKeyDefault(object):
 
         """
         self.html.info('Default value: ')
-        with self.html.open('span', attrib={ 'class': 'item-value chevron header-info skew' }):
+        with self.html.open('span', attrib={'class': 'item-value chevron header-info skew'}):
             if len(str(self_default.value)):
                 self.html.span(str(self_default.value))
             else:
@@ -337,7 +495,7 @@ class HTMLRecordKeyDefault(object):
 
         """
         self.html.info('Default value: ')
-        with self.html.open('span', attrib={ 'class': 'item-value chevron skew' }):
+        with self.html.open('span', attrib={'class': 'item-value chevron skew'}):
             if len(str(self_default.value)):
                 self.html.span(str(self_default.value))
             else:
@@ -356,10 +514,10 @@ class HTMLInteger(HTMLUniversal):
         :type record: ist.nodes.TypeRecord
         :type record_key: ist.extras.TypeRecordKey
         """
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
+        with self.open('div', attrib={'class': 'item-key-value'}):
+            with self.open('span', attrib={'class': 'item-key'}):
                 self.info('Integer ')
-            with self.open('span', attrib={ 'class': 'item-' }):
+            with self.open('span', attrib={'class': 'item-'}):
                 self.span(str(self_int.range))
 
 
@@ -374,10 +532,10 @@ class HTMLDouble(HTMLUniversal):
         :type record: ist.nodes.TypeRecord
         :type record_key: ist.extras.TypeRecordKey
         """
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
+        with self.open('div', attrib={'class': 'item-key-value'}):
+            with self.open('span', attrib={'class': 'item-key'}):
                 self.info('Double ')
-            with self.open('span', attrib={ 'class': 'item-value' }):
+            with self.open('span', attrib={'class': 'item-value'}):
                 self.span(str(self_double.range))
 
 
@@ -392,8 +550,8 @@ class HTMLBool(HTMLUniversal):
         :type record: ist.nodes.TypeRecord
         :type record_key: ist.extras.TypeRecordKey
         """
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
+        with self.open('div', attrib={'class': 'item-key-value'}):
+            with self.open('span', attrib={'class': 'item-key'}):
                 self.span('Bool (generic)')
 
             self.tag('br')
@@ -411,8 +569,8 @@ class HTMLString(HTMLUniversal):
         :type record: ist.nodes.TypeRecord
         :type record_key: ist.extras.TypeRecordKey
         """
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
+        with self.open('div', attrib={'class': 'item-key-value'}):
+            with self.open('span', attrib={'class': 'item-key'}):
                 self.span('String (generic)')
 
 
@@ -427,10 +585,10 @@ class HTMLFileName(HTMLUniversal):
         :type record: ist.nodes.TypeRecord
         :type record_key: ist.extras.TypeRecordKey
         """
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
+        with self.open('div', attrib={'class': 'item-key-value'}):
+            with self.open('span', attrib={'class': 'item-key'}):
                 self.info('file name')
-            with self.open('span', attrib={ 'class': 'item-value chevron' }):
+            with self.open('span', attrib={'class': 'item-value chevron'}):
                 self.span(self_fn.file_mode)
 
 
@@ -446,8 +604,8 @@ class HTMLArray(HTMLUniversal):
         :type record_key: ist.extras.TypeRecordKey
         """
         subtype = self_array.subtype.get_reference()
-        with self.open('div', attrib={ 'class': 'item-key-value' }):
-            with self.open('span', attrib={ 'class': 'item-key' }):
+        with self.open('div', attrib={'class': 'item-key-value'}):
+            with self.open('span', attrib={'class': 'item-key'}):
                 self.info(' Array')
                 if str(self_array.range):
                     self.info(' ')
@@ -456,7 +614,7 @@ class HTMLArray(HTMLUniversal):
                 self.span(str(subtype.input_type))
 
             if subtype.input_type == InputType.MAIN_TYPE:
-                with self.open('span', attrib={ 'class': 'item-value chevron' }):
+                with self.open('span', attrib={'class': 'item-value chevron'}):
                     self.link_to_main(subtype)
 
             self.tag('br')
@@ -589,7 +747,7 @@ class HTMLFormatter(object):
         :type items: list[ist.nodes.TypeSelection]
         """
         prev_name = ''
-        with html.open('ul', attrib={ 'class': 'nav-bar' }):
+        with html.open('ul', attrib={'class': 'nav-bar'}):
             for item in items:
                 if item.input_type == InputType.MAIN_TYPE:
                     # do no format certain objects
@@ -604,13 +762,13 @@ class HTMLFormatter(object):
 
                     prev_name = item.name
 
-                    with html.open('li', attrib={ 'data-name': item.name }):
-                        with html.open('a', '', { 'href': '#' + item.href_id }):
+                    with html.open('li', attrib={'data-name': item.name}):
+                        with html.open('a', '', {'href': '#' + item.href_id, 'class': 'item_' + item.href_id}):
                             if reverse:
                                 html.span(item.href_name)
-                                html.span(str(item.input_type)[0], attrib={ 'class': 'shortcut-r' })
+                                html.span(str(item.input_type)[0], attrib={'class': 'shortcut-r'})
                             else:
-                                html.span(str(item.input_type)[0], attrib={ 'class': 'shortcut' })
+                                html.span(str(item.input_type)[0], attrib={'class': 'shortcut'})
                                 html.span(item.href_name)
 
     @staticmethod

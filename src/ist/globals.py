@@ -2,6 +2,7 @@
 # author:   Jan Hybs
 
 from __future__ import absolute_import
+import re
 from utils.logger import Logger
 
 
@@ -23,27 +24,36 @@ class Globals(object):
     }
 
     @staticmethod
-    def iterate():
+    def iterate(type=''):
+        from ist.base import InputType
         """
         :rtype : list[ist.base.Parsable]
         """
-        return Globals.items.itervalues()
+        if not type:
+            return Globals.items.values()
+        elif type.lower() in ('r', 'record'):
+            return [x for x in Globals.items.itervalues() if getattr(x, 'input_type', InputType.UNKNOWN) == InputType.RECORD]
+        elif type.lower() in ('s', 'selection'):
+            return [x for x in Globals.items.itervalues() if getattr(x, 'input_type', InputType.UNKNOWN) == InputType.SELECTION]
+        elif type.lower() in ('a', 'ar', 'abstract'):
+            return [x for x in Globals.items.itervalues() if getattr(x, 'input_type', InputType.UNKNOWN) == InputType.ABSTRACTRECORD]
 
     @staticmethod
-    def get_url_by_name(label, type=''):
+    def get_url_by_name(label, item_type=''):
         """
         constructs and returns tuple (name, type, link) from given name and label
         :param label: name#field where field is optional
-        :param type:
+        :param item_type:
         :rtype : list[ist.base.Parsable]
         """
-        from ist.utils.htmltree import htmltree
         parts = label.split("#")
         name = parts[0]
         field = parts[1] if len(parts) > 1 else None
 
-        for item in Globals.iterate():
-            possibilities = item.gets('name', 'id', 'link_name')
+        for item in Globals.iterate(item_type):
+            possibilities = item.gets('name', 'id')
+            if getattr(item, 'attributes', None):
+                possibilities.extend(item.attributes.gets('link_name'))
             possibilities = [str(p).lower() for p in possibilities if p]
 
             if name.lower() in possibilities:
@@ -58,11 +68,11 @@ class Globals(object):
     @staticmethod
     def save(key, item):
         if key in Globals.items:
-            Logger.instance().warning('duplicate key %s' % key)
+            Logger.instance().info('duplicate key %s' % key)
             for i in range(2, 100):
                 new_key = '{}-{}'.format(key, i)
                 if new_key not in Globals.items:
-                    Logger.instance().warning('For key %s assigned %s' % (key, new_key))
+                    Logger.instance().info('For key %s assigned %s' % (key, new_key))
                     Globals.items[new_key] = item
                     return new_key
         Globals.items[key] = item
