@@ -26,8 +26,8 @@
             "id": "116e136c9d8060ca",
             "input_type": "Selection",
             "type_name": "DG_output_fields",
-            "attributes": {"obsolete": true},
-            "description": "Auxiliary Selection [[r_root#flow123d_version]] or [[root]]",
+            "attributes": {"obsolete": "Replaced by record [[r#root]]", "link_name": "DG"},
+            "description": "Auxiliary Selection [[r#root#flow123d_version]] or [[root]] (($q_w$)) ",
             "values": [
                 {
                     "name": "init_temperature",
@@ -1319,7 +1319,7 @@
             "id": "805ff9f323a046c",
             "input_type": "Abstract",
             "type_name": "Transport",
-            "attributes": {},
+            "attributes": {"obsolete": "Replaced by record [[r#root]]"},
             "description": "Transport of substances.",
             "implementations": [
                 "89a900b8a7bb05ef",
@@ -1330,7 +1330,7 @@
             "id": "89a900b8a7bb05ef",
             "input_type": "Record",
             "type_name": "Convection_FV",
-            "attributes": {},
+            "attributes": {"obsolete": "Replaced by record [[r#root]]"},
             "description": "Explicit in time finite volume method for solute transport.",
             "implements": [
                 "805ff9f323a046c"
@@ -1543,7 +1543,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -1796,7 +1796,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -2392,7 +2392,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -3564,7 +3564,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -3824,7 +3824,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -4722,7 +4722,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -5526,7 +5526,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -5583,7 +5583,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -5849,7 +5849,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -6051,7 +6051,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -6253,7 +6253,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -6455,7 +6455,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -6686,7 +6686,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -6917,7 +6917,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -7119,7 +7119,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -7321,7 +7321,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -7523,7 +7523,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -7725,7 +7725,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
@@ -7927,7 +7927,7 @@
                 },
                 {
                     "key": "value",
-                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n - vector of size (($N$)) to enter diagonal matrix\n\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
+                    "description": "Value of the constant field.\nFor vector values, you can use scalar value to enter constant vector.\nFor square (($N\\times N$))-matrix values, you can use:\n\n - vector of size (($N$)) to enter diagonal matrix\n - vector of size (($\\frac12N(N+1)$)) to enter symmetric matrix (upper triangle, row by row)\n - scalar to enter multiple of the unit matrix.",
                     "default": {
                         "type": "obligatory",
                         "value": "OBLIGATORY"
