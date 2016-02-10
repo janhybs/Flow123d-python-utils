@@ -1,5 +1,7 @@
-# encoding: utf-8
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 # author:   Jan Hybs
+
 
 """
 This script is simple iface to license_manager module. Script is used for finding and replacing licenses in given files/locations
@@ -181,15 +183,15 @@ file new_license.txt contains following:
 
 """
 
-import sys
-import pathfix
+from __future__ import absolute_import
 
+import pathfix
 pathfix.append_to_path()
 
 import system.versions
-
 system.versions.require_version_2()
 
+import sys
 from optparse import OptionParser
 from utils.license_manager import LicenseManager
 
