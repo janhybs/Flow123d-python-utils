@@ -29,7 +29,7 @@ pathfix.append_to_path()
 import system.versions
 system.versions.require_version_2()
 
-import sys, json
+import os, sys, json
 from optparse import OptionParser
 from utils.logger import Logger
 from ist.base import InputType
@@ -127,19 +127,30 @@ def main():
                 for imp in getattr(item, 'implementations', []):
                     imp.get_reference().add_ref(item)
 
+    # sort items by type and name
     items = sorted(items, key=lambda x: '{}{}'.format(x.input_type.value, x.name))
 
     # convert to tex format
     if options.format.lower() in ('tex', 'latex'):
         Logger.instance().info('Formatting ist to tex format')
         formatter.json2latex(items, options.output, info=ist_info)
-        sys.exit(0)
+        if os.path.isfile(options.output):
+            print 'Ok: File "{:s}" created'.format(options.output)
+            sys.exit(0)
+        else:
+            print 'Error: File "{:s}" does not exists'.format(options.output)
+            sys.exit(1)
 
     # convert to HTML format
     if options.format.lower() in ('html', 'html5', 'www', 'htm'):
         Logger.instance().info('Formatting ist to html format')
         formatter.json2html(items, options.output, info=ist_info)
-        sys.exit(0)
+        if os.path.isfile(options.output):
+            print 'Ok: File "{:s}" created'.format(options.output)
+            sys.exit(0)
+        else:
+            print 'Error: File "{:s}" does not exists'.format(options.output)
+            sys.exit(1)
 
     if options.format.lower() in ('markdown', 'md'):
         Logger.instance().info('Testing markdown')
@@ -211,6 +222,4 @@ Full markdown specification can be found [here](https://github.com/adam-p/markdo
 
 # only if this file is main python file, read args
 if __name__ == "__main__":
-    import cProfile
-    # cProfile.run('main()')
     main()
