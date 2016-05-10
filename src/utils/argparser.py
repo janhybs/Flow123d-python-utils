@@ -50,12 +50,14 @@ _list_formats = [
 
 
 class ArgOption(object):
-    def __init__(self, short, long, type=str, default=None, name=None, subtype=str):
+    def __init__(self, short, long, type=str, default=None, name=None, subtype=str, docs='', placeholder=None):
         self.short = short
         self.long = long
         self.type = type
         self.subtype = subtype
         self.default = default
+        self.docs = docs
+
         if self.type is True or self.type is False:
             self.value = not self.type
         elif self.type is list:
@@ -63,6 +65,10 @@ class ArgOption(object):
         else:
             self.value = default
         self.name = name or self.long[2:] or self.short[1:]
+        self.placeholder = placeholder or self.name
+
+    def is_primitive(self):
+        return self.type in (True, False)
 
     def parse_list(self, value):
         for fmt, conv in _list_formats:
@@ -77,9 +83,31 @@ class ArgOption(object):
                     raise Exception('Invalid format {}'.format(value))
         raise Exception('Invalid format {}'.format(value))
 
-
     def __repr__(self):
-        return str(self.value)
+        lsn = ''
+        if self.long and self.short:
+            if self.is_primitive():
+                lsn = '{self.short}, {self.long}'.format(self=self)
+            else:
+                lsn = '{self.short}, {self.long} {name}'.format(self=self, name=self.placeholder.upper())
+        else:
+            value = self.short or self.long
+            if self.is_primitive():
+                lsn = '{value}'.format(value=value)
+            else:
+                lsn = '{value} {name}'.format(value=value, name=self.placeholder.upper())
+
+        lsn = '  {:30s}'.format(lsn)
+        blank = 32 * ' '
+        if self.docs:
+            if type(self.docs) is str:
+                return '{} {self.docs}'.format(lsn, self=self)
+            else:
+                result = ''
+                for l in self.docs:
+                    result += '{} {}\n'.format(lsn, l)
+                    lsn = blank
+                return result.rstrip()
 
 
 class ArgOptions(dict):
@@ -88,25 +116,40 @@ class ArgOptions(dict):
 
 
 class ArgParser(object):
-    def __init__(self):
+    def __init__(self, usage):
         self._args = [str(x) for x in sys.argv[1:]]
         self.args = list()
         self.options = ArgOptions()
+        self.options_map = {}
         self.others = []
         self.rest = []
         self.source = None
         self.i = None
         self.keys = None
+        self._usage = usage
+        self.all_options = list()
 
-    def add(self, short='', long='', type=str, default=None, name=None, subtype=str):
-        ao = ArgOption(short, long, type, default, name, subtype)
+    def add(self, short='', long='', type=str, default=None, name=None, subtype=str, docs='', placeholder=''):
+        ao = ArgOption(short, long, type, default, name, subtype, docs, placeholder)
 
+        self.all_options.append(ao)
         if name:
             self.options[name] = ao
+            self.options_map[name] = ao
         if short:
-            self.options[short] = ao
+            self.options_map[short] = ao
         if long:
-            self.options[long] = ao
+            self.options_map[long] = ao
+
+    def add_section(self, name):
+        self.all_options.append('\n{}:'.format(name))
+
+    def usage(self):
+        usage_lst = [self._usage]
+        for option in self.all_options:
+            usage_lst.append('{option}\n'.format(option=option))
+        return '\n'.join(usage_lst)
+
 
     def current(self):
         """
@@ -136,6 +179,15 @@ class ArgParser(object):
             self.move_on()
         elif option.type is list:
             option.value.extend(option.parse_list(self.next()))
+            self.move_on()
+        elif type(option.type) is list:
+            # next arg is probably not argument but other flag
+            if self.next().startswith('-'):
+                option.value = option.type[0]
+            else:
+                option.value = self.next()
+                self.move_on()
+
 
         return option.value
 
@@ -176,26 +228,26 @@ class ArgParser(object):
     def parse(self, args=None):
         self.args = []
         self.i = 0
-        self.keys = sorted(self.options.keys(), reverse=True)
+        self.keys = sorted(self.options_map.keys(), reverse=True)
         self.source = args or self._args
 
         while self.i < len(self.source):
             find = False
-            if self.options.has_key(self.current()):
+            if self.options_map.has_key(self.current()):
                 find = True
-                self.process_option(self.options[self.current()])
+                self.process_option(self.options_map[self.current()])
             else:
                 for k in self.keys:
                     if k.startswith('--'):
                         if self.current().startswith(k + "=") or self.current().startswith(k + ":"):
                             self.split_current()
-                            self.process_option(self.options[self.current()])
+                            self.process_option(self.options_map[self.current()])
                             find = True
                             break
                     elif k.startswith('-'):
                         if self.current().startswith(k):
                             self.split_current()
-                            self.process_option(self.options[self.current()])
+                            self.process_option(self.options_map[self.current()])
                             find = True
                             break
 
@@ -218,15 +270,15 @@ class ArgParser(object):
                 return i.value
 
 
-args = ['-p', '5', '456', '--fff', '45', '-l4456', '-j=6', '--foo-56=789', '--foo=456=9']
-args = ['-p', '-foo', '--foo', '456', '--true']
-args = ['--foo=56', '-k', 'cas', '--fo=789', '--', 'foo bar', '-f', 'vsdei']
-args = ['--ll', '1:5:2', '--', 'fooooooo']
-ap = ArgParser()
-# ap.add(long='--foo', tp=int)
-# ap.add(long='--fo', tp=int)
-# ap.add('-l', tp=False)
-# ap.add('-l', tp=False)
-ap.add(long='--ll', type=list, subtype=int, name="foo")
-options, others, rest = ap.parse(args)
-print options.foo
+# args = ['-p', '5', '456', '--fff', '45', '-l4456', '-j=6', '--foo-56=789', '--foo=456=9']
+# args = ['-p', '-foo', '--foo', '456', '--true']
+# args = ['--foo=56', '-k', 'cas', '--fo=789', '--', 'foo bar', '-f', 'vsdei']
+# args = ['--ll', '1:5:2', '--', 'fooooooo']
+# ap = ArgParser()
+# # ap.add(long='--foo', tp=int)
+# # ap.add(long='--fo', tp=int)
+# # ap.add('-l', tp=False)
+# # ap.add('-l', tp=False)
+# ap.add(long='--ll', type=list, subtype=int, name="foo")
+# options, others, rest = ap.parse(args)
+# print options.foo

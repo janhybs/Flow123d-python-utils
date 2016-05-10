@@ -52,3 +52,5 @@ src/**/*.html
 src/**/*.tex
 src/**/*.txt
 src/**/*.log
+
+example.*

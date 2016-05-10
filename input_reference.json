@@ -26,7 +26,10 @@
             "id": "116e136c9d8060ca",
             "input_type": "Selection",
             "type_name": "DG_output_fields",
-            "attributes": {"obsolete": "Replaced by record [[r#root]]", "link_name": "DG"},
+            "attributes": {
+                "obsolete": "Replaced by record [[r#root]]: \n\n - link to root [[r#root#flow123d_version]]\n - eq (($f(x) =\\xi",
+                "link_name": "DG"
+            },
             "description": "Auxiliary Selection [[r#root#flow123d_version]] or [[root]] (($q_w$)) ",
             "values": [
                 {
@@ -3308,7 +3311,7 @@
             "input_type": "Record",
             "type_name": "Balance",
             "attributes": {},
-            "description": "Balance of a conservative quantity, boundary fluxes and sources.",
+            "description": "Default transport \nboundary condition.\nOn water inflow (($(q_w \\le 0)$)),  Balance of a conservative quantity, boundary fluxes and sources.",
             "reducible_to_key": "balance_on",
             "keys": [
                 {

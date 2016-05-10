@@ -1,0 +1,31 @@
+# Main list contain one item for every active test.
+common_config:
+  proc: [1]
+  time_limit: 30
+  memory_limit: 400
+  check_rules: null
+
+test_cases:
+  - file: flow_implicit.yaml
+    proc: [1]
+  # - file: newton_bc.yaml
+  #   # List of number of processes to run the test with.
+  #   proc: [1, 2, 3]
+  #   # Test specific wall clock time limit, in seconds.
+  #   time_limit: 30
+  #   # Test specific memory per node limit, in MB.
+  #   memory_limit: 400
+  #   # List of check rules. Can prescribe particular check rule for
+  #   # given file. By default all files in 'ref_out/<test name>' are compared
+  #   # to actual output by 'ndiff' rule.
+  #   check_rules:
+  #       # Output file.
+  #       - files: [ flow.pvd ]
+  #         #Name of check rule to use. Possible values:
+  #         #     ndiff - Compare two files. Difference of every two corresponding real values
+  #         #                must be smaller then a_tol and relative difference smaller then r_tol.
+  #         #     exact - Compare two files for exact match
+  #         check: ndiff
+  #         r_tol: 1e-3
+  #         a_tol: 1e-6
+  # - file: casas
