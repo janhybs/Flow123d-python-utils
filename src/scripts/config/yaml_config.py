@@ -4,7 +4,7 @@
 
 import yaml, copy, itertools
 from scripts.base import Paths, PathFilters
-from scripts.execs.test_executor import TestExecutor
+from scripts.execs.test_executor import TestPrescription
 from utils.globals import ensure_iterable
 
 
@@ -92,7 +92,7 @@ class YamlConfig(object):
 
     def get_all_executions(self):
         """
-        :rtype : list[TestExecutor]
+        :rtype : list[TestPrescription]
         """
         tmp_result = list()
         # prepare product of all possible combinations of input arguments
@@ -105,7 +105,7 @@ class YamlConfig(object):
             )))
         result = list()
         for lst in tmp_result:
-            result.extend([TestExecutor(*x) for x in lst])
+            result.extend([TestPrescription(*x) for x in lst])
         return result
 
     @classmethod

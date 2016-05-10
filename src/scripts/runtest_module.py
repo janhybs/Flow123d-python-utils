@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-from subprocess import PIPE
 from scripts.base import Paths, PathFormat
 from scripts.config.yaml_config import YamlConfig
+from scripts.execs.monitor import ProcessMonitor, ProgressMonitor
+from scripts.execs.test_executor import Executor
 from utils.argparser import ArgParser
 
 usage = "runtest.py [<parametes>] [<test set>]  [-- <test arguments>]"
@@ -105,15 +106,23 @@ parser.add('-m', '--limit-memory', type=float, name='limit_memory', placeholder=
 #     print popen.returncode
 
 
-import time
-from progressbar import ProgressBar, Counter, Timer, AnimatedMarker, Bar, Percentage
-widgets = ['Running  ', AnimatedMarker(), ' ', Timer(), ')', Bar(), Percentage()]
-p = ProgressBar(widgets=widgets, maxval=100)
-p.start()
-for i in range(100):
-    p.update(i)
-    time.sleep(0.01)
-p.finish()
+ex = Executor(['notepad'])
+monitor = ProcessMonitor(ex)
+monitor.add_monitor(ProgressMonitor())
+
+monitor.start()
+
+
+
+# import time
+# from progressbar import ProgressBar, Counter, Timer, AnimatedMarker, Bar, Percentage
+# widgets = ['Running  ', AnimatedMarker(), ' ', Timer(), ')', Bar(), Percentage()]
+# p = ProgressBar(widgets=widgets, maxval=100)
+# p.start()
+# for i in range(100):
+#     p.update(i)
+#     time.sleep(0.01)
+# p.finish()
 
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
