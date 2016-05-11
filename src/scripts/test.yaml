@@ -1,13 +1,13 @@
 # Main list contain one item for every active test.
 common_config:
   proc: [1]
-  time_limit: 30
+  time_limit: 5
   memory_limit: 400
   check_rules: null
 
 test_cases:
-  - file: flow_implicit.yaml
-    proc: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - file: [flow_implicit.yaml, flow_vtk.yaml]
+    proc: [1, 2, 4]
   # - file: newton_bc.yaml
   #   # List of number of processes to run the test with.
   #   proc: [1, 2, 3]

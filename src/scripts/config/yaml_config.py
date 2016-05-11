@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 
-import yaml, copy, itertools
-from scripts.base import Paths, PathFilters
-from scripts.execs.test_executor import TestPrescription
+import yaml
+import copy
+import itertools
+
+from scripts.core.base import Paths
+from scripts.execs.test_executor import TestPrescription, MPIPrescription
 from utils.globals import ensure_iterable
 
 
@@ -105,7 +108,8 @@ class YamlConfig(object):
             )))
         result = list()
         for lst in tmp_result:
-            result.extend([TestPrescription(*x) for x in lst])
+            # result.extend([TestPrescription(*x) for x in lst])
+            result.extend([MPIPrescription(*x) for x in lst])
         return result
 
     @classmethod

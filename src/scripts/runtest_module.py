@@ -1,11 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-import os
-from scripts.base import Paths, PathFormat
+from scripts.core.base import Paths, PathFormat
 from scripts.config.yaml_config import YamlConfig
-from scripts.execs.monitor import ProcessMonitor, ProgressMonitor, LimitMonitor
-from scripts.execs.test_executor import Executor, ParallelRunner, MultiProcess
+from scripts.execs.monitor import ProcessMonitor, LimitMonitor
+from scripts.execs.test_executor import BinExecutor, ParallelRunner, MultiProcess
 from utils.argparser import ArgParser
 
 usage = "runtest.py [<parametes>] [<test set>]  [-- <test arguments>]"
@@ -61,41 +60,15 @@ parser.add('', '--host', type=str, name='host', placeholder='<host>', docs=[
 ])
 # ----------------------------------------------
 parser.add_section('Passable arguments to exec_with_limit.py')
-parser.add('-t', '--limit-time', type=float, name='limit_time', placeholder='<time>', docs=[
+parser.add('-t', '--limit-time', type=float, name='time_limit', placeholder='<time>', docs=[
     'Obligatory wall clock time limit for execution in seconds',
     'For precision use float value'
 ])
-parser.add('-m', '--limit-memory', type=float, name='limit_memory', placeholder='<memory>', docs=[
+parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder='<memory>', docs=[
     'Optional memory limit per node in MB',
     'For precision use float value'
 ])
 
-# print parser.usage()
-# opts = parser.parse(['-a', '-n', '0:50:10'])[0]
-# print opts.get('cpu').value
-# print opts.get('queue').value
-#
-# class Foo(object):
-#     def __init__(self):
-#         self.bar = 5
-#
-#
-#     def run(self):
-#         return ['foo', self.bar]
-#
-#
-#
-# def my_run(self):
-#     return [self.bar]
-#
-# Foo.run = my_run()
-#
-#
-#
-# print Foo()
-
-# import psutil
-#
 Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/')
 Paths.format = PathFormat.RELATIVE
 path = Paths.path_to('tests', '03_transport_small_12d', 'config.yaml')
@@ -104,24 +77,16 @@ cfg = YamlConfig(path)
 runner = ParallelRunner(1)
 
 for case in cfg.get_all_cases():
+    test_executor = BinExecutor(case.get_command())
+
+    process_monitor = ProcessMonitor(test_executor)
+    limit_monitor = LimitMonitor(process_monitor)
+    limit_monitor.set_limits(case)
+    process_monitor.add_monitor(limit_monitor)
+
     runner.add(
         MultiProcess(
-            ProcessMonitor(Executor(case.get_command()))
+            process_monitor
         )
     )
-
-# pm = ProcessMonitor(Executor(['c++/Consumer/Release/Consumer.exe', '-t', '5', '-m', '500']))
-# pm = ProcessMonitor(Executor(['c++/Consumer/Release/Consumer.exe', '-m', '500', '-t', '60']))
-# pm = ProcessMonitor(Executor(['c++/Consumer/Release/Consumer.exe', '-m', '500', '-t', '10', '-s', '100']))
-# limitor = LimitMonitor(pm)
-# limitor.limit_runtime = 60
-# limitor.limit_memory = 300
-# pm.add_monitor(limitor)
-#
-# runner.add(
-#     MultiProcess(
-#         pm
-#     )
-# )
-# runner.run()
-
+runner.run()

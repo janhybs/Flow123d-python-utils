@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 from subprocess import PIPE
+import threading
+import time
 
-import threading, psutil, time
-import sys
-from scripts.base import Paths
-from progressbar import ProgressBar, Counter
+import psutil
+from progressbar import ProgressBar, Bar
+
+from scripts.core.base import Paths
+from utils.dotdict import Map
 
 
 class ExtendedThread(threading.Thread):
@@ -49,22 +52,47 @@ class TestPrescription(object):
         return '<Exec {self.output_name}>'.format(self=self)
 
 
-class Executor(ExtendedThread):
+class MPIPrescription(TestPrescription):
+    def __init__(self, test_case, proc_value, filename):
+        super(MPIPrescription, self).__init__(test_case, proc_value, filename)
+
+    def get_command(self):
+        return [
+            Paths.mpiexec(),
+            '-np', self.proc_value
+        ] + super(MPIPrescription, self).get_command()
+
+
+class BinExecutor(ExtendedThread):
     """
     :type process: psutil.Popen
     """
 
     def __init__(self, command=list()):
-        self.command = command
+        self.command = [str(x) for x in command]
         self.process = None
         self.running = False
-        super(Executor, self).__init__()
+        super(BinExecutor, self).__init__()
 
     def run(self):
         # run command and block current thread
-        self.process = psutil.Popen(self.command, stdout=PIPE, stderr=PIPE)
-        self.process.wait()
-        super(Executor, self).run()
+        try:
+            self.process = psutil.Popen(self.command, stdout=PIPE, stderr=PIPE)
+            self.process.wait()
+            super(BinExecutor, self).run()
+        except Exception as e:
+            # broken process
+            self.process = BrokenProcess(e)
+
+
+class BrokenProcess(object):
+    def __init__(self, exception=None):
+        self.exception = exception
+        self.pid = -1
+        self.returncode = -1
+
+    def is_running(self):
+        return False
 
 
 class MultiProcess(ExtendedThread):
@@ -116,21 +144,16 @@ class ParallelRunner(object):
         self.i = 0
         total = len(self.threads)
 
-        def pb():
-            last_count = 0
-            while self.complete_count() != total:
-                current_count = self.complete_count()
-                if last_count != current_count:
-                    # print '-' * 60
-                    print 'Finished: {}/{}'.format(current_count, total)
-                    # print '-' * 60
-                    last_count = current_count
-                time.sleep(0.01)
-
-        threading.Thread(target=pb).start()
-
+        fd = FD()
+        pbar = ProgressBar(maxval=total, fd=fd, widgets=[Bar(left='', right='')], term_width=10)
+        pbar.start()
         while self.i < total:
             while self.active_count() < self.n:
+                pbar.update(self.i + 1)
+                print '{} |{}|'.format(
+                    'Case {:02d} of {:02d}'.format(self.i + 1, total),
+                    fd.data, '5', '6'
+                )
                 self.threads[self.i].start()
                 self.i += 1
 
@@ -140,3 +163,12 @@ class ParallelRunner(object):
                 # sleep a bit to other threads can be active again
                 time.sleep(0.1)
             time.sleep(0.1)
+        pbar.finish()
+
+
+class FD(object):
+    def __init__(self):
+        self.data = ''
+
+    def write(self, data=''):
+        self.data = data[:-1] if data.endswith('\r') else data

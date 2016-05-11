@@ -83,7 +83,7 @@ class ArgOption(object):
                     raise Exception('Invalid format {}'.format(value))
         raise Exception('Invalid format {}'.format(value))
 
-    def __repr__(self):
+    def usage(self):
         lsn = ''
         if self.long and self.short:
             if self.is_primitive():
@@ -109,10 +109,27 @@ class ArgOption(object):
                     lsn = blank
                 return result.rstrip()
 
+    def __repr__(self):
+        return '{self.name}: {self.value}'.format(self=self)
+
 
 class ArgOptions(dict):
-    def __getitem__(self, item):
-        return self.get(item)
+    def __getattr__(self, attr):
+        return self.get(attr)
+
+    def __setattr__(self, key, value):
+        self.__setitem__(key, value)
+
+    def __setitem__(self, key, value):
+        super(ArgOptions, self).__setitem__(key, value)
+        self.__dict__.update({key: value})
+
+    def __delattr__(self, item):
+        self.__delitem__(item)
+
+    def __delitem__(self, key):
+        super(ArgOptions, self).__delitem__(key)
+        del self.__dict__[key]
 
 
 class ArgParser(object):
@@ -147,7 +164,7 @@ class ArgParser(object):
     def usage(self):
         usage_lst = [self._usage]
         for option in self.all_options:
-            usage_lst.append('{option}\n'.format(option=option))
+            usage_lst.append('{option}\n'.format(option=option.usage()))
         return '\n'.join(usage_lst)
 
 
@@ -225,6 +242,13 @@ class ArgParser(object):
         post = self.source[self.i + 1:]
         self.source = pre + curr + post
 
+    @property
+    def simple_options(self):
+        simple_options = ArgOptions()
+        for k, v in self.options.items():
+            simple_options[k] = v.value
+        return simple_options
+
     def parse(self, args=None):
         self.args = []
         self.i = 0
@@ -256,13 +280,13 @@ class ArgParser(object):
                 # end of parsing section
                 if self.current() == '--':
                     self.rest = self.source[self.i+1:]
-                    return self.options, self.others, self.rest
+                    return self.simple_options, self.others, self.rest
                 # just add to others
                 else:
                     self.others.append(self.current())
             self.i += 1
 
-        return self.options, self.others, self.rest
+        return self.simple_options, self.others, self.rest
 
     def __getattr__(self, item):
         for i in self.options.values():
