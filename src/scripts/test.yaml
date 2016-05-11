@@ -7,7 +7,7 @@ common_config:
 
 test_cases:
   - file: flow_implicit.yaml
-    proc: [1]
+    proc: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   # - file: newton_bc.yaml
   #   # List of number of processes to run the test with.
   #   proc: [1, 2, 3]

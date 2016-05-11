@@ -90,7 +90,7 @@ class YamlConfig(object):
         else:
             return self._yaml.get(names, default)
 
-    def get_all_executions(self):
+    def get_all_cases(self):
         """
         :rtype : list[TestPrescription]
         """
