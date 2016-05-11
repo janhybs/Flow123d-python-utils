@@ -85,8 +85,8 @@ class ExtendedTimer(Timer):
             return super(ExtendedTimer, self).update(pbar)
         base = Timer.format_time(int(pbar.seconds_elapsed))
 
-        milis = '{:0.3f}'.format(pbar.seconds_elapsed - int(pbar.seconds_elapsed))
-        return 'Elapsed Time: {}:{}'.format(base, milis[2:])
+        millis = '{:0.3f}'.format(pbar.seconds_elapsed - int(pbar.seconds_elapsed))
+        return 'Elapsed Time: {}:{}'.format(base, millis[2:])
 
 
 class ProgressMonitor(AbstractMonitor):
