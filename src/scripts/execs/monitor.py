@@ -3,7 +3,8 @@
 # author:   Jan Hybs
 import threading, time
 import sys
-from utils.globals import apply_to_all
+import psutil
+from utils.globals import apply_to_all, wait_for
 
 
 class ProcessMonitor(threading.Thread):
@@ -94,6 +95,63 @@ class InfoMonitor(AbstractMonitor):
         print 'Executing: {}'.format(' '.join(self.process_monitor.executor.command))
 
     def stop(self):
+        wait_for(self.process_monitor.executor.process, 'returncode')
         print 'Command ({process.pid}) ended with {process.returncode}'.format(
             process=self.process_monitor.executor.process)
         print '-' * 60
+
+
+class LimitMonitor(AbstractMonitor):
+    """
+    :type process: psutil.Process
+    """
+    def __init__(self, process_monitor):
+        super(LimitMonitor, self).__init__(process_monitor)
+        self.process = None
+        self.limit_memory = None
+        self.limit_runtime = None
+        self.monitor_thread = None
+        self.terminated = False
+        self.terminated_cause = None
+
+    def start(self):
+        wait_for(self.process_monitor.executor, 'process')
+        wait_for(self.process_monitor.executor.process, 'pid')
+        self.process = psutil.Process(self.process_monitor.executor.process.pid)
+
+    def update(self):
+        self.check_limits()
+
+    def get_runtime(self):
+        return time.time() - self.process.create_time()
+
+    def get_memory_usage(self):
+        return self.process.memory_info().vms / (1024.**2)
+
+    def check_limits(self):
+        if self.limit_runtime:
+            if self.get_runtime() > self.limit_runtime:
+                print 'Process is running longer then expected'
+                self.process.kill()
+                return True
+        if self.limit_memory:
+            if self.get_memory_usage() > self.limit_memory:
+                print 'Memory usage exceeded limit'
+                self.process.kill()
+                return True
+
+    def monitor(self):
+        def target():
+            while True:
+                if self.check_limits():
+                    self.terminated = True
+                    self.terminated_cause = "RUNTIME-LIMIT"
+                    break
+                time.sleep(1)
+
+        self.monitor_thread = threading.Thread(target=target)
+        self.monitor_thread.start()
+
+    def info(self):
+        # while True:
+            print self.get_runtime()

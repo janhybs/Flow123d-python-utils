@@ -62,7 +62,6 @@ class Executor(ExtendedThread):
 
     def run(self):
         # run command and block current thread
-        time.sleep(1)
         self.process = psutil.Popen(self.command, stdout=PIPE, stderr=PIPE)
         self.process.wait()
         super(Executor, self).run()

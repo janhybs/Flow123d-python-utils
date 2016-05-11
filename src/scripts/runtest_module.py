@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
+import os
 from scripts.base import Paths, PathFormat
 from scripts.config.yaml_config import YamlConfig
-from scripts.execs.monitor import ProcessMonitor, ProgressMonitor
+from scripts.execs.monitor import ProcessMonitor, ProgressMonitor, LimitMonitor
 from scripts.execs.test_executor import Executor, ParallelRunner, MultiProcess
 from utils.argparser import ArgParser
 
@@ -109,5 +110,18 @@ for case in cfg.get_all_cases():
         )
     )
 
-runner.run()
+# pm = ProcessMonitor(Executor(['c++/Consumer/Release/Consumer.exe', '-t', '5', '-m', '500']))
+# pm = ProcessMonitor(Executor(['c++/Consumer/Release/Consumer.exe', '-m', '500', '-t', '60']))
+# pm = ProcessMonitor(Executor(['c++/Consumer/Release/Consumer.exe', '-m', '500', '-t', '10', '-s', '100']))
+# limitor = LimitMonitor(pm)
+# limitor.limit_runtime = 60
+# limitor.limit_memory = 300
+# pm.add_monitor(limitor)
+#
+# runner.add(
+#     MultiProcess(
+#         pm
+#     )
+# )
+# runner.run()
 
