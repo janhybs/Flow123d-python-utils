@@ -94,5 +94,6 @@ class InfoMonitor(AbstractMonitor):
         print 'Executing: {}'.format(' '.join(self.process_monitor.executor.command))
 
     def stop(self):
-        print 'Command ({process.pid}) ended with {process.returncode}\n'.format(
+        print 'Command ({process.pid}) ended with {process.returncode}'.format(
             process=self.process_monitor.executor.process)
+        print '-' * 60

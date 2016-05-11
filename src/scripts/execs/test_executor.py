@@ -4,8 +4,21 @@
 from subprocess import PIPE
 
 import threading, psutil, time
+import sys
 from scripts.base import Paths
 from progressbar import ProgressBar, Counter
+
+
+class ExtendedThread(threading.Thread):
+    def __init__(self):
+        super(ExtendedThread, self).__init__()
+        self._is_over = False
+
+    def run(self):
+        self._is_over = True
+
+    def is_over(self):
+        return self._is_over
 
 
 class TestPrescription(object):
@@ -36,7 +49,7 @@ class TestPrescription(object):
         return '<Exec {self.output_name}>'.format(self=self)
 
 
-class Executor(threading.Thread):
+class Executor(ExtendedThread):
     """
     :type process: psutil.Popen
     """
@@ -52,14 +65,10 @@ class Executor(threading.Thread):
         time.sleep(1)
         self.process = psutil.Popen(self.command, stdout=PIPE, stderr=PIPE)
         self.process.wait()
-        self.running = False
-
-    def start(self):
-        self.running = True
-        super(Executor, self).start()
+        super(Executor, self).run()
 
 
-class MultiProcess(threading.Thread):
+class MultiProcess(ExtendedThread):
     """
     :type threads: list[threading.Thread]
     """
@@ -77,11 +86,12 @@ class MultiProcess(threading.Thread):
 
         for t in self.threads:
             t.join()
+        super(MultiProcess, self).run()
 
 
 class ParallelRunner(object):
     """
-    :type threads: list[threading.Thread]
+    :type threads: list[ExtendedThread]
     """
     def __init__(self, n=4):
         self.n = n
@@ -100,7 +110,7 @@ class ParallelRunner(object):
     def complete_count(self):
         total = 0
         for process in self.threads:
-            total += 1 if process.is_alive() else 0
+            total += 1 if process.is_over() else 0
         return total
 
     def run(self):
@@ -108,10 +118,15 @@ class ParallelRunner(object):
         total = len(self.threads)
 
         def pb():
-            progressbar = ProgressBar(maxval=total, widgets=[Counter(), '/{}'.format(total)])
-            progressbar.start()
-            progressbar.update(self.i)
-            progressbar.finish()
+            last_count = 0
+            while self.complete_count() != total:
+                current_count = self.complete_count()
+                if last_count != current_count:
+                    # print '-' * 60
+                    print 'Finished: {}/{}'.format(current_count, total)
+                    # print '-' * 60
+                    last_count = current_count
+                time.sleep(0.01)
 
         threading.Thread(target=pb).start()
 
