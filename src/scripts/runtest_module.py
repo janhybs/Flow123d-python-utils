@@ -98,8 +98,16 @@ def create_process_from_case(case):
     return seq
 
 
-def run_local_mode(all_yamls, options, rest):
+def run_pbs_mode(all_yamls, options, rest):
+    import platform, json
 
+    hostname = platform.node()
+
+    with open('host_table.json', 'r') as fp:
+        print json.load(fp)
+
+
+def run_local_mode(all_yamls, options, rest):
     # create parallel runner instance
     runner = ParallelRunner(options.parallel)
 
@@ -149,7 +157,7 @@ def do_work():
     Printer.out("Found {} config.yaml file/s", len(all_yamls))
     if options.queue:
         Printer.out('Running in PBS mode')
-        # run_pbs(all_yamls)
+        run_pbs_mode(all_yamls, options, rest)
     else:
         Printer.out('Running in LOCAL mode')
         run_local_mode(all_yamls, options, rest)
