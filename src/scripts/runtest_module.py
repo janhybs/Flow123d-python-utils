@@ -3,7 +3,7 @@
 # author:   Jan Hybs
 from scripts.core.base import Paths, PathFormat
 from scripts.config.yaml_config import YamlConfig
-from scripts.execs.monitor import ProcessMonitor, LimitMonitor
+from scripts.execs.monitor import ProcessMonitor, LimitMonitor, Limits
 from scripts.execs.test_executor import BinExecutor, ParallelRunner, MultiProcess
 from utils.argparser import ArgParser
 
@@ -69,24 +69,42 @@ parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder=
     'For precision use float value'
 ])
 
-Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/')
-Paths.format = PathFormat.RELATIVE
-path = Paths.path_to('tests', '03_transport_small_12d', 'config.yaml')
-cfg = YamlConfig(path)
 
-runner = ParallelRunner(1)
-
-for case in cfg.get_all_cases():
-    test_executor = BinExecutor(case.get_command())
-
+def create_process(command, limits=None):
+    test_executor = BinExecutor(command)
     process_monitor = ProcessMonitor(test_executor)
-    limit_monitor = LimitMonitor(process_monitor)
-    limit_monitor.set_limits(case)
-    process_monitor.add_monitor(limit_monitor)
+    process_monitor.limit_monitor.set_limits(limits)
+    return process_monitor
 
-    runner.add(
-        MultiProcess(
-            process_monitor
-        )
-    )
-runner.run()
+
+def create_process_from_case(case):
+    """
+    :type case: scripts.execs.test_executor.TestPrescription
+    """
+    return create_process(case.get_command(), case.test_case)
+
+# Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/')
+# Paths.format = PathFormat.RELATIVE
+# path = Paths.path_to('tests', '03_transport_small_12d', 'config.yaml')
+# cfg = YamlConfig(path)
+
+# runner = ParallelRunner(1)
+#
+# for case in cfg.get_all_cases():
+#     process_monitor = create_process_from_case(case)
+#     runner.add(
+#         MultiProcess(
+#             process_monitor
+#         )
+#     )
+# runner.run()
+
+# create_process('Calculator.exe', Limits(5, 3)).start()
+# create_process('calc', Limits(5, 3)).start()
+
+import psutil
+# print psutil.Process(8676)
+# print psutil.Process(7184).ppid()
+#
+# Název	PID	Stav	Uživatelské jméno	Procesor	Paměť (soukromá pracovní sada)	Příkazový řádek	Popis
+# Calculator.exe	5432	Spuštěno	x3mSpeedy	00 	14 100 k	"C:\Program Files\WindowsApps\Microsoft.WindowsCalculator_10.1601.49020.0_x64__8wekyb3d8bbwe\Calculator.exe" -ServerName:App.AppXsm3pg4n7er43kdh1qp4e79f1j7am68r8.mca	Calculator.exe

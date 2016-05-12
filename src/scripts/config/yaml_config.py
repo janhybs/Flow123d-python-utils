@@ -22,7 +22,7 @@ default_values = dict(
 class YamlConfigCase(object):
     def __init__(self,  config, o={}):
         """
-        :type config: YamlConfig
+        :type config: scripts.config.yaml_config.YamlConfig
         """
         self.proc = self._get(o, 'proc')
         self.time_limit = self._get(o, 'time_limit')
@@ -43,7 +43,7 @@ class YamlConfigCase(object):
 
 class YamlConfig(object):
     """
-    :type test_cases: list[YamlConfigCase]
+    :type test_cases: list[scripts.config.yaml_config.YamlConfigCase]
     :type common_config: dict
     """
     def __init__(self, filename):
@@ -79,7 +79,7 @@ class YamlConfig(object):
 
     def get(self, index):
         """
-        :rtype : YamlConfigCase
+        :rtype : scripts.config.yaml_config.YamlConfigCase
         """
         return self.test_cases[index]
 
@@ -95,7 +95,7 @@ class YamlConfig(object):
 
     def get_all_cases(self):
         """
-        :rtype : list[TestPrescription]
+        :rtype : list[scripts.execs.test_executor.TestPrescription]
         """
         tmp_result = list()
         # prepare product of all possible combinations of input arguments
@@ -129,7 +129,7 @@ class YamlConfig(object):
 
     def next(self):
         """
-        :rtype : YamlConfigCase
+        :rtype : scripts.config.yaml_config.YamlConfigCase
         """
         if self._iter_index >= len(self.test_cases):
             raise StopIteration

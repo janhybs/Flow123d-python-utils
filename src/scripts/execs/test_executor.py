@@ -9,7 +9,7 @@ import psutil
 from progressbar import ProgressBar, Bar
 
 from scripts.core.base import Paths
-from utils.dotdict import Map
+from utils.globals import ensure_iterable
 
 
 class ExtendedThread(threading.Thread):
@@ -67,9 +67,8 @@ class BinExecutor(ExtendedThread):
     """
     :type process: psutil.Popen
     """
-
     def __init__(self, command=list()):
-        self.command = [str(x) for x in command]
+        self.command = [str(x) for x in ensure_iterable(command)]
         self.process = None
         self.running = False
         super(BinExecutor, self).__init__()
@@ -118,7 +117,7 @@ class MultiProcess(ExtendedThread):
 
 class ParallelRunner(object):
     """
-    :type threads: list[ExtendedThread]
+    :type threads: list[scripts.execs.test_executor.ExtendedThread]
     """
     def __init__(self, n=4):
         self.n = n
