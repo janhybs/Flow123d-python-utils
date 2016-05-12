@@ -6,8 +6,14 @@ common_config:
   check_rules: null
 
 test_cases:
-  - file: [flow_implicit.yaml, flow_vtk.yaml]
-    proc: [1, 2, 4]
+  - file: [flow_implicit.yaml]
+    proc: [1, 2]
+    time_limit: 5
+    check_rules:
+      ndiff:
+        filters: ["*.pvd"]
+        r_tol: 1e-3
+        a_tol: 1e-6
   # - file: newton_bc.yaml
   #   # List of number of processes to run the test with.
   #   proc: [1, 2, 3]

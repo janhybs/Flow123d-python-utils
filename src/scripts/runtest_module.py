@@ -1,11 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-from scripts.core.base import Paths, PathFormat
+from __future__ import absolute_import
+import sys; sys.path.append('.')
+
+import progressbar as pb
+from scripts.core.base import Paths, PathFormat, PathFilters, Printer
 from scripts.config.yaml_config import YamlConfig
-from scripts.execs.monitor import ProcessMonitor, LimitMonitor, Limits
-from scripts.execs.test_executor import BinExecutor, ParallelRunner, MultiProcess
+from scripts.execs.monitor import ProcessMonitor
+from scripts.execs.test_executor import BinExecutor, ParallelRunner, SequentialProcesses
 from utils.argparser import ArgParser
+
 
 usage = "runtest.py [<parametes>] [<test set>]  [-- <test arguments>]"
 
@@ -16,7 +21,7 @@ parser.add('-a', '--keep-going', type=True, name='keep_going', docs=[
     'Run all tests, do not stop on the first error.',
     'In PBS mode this arguments is ignored.',
 ])
-parser.add('-p', '--parallel', type=int, name='parallel', placeholder='<N>', docs=[
+parser.add('-p', '--parallel', type=int, name='parallel', default=1, placeholder='<N>', docs=[
     'Run at most N tests in parallel.',
     'In PBS mode this arguments is ignored.',
 ])
@@ -71,6 +76,10 @@ parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder=
 
 
 def create_process(command, limits=None):
+    """
+    :type command: list[str]
+    :type limits: scripts.execs.monitor.Limits
+    """
     test_executor = BinExecutor(command)
     process_monitor = ProcessMonitor(test_executor)
     process_monitor.limit_monitor.set_limits(limits)
@@ -81,30 +90,106 @@ def create_process_from_case(case):
     """
     :type case: scripts.execs.test_executor.TestPrescription
     """
-    return create_process(case.get_command(), case.test_case)
+    process_monitor = create_process(case.get_command(), case.test_case)
 
-# Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/')
-# Paths.format = PathFormat.RELATIVE
+    seq = SequentialProcesses(False)
+    seq.add(case.create_clean_thread())
+    seq.add(process_monitor)
+    return seq
+
+
+def run_local_mode(all_yamls, options, rest):
+
+    # create parallel runner instance
+    runner = ParallelRunner(options.parallel)
+
+    total = len(all_yamls)
+    pbar = pb.ProgressBar(maxval=total, term_width=60, fd=sys.stdout, widgets=['Preparing tasks ', pb.Bar('x')])
+    pbar.start()
+    yaml_i = 0
+    for yaml_file in all_yamls:
+        # parse config.yaml
+        yaml_i += 1
+        pbar.update(yaml_i)
+        config = YamlConfig(yaml_file)
+
+        # extract all test cases (product of cpu x files)
+        for case in config.get_all_cases():
+            # create main process which first clean output dir
+            # and then execute test
+            multi_process = SequentialProcesses(False)
+            multi_process.add(create_process_from_case(case))
+            multi_process.stop_on_error = True
+
+            # get all comparisons threads and add them to main runner
+            multi_process.add(case.create_comparison_threads())
+            runner.add(multi_process)
+    pbar.finish()
+
+    # now that we have everything prepared
+    Printer.out('Executing tasks')
+    Printer.out('-' * 60)
+    runner.run()
+
+
+def do_work():
+    # parse arguments
+    options, yamls, rest = parser.parse()
+
+    all_yamls = list()
+    for path in yamls:
+        if Paths.is_dir(path):
+            all_yamls.extend(Paths.walk(path, filters=[
+                PathFilters.filter_type_is_file(),
+                PathFilters.filter_name('config.yaml')
+            ]))
+        else:
+            all_yamls.append(path)
+
+    Printer.out("Found {} config.yaml file/s", len(all_yamls))
+    if options.queue:
+        Printer.out('Running in PBS mode')
+        # run_pbs(all_yamls)
+    else:
+        Printer.out('Running in LOCAL mode')
+        run_local_mode(all_yamls, options, rest)
+
+
+Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/')
+Paths.format = PathFormat.RELATIVE
 # path = Paths.path_to('tests', '03_transport_small_12d', 'config.yaml')
 # cfg = YamlConfig(path)
-
+#
 # runner = ParallelRunner(1)
 #
 # for case in cfg.get_all_cases():
-#     process_monitor = create_process_from_case(case)
-#     runner.add(
-#         MultiProcess(
-#             process_monitor
-#         )
-#     )
+#     # create seq thread for single case and add main execution
+#     multi_process = SequentialProcesses(False)
+#     multi_process.add(create_process_from_case(case))
+#     multi_process.stop_on_error = True
+#
+#     # get all comparisons
+#     pairs = case.get_ref_output_ndiff_files()
+#     compares = SequentialProcesses()
+#     compares.thread_name_property = True
+#     compares.name = "File compare"
+#     for pair in pairs:
+#         pm = ProcessMonitor(
+#             BinExecutor([
+#                 Paths.ndiff(),
+#                 Paths.abspath(pair[0]),
+#                 Paths.abspath(pair[1])
+#             ]))
+#         pm.name = '{} {}'.format(Paths.basename(pair[0]), Paths.filesize(pair[0], True))
+#         pm.info_monitor.stdout_stderr = case.ndiff_log
+#         compares.add(pm)
+#
+#     # add all comparisons to main thread
+#     multi_process.add(compares)
+#     runner.add(multi_process)
 # runner.run()
 
 # create_process('Calculator.exe', Limits(5, 3)).start()
 # create_process('calc', Limits(5, 3)).start()
 
-import psutil
-# print psutil.Process(8676)
-# print psutil.Process(7184).ppid()
-#
-# Název	PID	Stav	Uživatelské jméno	Procesor	Paměť (soukromá pracovní sada)	Příkazový řádek	Popis
-# Calculator.exe	5432	Spuštěno	x3mSpeedy	00 	14 100 k	"C:\Program Files\WindowsApps\Microsoft.WindowsCalculator_10.1601.49020.0_x64__8wekyb3d8bbwe\Calculator.exe" -ServerName:App.AppXsm3pg4n7er43kdh1qp4e79f1j7am68r8.mca	Calculator.exe
+do_work()

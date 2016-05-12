@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
+from __future__ import absolute_import
+
 from scripts.execs.monitor import LimitMonitor, ProcessMonitor
 from scripts.execs.test_executor import BinExecutor
 from utils.argparser import ArgParser

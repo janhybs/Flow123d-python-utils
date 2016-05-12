@@ -164,7 +164,10 @@ class ArgParser(object):
     def usage(self):
         usage_lst = [self._usage]
         for option in self.all_options:
-            usage_lst.append('{option}\n'.format(option=option.usage()))
+            if type(option) is str:
+                usage_lst.append('{option}\n'.format(option=option))
+            else:
+                usage_lst.append('{option}\n'.format(option=option.usage()))
         return '\n'.join(usage_lst)
 
 
@@ -178,7 +181,7 @@ class ArgParser(object):
         """
         :rtype : str
         """
-        return self.source[self.i+1]
+        return '' if self.i+1 >= len(self.source) else self.source[self.i+1]
 
     def move_on(self):
         self.i += 1
@@ -199,7 +202,7 @@ class ArgParser(object):
             self.move_on()
         elif type(option.type) is list:
             # next arg is probably not argument but other flag
-            if self.next().startswith('-'):
+            if not self.next().startswith('-'):
                 option.value = option.type[0]
             else:
                 option.value = self.next()

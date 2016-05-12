@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-import time
+import time, os
 
 
 def ensure_iterable(o):

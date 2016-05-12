@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
+from __future__ import absolute_import
 
 import yaml
 import copy
 import itertools
 
 from scripts.core.base import Paths
-from scripts.execs.test_executor import TestPrescription, MPIPrescription
+from scripts.execs.test_executor import MPIPrescription
 from utils.globals import ensure_iterable
 
 
@@ -29,6 +30,7 @@ class YamlConfigCase(object):
         self.memory_limit = self._get(o, 'memory_limit')
         self.check_rules = self._get(o, 'check_rules')
         self.files = ensure_iterable(self._get(o, 'file'))
+
         self.config = config
         for i in range(len(self.files)):
             self.files[i] = Paths.join(config.root, self.files[i])
@@ -75,6 +77,7 @@ class YamlConfig(object):
         for test_case in test_cases:
             test_case = self.merge(self.common_config, test_case)
             self.test_cases.append(YamlConfigCase(self, test_case))
+
         self._iter_index = 0
 
     def get(self, index):

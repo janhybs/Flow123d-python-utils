@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
+from __future__ import absolute_import
 
-import sys, os
+import sys, os, re
 
 
 def make_relative(f):
@@ -31,9 +32,7 @@ class PathFilters(object):
 
     @staticmethod
     def filter_type_is_file():
-        def f(path):
-            return os.path.isfile(path)
-        return f #lambda x: os.path.isfile(x)
+        return lambda x: os.path.isfile(x)
 
     @staticmethod
     def filter_type_is_dir():
@@ -42,6 +41,14 @@ class PathFilters(object):
     @staticmethod
     def filter_exists():
         return lambda x: os.path
+
+    @staticmethod
+    def filter_wildcards(fmt=""):
+        fmt = fmt\
+            .replace('.', r'\.')\
+            .replace('*', r'.*')
+        patt = re.compile(fmt)
+        return lambda x: patt.match(x)
 
 
 class PathFormat(object):
@@ -92,10 +99,6 @@ class Paths(object):
         return os.path.join(path, *paths)
 
     @classmethod
-    def basename(cls, path):
-        return os.path.basename(path)
-
-    @classmethod
     @make_relative
     def dirname(cls, path):
         return os.path.dirname(path)
@@ -108,6 +111,93 @@ class Paths(object):
     @classmethod
     def browse(cls, path, filters=()):
         paths = [cls.join(path, p) for p in os.listdir(path)]
+        return cls.filter(paths, filters)
+
+    @classmethod
+    def walk(cls, path, filters=()):
+        paths = list()
+        for root, dirs, files in os.walk(path):
+            for name in files:
+                paths.append(cls.join(root, name))
+            for name in dirs:
+                paths.append(cls.join(root, name))
+
+        return cls.filter(paths, filters)
+
+    @classmethod
+    def filter(cls, paths, filters=()):
         for f in filters:
             paths = [p for p in paths if f(p)]
         return paths
+
+    @classmethod
+    def match(cls, paths, filters):
+        result = list()
+        for p in paths:
+            for f in filters:
+                if f(p):
+                    result.append(p)
+                    break
+        return result
+
+    @classmethod
+    def ensure_path(cls, f, is_file=True):
+        if not f:
+            return
+        p = os.path.dirname(f) if is_file else f
+        if not os.path.exists(p):
+            os.makedirs(p)
+
+    @classmethod
+    def filesize(cls, path, as_string=False):
+        size = os.path.getsize(path)
+        if not as_string:
+            return size
+
+        units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB']
+        s = size
+        for u in units:
+            if s < 100:
+                return '{:1.2f}{}'.format(s, u)
+            s /= 1000.
+        return '[Huge file]'
+
+    # -----------------------------------
+
+    @staticmethod
+    def is_file(*args, **kwargs):
+        return os.path.isfile(*args, **kwargs)
+
+    @staticmethod
+    def is_dir(*args, **kwargs):
+        return os.path.isdir(*args, **kwargs)
+
+    @staticmethod
+    def exists(*args, **kwargs):
+        return os.path.exists(*args, **kwargs)
+
+    @staticmethod
+    def abspath(*args, **kwargs):
+        return os.path.abspath(*args, **kwargs)
+
+    @staticmethod
+    def relpath(*args, **kwargs):
+        return os.path.relpath(*args, **kwargs)
+
+    @staticmethod
+    def basename(*args, **kwargs):
+        return os.path.basename(*args, **kwargs)
+
+
+class Printer(object):
+    @classmethod
+    def out(cls, msg, *args, **kwargs):
+        sys.stdout.write(msg.format(*args, **kwargs))
+        sys.stdout.write('\n')
+
+
+    @classmethod
+    def err(cls, msg, *args, **kwargs):
+        cls.out(msg, *args, **kwargs)
+        # sys.stderr.write(msg.format(*args, **kwargs))
+        # sys.stderr.write('\n')
