@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 from __future__ import absolute_import
-import sys; sys.path.append('.')
+import sys, os; sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+
+from scripts.core import prescriptions
 import progressbar as pb
-from scripts.core.base import Paths, PathFormat, PathFilters, Printer
+from scripts.core.base import Paths, PathFormat, PathFilters, Printer, CommandEscapee
 from scripts.config.yaml_config import YamlConfig
 from scripts.execs.monitor import ProcessMonitor
 from scripts.execs.test_executor import BinExecutor, ParallelRunner, SequentialProcesses
@@ -99,12 +101,22 @@ def create_process_from_case(case):
 
 
 def run_pbs_mode(all_yamls, options, rest):
-    import platform, json
+    import platform, json, importlib
 
     hostname = platform.node()
+    #
+    # with open('host_table.json', 'r') as fp:
+    #     print json.load(fp)
 
-    with open('host_table.json', 'r') as fp:
-        print json.load(fp)
+    pbs_module = importlib.import_module('scripts.pbs.pbs_tarkil_cesnet_cz')
+    commands = list()
+    for yaml_file in all_yamls:
+        config = YamlConfig(yaml_file)
+        for case in config.get_all_cases(prescriptions.PBSPrescription):
+            commands.append(CommandEscapee.escape_command(case.get_command()))
+
+    # TODO parallelization level? per yaml_file, per_yaml_case
+    print pbs_module.pbs_template + '\n'.join(commands)
 
 
 def run_local_mode(all_yamls, options, rest):
@@ -122,7 +134,7 @@ def run_local_mode(all_yamls, options, rest):
         config = YamlConfig(yaml_file)
 
         # extract all test cases (product of cpu x files)
-        for case in config.get_all_cases():
+        for case in config.get_all_cases(prescriptions.MPIPrescription):
             # create main process which first clean output dir
             # and then execute test
             multi_process = SequentialProcesses(False)
@@ -163,7 +175,7 @@ def do_work():
         run_local_mode(all_yamls, options, rest)
 
 
-Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/')
+# Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/')
 Paths.format = PathFormat.RELATIVE
 # path = Paths.path_to('tests', '03_transport_small_12d', 'config.yaml')
 # cfg = YamlConfig(path)

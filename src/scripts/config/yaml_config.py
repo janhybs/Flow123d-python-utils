@@ -8,7 +8,6 @@ import copy
 import itertools
 
 from scripts.core.base import Paths
-from scripts.execs.test_executor import MPIPrescription
 from utils.globals import ensure_iterable
 
 
@@ -96,9 +95,10 @@ class YamlConfig(object):
         else:
             return self._yaml.get(names, default)
 
-    def get_all_cases(self):
+    def get_all_cases(self, prescription_class):
         """
-        :rtype : list[scripts.execs.test_executor.TestPrescription]
+        :type prescription_class: class
+        :rtype : list[scripts.core.prescriptions.TestPrescription]
         """
         tmp_result = list()
         # prepare product of all possible combinations of input arguments
@@ -111,8 +111,7 @@ class YamlConfig(object):
             )))
         result = list()
         for lst in tmp_result:
-            # result.extend([TestPrescription(*x) for x in lst])
-            result.extend([MPIPrescription(*x) for x in lst])
+            result.extend([prescription_class(*x) for x in lst])
         return result
 
     @classmethod

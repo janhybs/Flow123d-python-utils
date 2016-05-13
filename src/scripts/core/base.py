@@ -10,7 +10,7 @@ def make_relative(f):
     def wrapper(*args, **kwargs):
         path = f(*args, **kwargs)
         if Paths.format == PathFormat.RELATIVE:
-            return os.path.relpath(path, Paths.base_dir())
+            return os.path.relpath(os.path.abspath(path), Paths.base_dir())
         elif Paths.format == PathFormat.ABSOLUTE:
             return os.path.abspath(path)
         return path
@@ -58,7 +58,7 @@ class PathFormat(object):
 
 
 class Paths(object):
-    _base_dir = './'
+    _base_dir = ''
     format = PathFormat.ABSOLUTE
 
     @classmethod
@@ -201,3 +201,14 @@ class Printer(object):
         cls.out(msg, *args, **kwargs)
         # sys.stderr.write(msg.format(*args, **kwargs))
         # sys.stderr.write('\n')
+
+
+class CommandEscapee(object):
+    @classmethod
+    def escape_command(cls, command):
+        """
+        :rtype : str
+        :type command: list[str]
+        """
+        import pipes
+        return ' '.join([pipes.quote(x) for x in command])
