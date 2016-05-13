@@ -3,6 +3,7 @@
 # author:   Jan Hybs
 
 import shutil
+import math
 from scripts.core.base import Paths, Printer, PathFilters
 from scripts.execs.monitor import ProcessMonitor
 from scripts.execs.test_executor import BinExecutor, SequentialProcesses, ExtendedThread
@@ -29,6 +30,7 @@ class TestPrescription(object):
         )
         self.output_dir = Paths.join(test_case.config.test_results, self.output_name)
         self.ndiff_log = Paths.join(self.output_dir, 'ndiff.log')
+        self.pbs_script = Paths.join(self.output_dir, 'pbs_script.qsub')
 
     def _get_command(self):
         return [
@@ -98,9 +100,16 @@ class MPIPrescription(TestPrescription):
         ] + super(MPIPrescription, self)._get_command()
 
 
-class PBSPrescription(TestPrescription):
+class PBSModule(TestPrescription):
     def _get_command(self):
         return [
             'mpirun',
             '-n', self.proc_value
-        ] + super(PBSPrescription, self)._get_command()
+        ] + super(PBSModule, self)._get_command()
+
+    def get_pbs_command(self, options, pbs_script_filename):
+        """
+        Method will generate all command which will then create PBS job
+        :type options: utils.argparser.ArgOptions
+        """
+        raise NotImplementedError('Method must be implemented in sub classes')

@@ -98,7 +98,7 @@ class YamlConfig(object):
     def get_all_cases(self, prescription_class):
         """
         :type prescription_class: class
-        :rtype : list[scripts.core.prescriptions.TestPrescription]
+        :rtype : list[scripts.core.prescriptions.MPIPrescription] or list[scripts.core.prescriptions.PBSModule]
         """
         tmp_result = list()
         # prepare product of all possible combinations of input arguments

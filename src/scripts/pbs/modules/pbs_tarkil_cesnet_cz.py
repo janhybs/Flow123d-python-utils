@@ -2,7 +2,44 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 
-pbs_template = """
+import math
+from scripts.core.base import Printer
+from scripts.core.prescriptions import PBSModule
+
+
+class Module(PBSModule):
+    def get_pbs_command(self, options, pbs_script_filename):
+        # total parallel process
+        np = self.proc_value
+        # processes per node, default value 1
+        ppn = options.get('ppn', 1)
+        # number of physical machines to be reserved
+        nodes = float(np) / ppn
+        if int(nodes) != nodes:
+            Printer.err('Warning: NP is not divisible by PPN')
+        nodes = int(math.ceil(nodes))
+
+        # memory limit
+        mem = int(self.test_case.memory_limit * ppn)
+
+        # get queue, if only -q is set, 'default' queue will be set
+        # otherwise given string value will be used
+        queue = options.get('queue', 'default')
+        queue = 'default' if queue is True else queue
+
+        # command
+        command = [
+            'qsub',
+            '-l', 'nodes={nodes}:ppn={ppn}'.format(**locals()), # :nfs4 option may be set
+            '-l', 'mem={mem}mb'.format(**locals()),
+            '-l', 'place=infiniband',
+            '-q', '{queue}'.format(**locals()),
+            pbs_script_filename
+        ]
+
+        return command
+
+template = """
 #!/bin/bash
 #
 # Specific PBS setting
@@ -24,10 +61,9 @@ module add python-2.6.2
 module unload mpiexec-0.84
 module unload mpich-p4-intel
 module add openmpi-1.6-intel
-
 module add gcc-4.7.0
 module add perl-5.10.1
-module add boost-1.49
+
 module add python26-modules-gcc
 module add numpy-py2.6
 module add python-2.7.6-gcc
@@ -43,9 +79,9 @@ uname -a
 echo JOB START: `date`
 pwd
 
-echo mpirun -n $NP "$FLOW123D" $FLOW_PARAMS
+echo "$$command$$"
+$$command$$
 
-mpirun -n $NP "$FLOW123D" $FLOW_PARAMS
 """.lstrip()
 
 # OPTIONS="-l nodes=${NNodes}:ppn=${PPN}:x86_64:nfs4:debian60 -l mem=${MEM}mb ${SET_WALLTIME} ${UNRESOLVED_PARAMS} -q ${QUEUE}"

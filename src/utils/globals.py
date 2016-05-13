@@ -46,3 +46,36 @@ def wait_for(obj, property, period=0.1, max_wait=5):
         wait += period
         if wait > max_wait:
             return None
+
+
+def justify(text, max_length=60, max_spaces=2):
+    spaces = len([c for c in text if c.isspace()])
+    needed = max_length - (len(text) - spaces)
+    space_lst = [needed] + spaces * [0]
+
+    if len(text) < 10 or len(text) > max_length:
+        return text
+
+    if spaces < 3 or needed < 0:
+        return text
+
+    while True:
+        top = space_lst[0]
+        if top > spaces:
+            space_lst[0] -= spaces
+            space_lst[1:] = [space_lst[i+1]+1 for i in range(spaces)]
+            continue
+        space_lst[0] -= top
+        space_lst[1:top+1] = [space_lst[i+1]+1 for i in range(top)]
+        space_lst = space_lst[1:]
+        space_lst = sorted(space_lst, reverse=False)
+        break
+    position = -1
+    if max(space_lst) > max_spaces:
+        return text
+
+    for i in range(0, spaces):
+        position = text.find(' ', position+1)
+        text = text[:position] + ' ' * space_lst[i] + text[position+1:]
+        position += space_lst[i]
+    return text

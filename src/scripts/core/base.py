@@ -207,8 +207,27 @@ class CommandEscapee(object):
     @classmethod
     def escape_command(cls, command):
         """
-        :rtype : str
+        :rtype : list[str]
         :type command: list[str]
         """
         import pipes
-        return ' '.join([pipes.quote(x) for x in command])
+        return [pipes.quote(x) for x in command]
+
+
+class IO(object):
+    @classmethod
+    def read(cls, name, mode='r'):
+        if Paths.exists(name):
+            with open(name, mode) as fp:
+                return fp.read()
+
+    @classmethod
+    def write(cls, name, string, mode='w'):
+        Paths.ensure_path(name)
+        with open(name, mode) as fp:
+            fp.write(string)
+        return True
+
+    @classmethod
+    def append(cls, name, string, mode='a'):
+        return cls.write(name, string, mode)

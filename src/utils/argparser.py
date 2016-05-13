@@ -4,6 +4,7 @@
 
 
 import sys, os, re
+from utils.globals import justify
 
 _long_format = re.compile(r'--[a-z0-9_-]+=')
 _short_eq_format = re.compile(r'-[a-z]=')
@@ -202,12 +203,11 @@ class ArgParser(object):
             self.move_on()
         elif type(option.type) is list:
             # next arg is probably not argument but other flag
-            if not self.next().startswith('-'):
+            if not self.next().startswith('-') or self.next() == '--':
                 option.value = option.type[0]
             else:
                 option.value = self.next()
                 self.move_on()
-
 
         return option.value
 

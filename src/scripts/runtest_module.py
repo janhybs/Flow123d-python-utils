@@ -1,13 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-from __future__ import absolute_import
-import sys, os; sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-
+import sys
 from scripts.core import prescriptions
 import progressbar as pb
-from scripts.core.base import Paths, PathFormat, PathFilters, Printer, CommandEscapee
+from scripts.core.base import Paths, PathFormat, PathFilters, Printer, CommandEscapee, IO
 from scripts.config.yaml_config import YamlConfig
 from scripts.execs.monitor import ProcessMonitor
 from scripts.execs.test_executor import BinExecutor, ParallelRunner, SequentialProcesses
@@ -75,6 +73,15 @@ parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder=
     'Optional memory limit per node in MB',
     'For precision use float value'
 ])
+# ----------------------------------------------
+parser.add_section('Proposed arguments')
+parser.add('', '--root', type=str, name='root', placeholder='<root>', docs=[
+    'Optional hint for flow123d path, if not specified, default value will be',
+    'Extracted from this file path, assuming it is located in flow123d bin/python dir',
+    '',
+    'Script will always change-dir itself to location of root, so all path match'
+])
+# ----------------------------------------------
 
 
 def create_process(command, limits=None):
@@ -100,23 +107,49 @@ def create_process_from_case(case):
     return seq
 
 
+def create_pbs_job_content(module, command):
+    escaped_command = ' '.join(CommandEscapee.escape_command(command))
+    return module.template.replace('$$command$$',escaped_command)
+
+
+def create_pbs_command(qsub_command):
+    return ' '.join(CommandEscapee.escape_command(qsub_command))
+
+
 def run_pbs_mode(all_yamls, options, rest):
     import platform, json, importlib
 
     hostname = platform.node()
-    #
-    # with open('host_table.json', 'r') as fp:
-    #     print json.load(fp)
 
-    pbs_module = importlib.import_module('scripts.pbs.pbs_tarkil_cesnet_cz')
-    commands = list()
+    with open('host_table.json', 'r') as fp:
+        hosts = json.load(fp)
+        pbs_module_path = hosts.get(hostname)
+
+
+    total = len(all_yamls)
+    pbar = pb.ProgressBar(maxval=total, term_width=60, fd=sys.stdout, widgets=['Preparing tasks ', pb.Bar('x')])
+    pbar.start()
+    yaml_i = 0
+
+    pbs_module = importlib.import_module('scripts.pbs.modules.{}'.format(pbs_module_path))
+    jobs = list()
     for yaml_file in all_yamls:
+        # parse config.yaml
+        yaml_i += 1
+        pbar.update(yaml_i)
         config = YamlConfig(yaml_file)
-        for case in config.get_all_cases(prescriptions.PBSPrescription):
-            commands.append(CommandEscapee.escape_command(case.get_command()))
 
-    # TODO parallelization level? per yaml_file, per_yaml_case
-    print pbs_module.pbs_template + '\n'.join(commands)
+        # extract all test cases (product of cpu x files)
+        for case in config.get_all_cases(pbs_module.Module):
+            # create run command
+            test_command = case.get_command()
+            test_command.extend(rest)
+            pbs_content = create_pbs_job_content(pbs_module, test_command)
+            IO.write(case.pbs_script, pbs_content)
+
+            # create pbs file
+            qsub_command = case.get_pbs_command(options, case.pbs_script)
+            jobs.append((create_pbs_command(qsub_command), case.pbs_script))
 
 
 def run_local_mode(all_yamls, options, rest):
@@ -152,12 +185,34 @@ def run_local_mode(all_yamls, options, rest):
     runner.run()
 
 
-def do_work():
+def do_work(frontend_file):
     # parse arguments
     options, yamls, rest = parser.parse()
+    Paths.format = PathFormat.ABSOLUTE
+
+    if not options.root:
+        # try to find our root
+        options.root = Paths.join(Paths.dirname(frontend_file), '..', '..')
+        Printer.out('Argument --root not specified, assuming root is {}', options.root)
+
+    # change dir to root
+    Paths.base_dir(options.root)
+    if not Paths.exists(Paths.flow123d()):
+        Printer.err('Error: Invalid root! Could not find binary files relative to root {}', options.root)
+        Printer.err('Error: Flow123d binary file not found in {}', Paths.flow123d())
+        exit(1)
+
+    # test yaml args
+    if not yamls:
+        Printer.err('Error: No yaml files or folder given', options.root)
+        exit(1)
 
     all_yamls = list()
     for path in yamls:
+        if not Paths.exists(path):
+            Printer.err('Warning! given path does not exists, ignoring path "{}"', path)
+            continue
+
         if Paths.is_dir(path):
             all_yamls.extend(Paths.walk(path, filters=[
                 PathFilters.filter_type_is_file(),
@@ -167,49 +222,13 @@ def do_work():
             all_yamls.append(path)
 
     Printer.out("Found {} config.yaml file/s", len(all_yamls))
+    if not all_yamls:
+        Printer.err('Warning! No yaml files found in locations: \n  {}', '\n  '.join(yamls))
+        exit(1)
+
     if options.queue:
         Printer.out('Running in PBS mode')
         run_pbs_mode(all_yamls, options, rest)
     else:
         Printer.out('Running in LOCAL mode')
         run_local_mode(all_yamls, options, rest)
-
-
-# Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/')
-Paths.format = PathFormat.RELATIVE
-# path = Paths.path_to('tests', '03_transport_small_12d', 'config.yaml')
-# cfg = YamlConfig(path)
-#
-# runner = ParallelRunner(1)
-#
-# for case in cfg.get_all_cases():
-#     # create seq thread for single case and add main execution
-#     multi_process = SequentialProcesses(False)
-#     multi_process.add(create_process_from_case(case))
-#     multi_process.stop_on_error = True
-#
-#     # get all comparisons
-#     pairs = case.get_ref_output_ndiff_files()
-#     compares = SequentialProcesses()
-#     compares.thread_name_property = True
-#     compares.name = "File compare"
-#     for pair in pairs:
-#         pm = ProcessMonitor(
-#             BinExecutor([
-#                 Paths.ndiff(),
-#                 Paths.abspath(pair[0]),
-#                 Paths.abspath(pair[1])
-#             ]))
-#         pm.name = '{} {}'.format(Paths.basename(pair[0]), Paths.filesize(pair[0], True))
-#         pm.info_monitor.stdout_stderr = case.ndiff_log
-#         compares.add(pm)
-#
-#     # add all comparisons to main thread
-#     multi_process.add(compares)
-#     runner.add(multi_process)
-# runner.run()
-
-# create_process('Calculator.exe', Limits(5, 3)).start()
-# create_process('calc', Limits(5, 3)).start()
-
-do_work()
