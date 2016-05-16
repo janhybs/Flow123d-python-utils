@@ -32,8 +32,10 @@ def get_pbs_module(hostname=None):
     """
     :rtype : scripts.pbs.common.DummyModule
     """
+    pbs_module_path = None
     if not hostname:
         hostname = platform.node()
+        # hostname = 'tarkil.cesnet.cz'
 
     # try to get name from json file
     host_file = Paths.join(Paths.source_dir(), 'host_table.json')
