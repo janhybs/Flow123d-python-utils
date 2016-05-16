@@ -89,18 +89,18 @@ def run_pbs_mode():
 
     # wait for job to end
     while job.state != JobState.COMPLETED:
+        for j in range(6):
+            elapsed_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
+            Printer.out_rr(' ' * 60)
+            Printer.out_rr('Job #{job.id} status: {job.state} ({t})', job=job, t=elapsed_str)
+
+            # sleep for a bit
+            time.sleep(0.5)
+
+        # update status every 6 * 0.5 seconds (3 sec update)
         job.update_status()
-        elapsed = time.time() - start_time
-        elapsed_str = str(datetime.timedelta(seconds=int(elapsed)))
-
-        Printer.out_rr(' ' * 60)
-        Printer.out_rr('Job #{job.id} status: {job.state} ({t})', job=job, t=elapsed_str)
-
         if job.state == JobState.COMPLETED:
             break
-
-        # sleep for a bit
-        time.sleep(3)
     Printer.out('\nJob ended')
 
     # delete tmp file
