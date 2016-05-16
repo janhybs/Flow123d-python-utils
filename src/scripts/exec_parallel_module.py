@@ -8,7 +8,7 @@ from scripts.core.prescriptions import PBSModule
 from scripts.execs.monitor import ProcessMonitor
 from scripts.execs.test_executor import BinExecutor
 from scripts.pbs.common import get_pbs_module
-import subprocess, re
+import subprocess, time
 
 # global arguments
 from scripts.pbs.job import JobState
@@ -76,7 +76,6 @@ def run_pbs_mode():
     Printer.out('Command : {}', escaped_command)
     Printer.out('PBS     : {}', pbs_command)
     Printer.out('script  : {}', temp_file)
-    exit(0)
 
     # save pbs script
     IO.write(temp_file, pbs_content)
@@ -90,11 +89,13 @@ def run_pbs_mode():
     # wait for job to end
     last_state = job.state
     while job.state != JobState.COMPLETED:
+        print job.state, JobState.COMPLETED, job.state != JobState.COMPLETED
         job.update_status()
 
         if job.state != last_state:
             Printer.out('Job status update: {}', job)
             last_state = job.state
+        time.sleep(3)
     Printer.out('Job ended')
 
     # delete tmp file

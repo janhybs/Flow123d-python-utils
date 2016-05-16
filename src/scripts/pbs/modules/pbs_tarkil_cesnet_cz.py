@@ -93,9 +93,6 @@ moduel add
 #################
 
 
-
-cd ${WORKDIR}
-
 # header - info about task
 uname -a
 echo JOB START: `date`

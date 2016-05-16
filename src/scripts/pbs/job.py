@@ -23,9 +23,13 @@ class JobState(object):
         self.value = str(value).upper()
 
     def __eq__(self, other):
+        if type(other) is JobState:
+            return self.value == other.value
         return self.value == str(other).upper()
 
     def __ne__(self, other):
+        if type(other) is JobState:
+            return self.value != other.value
         return self.value != str(other).upper()
 
     def __repr__(self):
