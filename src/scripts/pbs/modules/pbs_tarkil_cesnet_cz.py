@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 
-import math
+import math, re
 from scripts.core.base import Printer
 from scripts.core.prescriptions import PBSModule
 from scripts.pbs.job import Job
@@ -55,6 +55,10 @@ class ModuleJob(Job):
 
         self.id, self.name, self.owner, self.cpu, self.state, self.queue = lines[2].split()
         return self.state
+
+    @classmethod
+    def create(cls, output=""):
+        return ModuleJob(re.findall(r'(\d+)', output)[0])
 
 
 template = """

@@ -41,6 +41,14 @@ def run_local_mode():
 
 
 def run_pbs_mode():
+    # build command
+    mpi_binary = 'mpirun' if arg_options.mpirun else Paths.mpiexec()
+    command = [
+        mpi_binary,
+        '-np', str(arg_options.get('cpu', 1))
+    ]
+    # append rest arguments
+    command.extend(arg_rest)
 
     # get module
     pbs_module = get_pbs_module(arg_options.host)
@@ -51,7 +59,6 @@ def run_pbs_mode():
     pbs_command = module.get_pbs_command(arg_options, temp_file)
 
     # create regular command for execution
-    command = arg_rest
     escaped_command = ' '.join(CommandEscapee.escape_command(command))
 
     # create pbs script
@@ -61,8 +68,11 @@ def run_pbs_mode():
         root=arg_options.root
     )
 
-    output = 'Your job 126256 ("pbs_script.qsub") has been submitted'
-    job = pbs_module.ModuleJob.create(output)
+    # print debug info
+    Printer.out('Command : {}', escaped_command)
+    Printer.out('PBS     : {}', pbs_command)
+    Printer.out('script  : {}', temp_file)
+    exit(0)
 
     # save pbs script
     IO.write(temp_file, pbs_content)

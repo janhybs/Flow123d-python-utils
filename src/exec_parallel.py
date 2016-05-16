@@ -34,7 +34,7 @@ parser.add('', '--host', type=str, name='host', placeholder='<host>', docs=[
     'it is used directly otherwise the logical ',
     'hostname is used to select the setup script.',
 ])
-parser.add('', '--mpirun', type=True, name='mpiexec', docs=[
+parser.add('', '--mpirun', type=True, name='mpirun', docs=[
     'Use mpirun instead of mpiexec in flo123d/bin directory'
 ])
 # ----------------------------------------------

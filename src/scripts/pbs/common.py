@@ -4,7 +4,7 @@
 import importlib
 import json
 import platform
-from scripts.core.base import Paths
+from scripts.core.base import Paths, Printer
 
 
 class DummyModule(object):
@@ -42,7 +42,9 @@ def get_pbs_module(hostname=None):
             hosts = json.load(fp)
             pbs_module_path = hosts.get(hostname)
     else:
-        pbs_module_path = 'pbs_{}'.format(hostname.replace('.', '_'))
+        hostname = hostname.replace('.', '_')
+        pbs_module_path = 'pbs_{}'.format(hostname)
+        Printer.out('Warning! no host specified assuming module {}', pbs_module_path)
 
     # try to get pbs_module
     return importlib.import_module('scripts.pbs.modules.{}'.format(pbs_module_path))
