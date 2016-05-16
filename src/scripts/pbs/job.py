@@ -50,7 +50,7 @@ class Job(object):
         self.state = JobState(JobState.UNKNOWN)
 
     def update_status(self):
-        state = subprocess.check_output(self.update_command())
+        state = self.parse_status(subprocess.check_output(self.update_command()))
         self.state = JobState(state)
 
     def raise_not_found(self):
