@@ -8,7 +8,7 @@ from scripts.core.prescriptions import PBSModule
 from scripts.execs.monitor import ProcessMonitor
 from scripts.execs.test_executor import BinExecutor
 from scripts.pbs.common import get_pbs_module
-import subprocess, time
+import subprocess, time, datetime
 
 # global arguments
 from scripts.pbs.job import JobState
@@ -82,21 +82,26 @@ def run_pbs_mode():
 
     # run qsub command
     output = subprocess.check_output(pbs_command)
+    start_time = time.time()
     job = pbs_module.ModuleJob.create(output)
     job.update_status()
     Printer.out('Job submitted: {}', job)
 
     # wait for job to end
-    last_state = job.state
     while job.state != JobState.COMPLETED:
-        print job.state, JobState.COMPLETED, job.state != JobState.COMPLETED
         job.update_status()
+        elapsed = time.time() - start_time
+        elapsed_str = str(datetime.timedelta(seconds=int(elapsed)))
 
-        if job.state != last_state:
-            Printer.out('Job status update: {}', job)
-            last_state = job.state
+        Printer.out_rr(' ' * 60)
+        Printer.out_rr('Job #{job.id} status: {job.state} ({t})', job=job, t=elapsed_str)
+
+        if job.state == JobState.COMPLETED:
+            break
+
+        # sleep for a bit
         time.sleep(3)
-    Printer.out('Job ended')
+    Printer.out('\nJob ended')
 
     # delete tmp file
     # IO.delete(temp_file)

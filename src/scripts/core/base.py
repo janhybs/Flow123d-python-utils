@@ -220,6 +220,16 @@ class Printer(object):
         sys.stdout.write(msg.format(*args, **kwargs))
         sys.stdout.write('\n')
 
+    @classmethod
+    def out_r(cls, msg, *args, **kwargs):
+        sys.stdout.write(msg.format(*args, **kwargs))
+
+    @classmethod
+    def out_rr(cls, msg, *args, **kwargs):
+        sys.stdout.write(msg.format(*args, **kwargs))
+        sys.stderr.write('\r')
+        sys.stdout.flush()
+
 
     @classmethod
     def err(cls, msg, *args, **kwargs):
