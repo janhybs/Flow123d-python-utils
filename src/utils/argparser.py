@@ -217,7 +217,7 @@ class ArgParser(object):
             self.move_on()
         elif type(option.type) is list:
             # next arg is probably not argument but other flag
-            if not self.next().startswith('-') or self.next() == '--':
+            if self.next().startswith('-'):
                 option.value = option.type[0]
             else:
                 option.value = self.next()

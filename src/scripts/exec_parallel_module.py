@@ -134,7 +134,7 @@ def do_work(frontend_file, parser):
     Paths.base_dir(arg_options.root)
 
     # run local or pbs mode
-    if arg_options.queue or 1:
+    if arg_options.queue:
         Printer.out('Running in PBS mode')
         run_pbs_mode()
     else:
