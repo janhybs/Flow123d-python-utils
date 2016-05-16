@@ -20,7 +20,7 @@ class TestPrescription(object):
         self.proc_value = proc_value
         self.filename = filename
 
-        if not self.test_case:
+        if not self.filename:
             return
 
         self.shortname = Paths.basename(Paths.without_ext(self.filename))

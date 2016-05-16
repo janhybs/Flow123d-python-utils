@@ -12,6 +12,7 @@ import subprocess, re
 
 # global arguments
 from scripts.pbs.job import JobState
+from utils.dotdict import Map
 
 arg_options = None
 arg_others = None
@@ -54,7 +55,7 @@ def run_pbs_mode():
     pbs_module = get_pbs_module(arg_options.host)
 
     # create pbs command
-    module = pbs_module.Module({}, arg_options.cpu, None)
+    module = pbs_module.Module(Map(test_case=Map(memory_limit=arg_options.memory_limit)), arg_options.cpu, None)
     temp_file = Paths.temp_file('exec-temp.qsub')
     pbs_command = module.get_pbs_command(arg_options, temp_file)
 
