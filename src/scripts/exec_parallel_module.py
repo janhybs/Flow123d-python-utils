@@ -75,8 +75,10 @@ def run_pbs_mode():
 
     # print debug info
     Printer.out('Command : {}', escaped_command)
-    Printer.out('PBS     : {}', pbs_command)
+    Printer.out('PBS     : {}', ' '.join(pbs_command))
     Printer.out('script  : {}', temp_file)
+    Printer.out('')
+    exit(0)
 
     # save pbs script
     IO.write(temp_file, pbs_content)
@@ -95,13 +97,15 @@ def run_pbs_mode():
             Printer.out_rr(' ' * 60)
             Printer.out_rr('Job #{job.id} status: {job.state} ({t})', job=job, t=elapsed_str)
 
+            # test job state
+            if job.state == JobState.COMPLETED:
+                break
+
             # sleep for a bit
             time.sleep(0.5)
 
         # update status every 6 * 0.5 seconds (3 sec update)
         job.update_status()
-        if job.state == JobState.COMPLETED:
-            break
     Printer.out('\nJob ended')
 
     # delete tmp file
@@ -137,7 +141,9 @@ def do_work(frontend_file, parser):
     # run local or pbs mode
     if arg_options.queue:
         Printer.out('Running in PBS mode')
+        Printer.out('-' * 60)
         run_pbs_mode()
     else:
         Printer.out('Running in LOCAL mode')
+        Printer.out('-' * 60)
         run_local_mode()

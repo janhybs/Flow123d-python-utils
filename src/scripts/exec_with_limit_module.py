@@ -34,4 +34,5 @@ def do_work(frontend_file, parser):
     process_monitor.limit_monitor.memory_limit = options.memory_limit
 
     # start process
+    Printer.out('-' * 60)
     process_monitor.start()

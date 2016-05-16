@@ -173,7 +173,9 @@ def do_work(frontend_file, parser):
 
     if arg_options.queue:
         Printer.out('Running in PBS mode')
+        Printer.out('-' * 60)
         run_pbs_mode(all_yamls)
     else:
         Printer.out('Running in LOCAL mode')
+        Printer.out('-' * 60)
         run_local_mode(all_yamls)

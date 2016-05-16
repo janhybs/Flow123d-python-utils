@@ -278,7 +278,7 @@ class LimitMonitor(AbstractMonitor):
         if self.time_limit:
             runtime = self.get_runtime()
             if runtime > self.time_limit:
-                Printer.err('Error: Process is running longer then expected {:1.2f}s of runtime, {:1.2f}s allowed'.format(
+                Printer.err('Error: Process is running longer then expected! {:1.2f}s of runtime, {:1.2f}s allowed'.format(
                     runtime, self.time_limit
                     )
                 )
