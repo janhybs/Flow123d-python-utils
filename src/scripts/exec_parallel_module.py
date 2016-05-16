@@ -55,7 +55,10 @@ def run_pbs_mode():
     pbs_module = get_pbs_module(arg_options.host)
 
     # create pbs command
-    module = pbs_module.Module(Map(test_case=Map(memory_limit=arg_options.memory_limit)), arg_options.cpu, None)
+    test_case = Map(
+        memory_limit=arg_options.memory_limit
+    )
+    module = pbs_module.Module(test_case, arg_options.cpu, None)
     temp_file = Paths.temp_file('exec-temp.qsub')
     pbs_command = module.get_pbs_command(arg_options, temp_file)
 

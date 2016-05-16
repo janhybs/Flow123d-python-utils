@@ -25,8 +25,8 @@ class Module(PBSModule):
 
         # get queue, if only -q is set, 'default' queue will be set
         # otherwise given string value will be used
-        queue = options.get('queue', 'default')
-        queue = 'default' if queue is True else queue
+        queue = options.get('queue', True)
+        queue = 'default' if type(queue) is not str else queue
 
         # command
         command = [

@@ -40,8 +40,9 @@ def get_pbs_module(hostname=None):
     if Paths.exists(host_file):
         with open(host_file, 'r') as fp:
             hosts = json.load(fp)
-            pbs_module_path = hosts.get(hostname)
-    else:
+            pbs_module_path = hosts.get(hostname, None)
+
+    if not pbs_module_path:
         hostname = hostname.replace('.', '_')
         pbs_module_path = 'pbs_{}'.format(hostname)
         Printer.out('Warning! no host specified assuming module {}', pbs_module_path)
