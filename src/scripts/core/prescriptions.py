@@ -19,6 +19,10 @@ class TestPrescription(object):
         self.test_case = test_case
         self.proc_value = proc_value
         self.filename = filename
+
+        if not self.test_case:
+            return
+
         self.shortname = Paths.basename(Paths.without_ext(self.filename))
         self.ref_output = Paths.join(
             test_case.config.ref_output,
@@ -113,3 +117,10 @@ class PBSModule(TestPrescription):
         :type options: utils.argparser.ArgOptions
         """
         raise NotImplementedError('Method must be implemented in sub classes')
+
+    @staticmethod
+    def format(template, **kwargs):
+        t = str(template)
+        for k, v in kwargs.items():
+            t = t.replace('$${}$$'.format(k), v)
+        return t

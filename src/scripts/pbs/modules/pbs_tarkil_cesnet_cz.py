@@ -5,6 +5,7 @@
 import math
 from scripts.core.base import Printer
 from scripts.core.prescriptions import PBSModule
+from scripts.pbs.job import Job
 
 
 class Module(PBSModule):
@@ -38,6 +39,23 @@ class Module(PBSModule):
         ]
 
         return command
+
+
+class ModuleJob(Job):
+    def __init__(self, job_id):
+        super(ModuleJob, self).__init__(job_id)
+
+    def update_command(self):
+        return ['qstat', self.id]
+
+    def parse_status(self, output=""):
+        lines = output.splitlines()
+        if len(lines) < 2:
+            self.raise_not_found()
+
+        self.id, self.name, self.owner, self.cpu, self.state, self.queue = lines[2].split()
+        return self.state
+
 
 template = """
 #!/bin/bash
@@ -83,42 +101,3 @@ echo "$$command$$"
 $$command$$
 
 """.lstrip()
-
-# OPTIONS="-l nodes=${NNodes}:ppn=${PPN}:x86_64:nfs4:debian60 -l mem=${MEM}mb ${SET_WALLTIME} ${UNRESOLVED_PARAMS} -q ${QUEUE}"
-# Add new PBS job to the queue
-# echo "qsub ${OPTIONS} ${QSUB_FILE}"
-
-# NP is number of procs used to compute
-# MPIEXEC is relative path to bin/mpiexec
-# FLOW123D is relative path to bin/flow123d (.exe)
-# FLOW_PARAMS is list of parameters of flow123d
-# INI_FILE is name of .ini file
-# WORKDIR is directory from which flow123d.sh was started
-# TIMEOUT is max time to run
-#
-# sets variable STDOUT_FILE to the file name of the joined redirected stdout and stderr
-#
-# * the job is started from /storage/.../home/USER/...
-
-# Some important files
-# export ERR_FILE="err.log"
-# export OUT_FILE="out.log"
-#
-# QSUB_FILE="/tmp/${USER}-flow123.qsub"
-#     rm -f ${QSUB_FILE}
-#
-# if [ -z "${QUEUE}" ]; then QUEUE=normal; fi
-# if [ -z "${PPN}" ]; then PPN=2; fi
-# if [ -z "${MEM}" ]; then MEM="$(( ${PPN} * 2))"; fi
-# # divide and round up
-# NNodes="$(( ( ${NP} + ${PPN} -1 ) / ${PPN} ))"
-# if [ -n "${TIMEOUT}" ]; then SET_WALLTIME="-l walltime=${TIMEOUT}";fi
-
-# echo "    --host HOSTNAME               Use given HOSTNAME for backend script resolution. Script 'config/\${HOSTNAME}.sh' must exist."
-# echo "    -t, --walltime TIMEOUT        Specifies a maximum time period after which Flow123d will be killed.  Time TIMEOUT is expressed in seconds as an integer,\n or in the form: [[hours:]minutes:]seconds[.milliseconds]."
-# echo "    -m, --mem MEM                 Flow123d can use only MEM magabytes per process."
-# echo "    -n, --nice NICE               Run Flow123d with changed (lower) priority."
-# echo "    -np N                         Run Flow123d using N parallel processes."
-# echo "    -ppn PPN                      Run PPN processes per node. NP should be divisible by PPN other wise it will be truncated."
-# echo "    -q, --queue QUEUE             Name of queue to use for batch processing. For interactive runs this redirect stdout and stderr to the file with name in format QUEUE.DATE."
-

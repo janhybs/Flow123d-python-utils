@@ -35,7 +35,6 @@ class ProcessMonitor(threading.Thread):
         self.name = None
         self.returncode = None
 
-
     def add_monitor(self, monitor):
         self.monitors.append(monitor)
 

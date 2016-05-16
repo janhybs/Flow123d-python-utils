@@ -39,18 +39,34 @@ class Job(object):
         self.owner = None
         self.cpu = None
         self.queue = None
-        self.state = JobState()
+        self.prior = None
+        self.date = None
+        self.time = None
+        self.slots = None
+        self.state = JobState(JobState.UNKNOWN)
 
     def update_status(self):
-        output = subprocess.check_output(['qstat', self.id])
-        status_lines = output.split('\n')
-        if len(status_lines) < 2:
-            self.state = JobState(JobState.UNKNOWN)
-            raise Exception('Job with id {self.id} does not exists'.format(self=self))
+        state = subprocess.check_output(self.update_command())
+        self.state = JobState(state)
 
-        status_line = status_lines[2].split()
-        self.id, self.name, self.owner, self.cpu, self.state, self.queue = status_line
-        self.state = JobState(self.state)
+    def raise_not_found(self):
+        raise Exception('Job with id {self.id} does not exists'.format(self=self))
 
     def __repr__(self):
-        return "<Job #{self.id}, status {self.state}>".format(self=self)
+        return "<Job #{s.id}, status {s.state} in queue {s.queue}>".format(s=self)
+
+    # --------------------------------------------------------
+
+    def update_command(self):
+        raise NotImplementedError('Method not implemented!')
+
+    def parse_status(self, output=""):
+        raise NotImplementedError('Method not implemented!')
+
+    @classmethod
+    def create(cls, output=""):
+        """
+        Creates instance of Job from qsub output
+        :param output: output of qsub command
+        """
+        raise NotImplementedError('Method not implemented!')

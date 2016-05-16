@@ -2,39 +2,36 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 from __future__ import absolute_import
+from scripts.core.base import Printer
 
 from scripts.execs.monitor import LimitMonitor, ProcessMonitor
 from scripts.execs.test_executor import BinExecutor
-from utils.argparser import ArgParser
-
-usage = "exec_with_limit.py [-t <time>] [-m <memory>] -- <executable> <arguments>"
-
-parser = ArgParser(usage)
-parser.add('-t', '--limit-time', type=float, name='time_limit', placeholder='<time>', docs=[
-    'Obligatory wall clock time limit for execution in seconds',
-    'For precision use float value'
-])
-parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder='<memory>', docs=[
-    'Optional memory limit per node in MB',
-    'For precision use float value'
-])
 
 
-def do_work():
+def do_work(frontend_file, parser):
+    """
+    :type frontend_file: str
+    :type parser: utils.argparser.ArgParser
+    """
+
     # parse arguments
     options, others, rest = parser.parse()
+
+    # check commands
+    if not rest:
+        parser.exit_usage('No command specified!')
+
+    # check limits (at least one limit must be set)
+    if (options.time_limit, options.memory_limit) == (None, None):
+        parser.exit_usage('No limits specified!')
 
     # prepare executor
     executor = BinExecutor(rest)
     process_monitor = ProcessMonitor(executor)
 
     # set limits
-    limiter = LimitMonitor(process_monitor)
-    limiter.time_limit = options.time_limit
-    limiter.memory_limit = options.memory_limit
-    process_monitor.add_monitor(limiter)
+    process_monitor.limit_monitor.time_limit = options.time_limit
+    process_monitor.limit_monitor.memory_limit = options.memory_limit
 
     # start process
     process_monitor.start()
-
-do_work()

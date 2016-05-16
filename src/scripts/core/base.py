@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 from __future__ import absolute_import
+import random
 
 import sys, os, re
 
@@ -68,6 +69,26 @@ class Paths(object):
         else:
             cls._base_dir = v
             os.chdir(v)
+
+    @classmethod
+    def source_dir(cls):
+        return cls.join(cls.dirname(__file__), '..', '..')
+
+    @classmethod
+    def test_paths(cls, *paths):
+        status = True
+        for path in paths:
+            filename = getattr(cls, path)()
+            if not cls.exists(filename):
+                Printer.err('Error: file {:10s} ({}) does not exists!', path, filename)
+                status = False
+
+        return status
+
+    @classmethod
+    def temp_file(cls, name=''):
+        # return cls.path_to('{}-{}'.format(random.randint(1000, 9999), name))
+        return cls.path_to('{}-{}'.format(1000, name))
 
     # -----------------------------------
 
@@ -188,6 +209,10 @@ class Paths(object):
     def basename(*args, **kwargs):
         return os.path.basename(*args, **kwargs)
 
+    @staticmethod
+    def unlink(*args, **kwargs):
+        return os.unlink(*args, **kwargs)
+
 
 class Printer(object):
     @classmethod
@@ -231,3 +256,10 @@ class IO(object):
     @classmethod
     def append(cls, name, string, mode='a'):
         return cls.write(name, string, mode)
+
+    @classmethod
+    def delete(cls, name):
+        if Paths.exists(name):
+            Paths.unlink(name)
+            return True
+        return False

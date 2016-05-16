@@ -4,6 +4,7 @@
 
 
 import sys, os, re
+from scripts.core.base import Printer
 from utils.globals import justify
 
 _long_format = re.compile(r'--[a-z0-9_-]+=')
@@ -146,6 +147,7 @@ class ArgParser(object):
         self.keys = None
         self._usage = usage
         self.all_options = list()
+        self.add('-h', '--help', type=True, name='help', docs='Display this help and exit')
 
     def add(self, short='', long='', type=str, default=None, name=None, subtype=str, docs='', placeholder=''):
         ao = ArgOption(short, long, type, default, name, subtype, docs, placeholder)
@@ -163,7 +165,7 @@ class ArgParser(object):
         self.all_options.append('\n{}:'.format(name))
 
     def usage(self):
-        usage_lst = [self._usage]
+        usage_lst = ['Usage: {}'.format(self._usage)]
         for option in self.all_options:
             if type(option) is str:
                 usage_lst.append('{option}\n'.format(option=option))
@@ -171,6 +173,18 @@ class ArgParser(object):
                 usage_lst.append('{option}\n'.format(option=option.usage()))
         return '\n'.join(usage_lst)
 
+    def check_help(self):
+        if self.simple_options.get('help'):
+            self.exit_usage()
+
+    def exit_usage(self, msg=None, exit_code=1, *args, **kwargs):
+        if msg:
+            Printer.err('Error: {}'.format(msg), *args, **kwargs)
+
+        Printer.out(self.usage())
+
+        if exit_code is not None:
+            exit(exit_code)
 
     def current(self):
         """
@@ -258,6 +272,9 @@ class ArgParser(object):
         self.keys = sorted(self.options_map.keys(), reverse=True)
         self.source = args or self._args
 
+        if not self.source:
+            self.exit_usage()
+
         while self.i < len(self.source):
             find = False
             if self.options_map.has_key(self.current()):
@@ -283,12 +300,14 @@ class ArgParser(object):
                 # end of parsing section
                 if self.current() == '--':
                     self.rest = self.source[self.i+1:]
+                    self.check_help()
                     return self.simple_options, self.others, self.rest
                 # just add to others
                 else:
                     self.others.append(self.current())
             self.i += 1
 
+        self.check_help()
         return self.simple_options, self.others, self.rest
 
     def __getattr__(self, item):

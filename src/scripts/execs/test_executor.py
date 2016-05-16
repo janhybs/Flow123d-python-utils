@@ -135,7 +135,7 @@ class ParallelRunner(object):
     :type threads: list[scripts.execs.test_executor.ExtendedThread]
     """
     def __init__(self, n=4):
-        self.n = n
+        self.n = n if type(n) is int else 1
         self.i = 0
         self.threads = list()
 
@@ -179,6 +179,9 @@ class ParallelRunner(object):
                 time.sleep(0.1)
             time.sleep(0.1)
         pbar.finish()
+
+    def __repr__(self):
+        return '<ParallelRunner x {self.n}>'.format(self=self)
 
 
 class FD(object):
