@@ -6,6 +6,7 @@ from __future__ import absolute_import
 import pathfix
 # ----------------------------------------------
 from utils.argparser import ArgParser
+from utils.duration import Duration
 
 
 parser = ArgParser("exec_parallel.py <parameters>  -- <executable> <executable arguments>")
@@ -39,7 +40,7 @@ parser.add('', '--mpirun', type=True, name='mpirun', docs=[
 ])
 # ----------------------------------------------
 parser.add_section('Passable arguments to exec_with_limit.py')
-parser.add('-t', '--limit-time', type=float, name='time_limit', placeholder='<time>', docs=[
+parser.add('-t', '--limit-time', type=Duration.parse, name='time_limit', placeholder='<time>', docs=[
     'Obligatory wall clock time limit for execution in seconds',
     'For precision use float value'
 ])

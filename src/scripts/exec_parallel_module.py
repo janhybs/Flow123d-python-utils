@@ -56,7 +56,8 @@ def run_pbs_mode():
 
     # create pbs command
     test_case = Map(
-        memory_limit=arg_options.memory_limit
+        memory_limit=arg_options.get('memory_limit', None) or 400,
+        time_limit=arg_options.get('time_limit', None) or 30
     )
     module = pbs_module.Module(test_case, arg_options.cpu, None)
     temp_file = Paths.temp_file('exec-temp.qsub')
@@ -104,7 +105,7 @@ def run_pbs_mode():
     Printer.out('\nJob ended')
 
     # delete tmp file
-    # IO.delete(temp_file)
+    IO.delete(temp_file)
 
 
 def do_work(frontend_file, parser):

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 
-import math, re
+import math, re, datetime
 from scripts.core.base import Printer
 from scripts.core.prescriptions import PBSModule
 from scripts.pbs.job import Job
@@ -23,6 +23,9 @@ class Module(PBSModule):
         # memory limit
         mem = int(self.test_case.memory_limit * ppn)
 
+        # time_limit
+        walltime = datetime.timedelta(seconds=int(self.test_case.time_limit))
+
         # get queue, if only -q is set, 'default' queue will be set
         # otherwise given string value will be used
         queue = options.get('queue', True)
@@ -33,6 +36,7 @@ class Module(PBSModule):
             'qsub',
             '-l', 'nodes={nodes}:ppn={ppn}'.format(**locals()), # :nfs4 option may be set
             '-l', 'mem={mem}mb'.format(**locals()),
+            '-l', 'walltime={walltime}'.format(**locals()),
             '-l', 'place=infiniband',
             '-q', '{queue}'.format(**locals()),
             pbs_script_filename

@@ -222,6 +222,8 @@ class ArgParser(object):
             else:
                 option.value = self.next()
                 self.move_on()
+        else:
+            option.value = option.type(self.next())
 
         return option.value
 
