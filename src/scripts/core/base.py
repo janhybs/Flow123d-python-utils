@@ -25,6 +25,9 @@ class Printer(object):
         if self.level <= self.LEVEL_KEY:
             self.out(*args, **kwargs)
 
+    def line(self):
+        self.key('-' * 60)
+
     def wrn(self, *args, **kwargs):
         if self.level <= self.LEVEL_WRN:
             self.out(*args, **kwargs)

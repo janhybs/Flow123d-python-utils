@@ -7,7 +7,8 @@ import threading, time, sys, psutil, subprocess
 from subprocess import PIPE
 from psutil import NoSuchProcess
 from scripts.core.base import Printer, Paths
-from utils.globals import apply_to_all, wait_for
+from scripts.execs.test_executor import ProcessUtils
+from utils.globals import wait_for
 from progressbar import ProgressBar, Timer, AnimatedMarker
 
 
@@ -50,13 +51,13 @@ class PyProcess(threading.Thread):
         self.executor.stdout = self.info_monitor.stdout_stderr
         self.executor.stderr = subprocess.STDOUT
 
+        # start executions
+        self.executor.start()
+
         # start all monitors
         try:
             [m.start() for m in self.monitors if m.active]
         except Exception as e: pass
-
-        # start executions
-        self.executor.start()
 
         # and wait for process to be created
         wait_for(self.executor, 'process')
@@ -156,6 +157,7 @@ class ProgressMonitor(AbstractMonitor):
 class InfoMonitor(AbstractMonitor):
     def __init__(self, pp):
         super(InfoMonitor, self).__init__(pp)
+        self.n_lines = 30
         self._stdout_stderr = PIPE
         self.fp = None
         self.details = dict(
@@ -199,7 +201,7 @@ class InfoMonitor(AbstractMonitor):
             # if file pointer exist try to read errors and outputs
             if self.fp:
                 with open(self._stdout_stderr, 'r') as read_fp:
-                    lines = read_fp.read().splitlines()[-10:]
+                    lines = read_fp.read().splitlines()[-self.n_lines:]
                     if lines:
                         self.printer.err("## Command's last 10 lines (rest in {})".format(
                             Paths.abspath(self._stdout_stderr)))
@@ -253,7 +255,7 @@ class LimitMonitor(AbstractMonitor):
         self.time_limit = limits.time_limit
 
     def start(self):
-        self.printer.dbg('Limits: time-limit: {self.time_limit_str} | memory-limit: {self.memory_limit_str}'.format(self=self))
+        # self.printer.dbg('Limits: time: {self.time_limit_str} | memory: {self.memory_limit_str}'.format(self=self))
         wait_for(self.pp.executor, 'process')
         wait_for(self.pp.executor.process, 'pid')
         self.process = psutil.Process(self.pp.executor.process.pid)
@@ -272,21 +274,11 @@ class LimitMonitor(AbstractMonitor):
             return 0
 
     def get_memory_usage(self):
-        try:
-            return self.process.memory_info().vms / (1024.**2)
-        except psutil.NoSuchProcess:
-            # process has ended
-            return 0
+        memory = ProcessUtils.get_memory_info(self.process)
+        return memory
 
     def terminate(self):
-        try:
-            self.process.terminate()
-        except NoSuchProcess:
-            pass
-        try:
-            self.process.kill()
-        except NoSuchProcess:
-            pass
+        ProcessUtils.secure_kill(self.process)
 
     def check_limits(self):
         if self.terminated:

@@ -37,7 +37,7 @@ def create_process_from_case(case):
     :type case: scripts.core.prescriptions.TestPrescription
     """
     process_monitor = create_process(case.get_command(), case.test_case)
-    process_monitor.limit_monitor.active = False
+    process_monitor.limit_monitor.active = True
     process_monitor.info_monitor.active = True
     process_monitor.info_monitor.end_fmt = ''
     process_monitor.info_monitor.start_fmt = 'Running: {} x {}'.format(
@@ -79,13 +79,9 @@ def create_pbs_command(qsub_command):
 def run_pbs_mode(all_yamls):
     pbs_module = get_pbs_module(arg_options.host)
 
-    total = len(all_yamls)
-    yaml_i = 0
-
     jobs = list()
     for yaml_file in all_yamls:
         # parse config.yaml
-        yaml_i += 1
         config = YamlConfig(yaml_file)
 
         # extract all test cases (product of cpu x files)
@@ -103,24 +99,25 @@ def run_pbs_mode(all_yamls):
 
 def run_local_mode(all_yamls):
     # create parallel runner instance
+    """
+    :type all_yamls: dict[str, scripts.config.yaml_config.YamlConfig]
+    """
     runner = ParallelRunner(arg_options.parallel)
 
     for yaml_file, config in all_yamls.items():
         # extract all test cases (product of cpu x files)
-        for case in config.get_all_cases(prescriptions.MPIPrescription, yaml_file):
+        for case in config.get_cases_for_file(prescriptions.MPIPrescription, yaml_file):
             # create main process which first clean output dir
             # and then execute test
-            print case
-            continue
             multi_process = create_process_from_case(case)
-
             # get all comparisons threads and add them to main runner
             multi_process.add(case.create_comparison_threads())
             runner.add(multi_process)
 
     # now that we have everything prepared
     printer.dbg('Executing tasks')
-    printer.key('-' * 60)
+
+    # run!
     runner.run()
 
 
@@ -181,10 +178,10 @@ def do_work(parser):
     all_configs = read_configs(all_yamls)
 
     if arg_options.queue:
-        printer.dbg('Running in PBS mode')
+        printer.key('Running in PBS mode')
         printer.key('-' * 60)
         run_pbs_mode(all_configs)
     else:
-        printer.dbg('Running in LOCAL mode')
+        printer.key('Running in LOCAL mode')
         printer.key('-' * 60)
         run_local_mode(all_configs)

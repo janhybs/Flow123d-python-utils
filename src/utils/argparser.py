@@ -86,7 +86,8 @@ class ArgOption(object):
                     return lst
                 except:
                     raise Exception('Invalid format {}'.format(value))
-        raise Exception('Invalid format {}'.format(value))
+        # return values as list
+        return [value]
 
     def usage(self):
         lsn = ''

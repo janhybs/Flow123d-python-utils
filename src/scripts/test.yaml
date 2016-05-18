@@ -1,15 +1,31 @@
 # Main list contain one item for every active test.
 common_config:
   proc: [1]
-  time_limit: 5
+  time_limit: 30
   memory_limit: 400
   check_rules: null
 
 test_cases:
   - file: [flow_implicit.yaml]
     tags: [long-run, problematic]
-    proc: [1, 2, 3]
-    time_limit: 5
+    proc: [3]
+    time_limit: 5.0
+    check_rules:
+      - ndiff:
+            files: ["*/*.vtau"]
+            r_tol: 1e-3
+            a_tol: 1e-6
+      - ndiff:
+            files: ["*.txt"]
+            r_tol: 1
+            a_tol: 2
+      - exact:
+            filters: ["*.pvd"]
+  - file: [flow_implicit.yaml]
+    tags: [problematic]
+    proc: [6]
+    time_limit: 5.0
+    memory_limit: 800
     check_rules:
       - ndiff:
             files: ["*/*.vtau"]

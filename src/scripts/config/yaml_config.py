@@ -19,31 +19,50 @@ default_values = dict(
     check_rules=[
         {
             'ndiff': {
-                'files': '*'
+                'files': ['*..']
             }
         }
     ]
 )
 
 
-class DummyConfigCase(object):
-    def __init__(self, config, yaml_file):
+class ConfigCaseBase(object):
+    def __init__(self, config):
+        """
+        :type config: scripts.config.yaml_config.YamlConfig
+        """
         self.config = config
 
-        self.proc = ensure_iterable(1)
-        self.files = ensure_iterable(yaml_file)
-
+        self.proc = default_values.get('proc')
         self.time_limit = default_values.get('time_limit')
         self.memory_limit = default_values.get('memory_limit')
         self.check_rules = default_values.get('check_rules')
         self.tags = set(default_values.get('tags'))
 
 
-class YamlConfigCase(object):
+    @classmethod
+    def _get(cls, o, prop):
+        return o.get(prop, default_values.get(prop))
+
+    def __repr__(self):
+        return '<{self.__class__.__name__} {self.files}>'.format(self=self)
+
+
+class DummyConfigCase(ConfigCaseBase):
+    def __init__(self, config, yaml_file):
+        """
+        :type config: scripts.config.yaml_config.YamlConfig
+        """
+        super(DummyConfigCase, self).__init__(config)
+        self.files = ensure_iterable(yaml_file)
+
+
+class YamlConfigCase(ConfigCaseBase):
     def __init__(self,  config, o={}):
         """
         :type config: scripts.config.yaml_config.YamlConfig
         """
+        super(YamlConfigCase, self).__init__(config)
         self.proc = self._get(o, 'proc')
         self.time_limit = self._get(o, 'time_limit')
         self.memory_limit = self._get(o, 'memory_limit')
@@ -51,16 +70,8 @@ class YamlConfigCase(object):
         self.files = ensure_iterable(self._get(o, 'file'))
         self.tags = set(self._get(o, 'tags'))
 
-        self.config = config
         for i in range(len(self.files)):
             self.files[i] = Paths.join(config.root, self.files[i])
-
-    @classmethod
-    def _get(cls, o, prop):
-        return o.get(prop, default_values.get(prop))
-
-    def __repr__(self):
-        return '<TestCase {self.files}>'.format(self=self)
 
 
 class YamlConfig(object):

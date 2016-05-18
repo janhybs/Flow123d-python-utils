@@ -3,7 +3,6 @@
 # author:   Jan Hybs
 
 import shutil
-import math
 from scripts.core.base import Paths, Printer, PathFilters
 from scripts.execs.monitor import PyProcess
 from scripts.execs.test_executor import BinExecutor, SequentialProcesses, ExtendedThread
@@ -60,7 +59,7 @@ class TestPrescription(object):
 
     def get_ref_output_files(self, comp_data):
         """
-        :type check_rule: dict
+        :type comp_data: dict
         """
         # parse filters
         filters = [PathFilters.filter_wildcards(x) for x in comp_data.get('files', [])]

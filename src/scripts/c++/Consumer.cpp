@@ -1,7 +1,7 @@
 // Consumer.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
+// #include "stdafx.h"
 #include <iostream>
 #include <string>
 
@@ -141,6 +141,7 @@ int main(int argc, char * argv[]) {
 
 		limit_time_memory(simul, time, memory);
 	}
+	cout << "Exiting ..." << endl;
 
 	return 0;
 }
