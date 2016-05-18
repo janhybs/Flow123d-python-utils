@@ -200,7 +200,7 @@ class ArgParser(object):
         """
         :rtype : str
         """
-        return '' if self.i+1 >= len(self.source) else self.source[self.i+1]
+        return None if self.i+1 >= len(self.source) else self.source[self.i+1]
 
     def move_on(self):
         self.i += 1
@@ -222,7 +222,7 @@ class ArgParser(object):
         elif type(option.type) is list:
             # if next arg is -- or if next arg is registered set value to True
             # otherwise save next value
-            if self.next() == '--' or self.next_is_registered():
+            if not self.next() or (self.next() == '--' or self.next_is_registered()):
                 option.value = option.type[0]
             else:
                 option.value = self.next()

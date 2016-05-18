@@ -35,6 +35,9 @@ class JobState(object):
     def __repr__(self):
         return "{enum}".format(cls=self.__class__.__name__, enum=JobState._map.get(self.value))
 
+    def enum(self):
+        return self.value
+
 
 class Job(object):
     def __init__(self, job_id):
@@ -53,6 +56,9 @@ class Job(object):
         state = self.parse_status(subprocess.check_output(self.update_command()))
         self.state = JobState(state)
 
+    def status(self):
+        return self.state
+
     def raise_not_found(self):
         raise Exception('Job with id {self.id} does not exists'.format(self=self))
 
@@ -61,7 +67,8 @@ class Job(object):
 
     # --------------------------------------------------------
 
-    def update_command(self):
+    @classmethod
+    def update_command(cls):
         raise NotImplementedError('Method not implemented!')
 
     def parse_status(self, output=""):

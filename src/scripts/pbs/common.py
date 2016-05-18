@@ -6,6 +6,7 @@ import json
 import platform
 from scripts.core.base import Paths, Printer
 
+printer = Printer(Printer.LEVEL_KEY)
 
 class DummyModule(object):
     """
@@ -30,7 +31,7 @@ class DummyModule(object):
 
 def get_pbs_module(hostname=None):
     """
-    :rtype : scripts.pbs.common.DummyModule
+    :rtype : scripts.pbs.modules.pbs_tarkil_cesnet_cz
     """
     pbs_module_path = None
     if not hostname:
@@ -46,7 +47,7 @@ def get_pbs_module(hostname=None):
     if not pbs_module_path:
         hostname = hostname.replace('.', '_')
         pbs_module_path = 'pbs_{}'.format(hostname)
-        Printer.out('Warning! no host specified assuming module {}', pbs_module_path)
+        printer.wrn('Warning! no host specified assuming module {}', pbs_module_path)
 
     # try to get pbs_module
     return importlib.import_module('scripts.pbs.modules.{}'.format(pbs_module_path))

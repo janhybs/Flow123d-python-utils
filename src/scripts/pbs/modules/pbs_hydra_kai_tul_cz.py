@@ -29,16 +29,20 @@ class ModuleJob(Job):
     def __init__(self, job_id):
         super(ModuleJob, self).__init__(job_id)
 
-    def update_command(self):
-        return ['qstat']
-
     def parse_status(self, output=""):
         for line in output.splitlines():
             if line.find(self.id) != -1:
-                self.id, self.prior, self.name, self.user, self.state, \
+                id, self.prior, self.name, self.user, self.state, \
                 self.date, self.time, self.queue, self.slots = line.split()
+                self.state = JobState(self.state)
                 return self.state
-        return JobState.COMPLETED
+
+        self.state = JobState(JobState.COMPLETED)
+        return self.state
+
+    @classmethod
+    def update_command(cls):
+        return ['qstat']
 
     @classmethod
     def create(cls, output=""):

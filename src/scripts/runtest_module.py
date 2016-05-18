@@ -1,10 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
+import subprocess
 
-import sys
+import time
+
 from scripts.core import prescriptions
-import progressbar as pb
 from scripts.core.base import Paths, PathFormat, PathFilters, Printer, CommandEscapee, IO
 from scripts.config.yaml_config import YamlConfig
 from scripts.core.prescriptions import PBSModule
@@ -14,6 +15,8 @@ from scripts.execs.test_executor import BinExecutor, ParallelRunner, SequentialP
 
 # global arguments
 from scripts.pbs.common import get_pbs_module
+from scripts.pbs.job import JobState
+from utils.globals import apply_to_all
 
 arg_options = None
 arg_others = None
@@ -62,30 +65,35 @@ def create_process_from_case(case):
 
 
 def create_pbs_job_content(module, command):
+    """
+    :type module: scripts.pbs.modules.pbs_tarkil_cesnet_cz
+    :rtype : str
+    """
     escaped_command = ' '.join(CommandEscapee.escape_command(command))
     template = PBSModule.format(
         module.template,
         command=escaped_command,
-        root=arg_options.root
+        root=Paths.base_dir()
     )
 
     return template
 
 
-def create_pbs_command(qsub_command):
-    return ' '.join(CommandEscapee.escape_command(qsub_command))
-
-
 def run_pbs_mode(all_yamls):
+    # create parallel runner instance
+    """
+    :type all_yamls: dict[str, scripts.config.yaml_config.YamlConfig]
+    """
+    global arg_options, arg_others, arg_rest
     pbs_module = get_pbs_module(arg_options.host)
 
+
     jobs = list()
-    for yaml_file in all_yamls:
+    for yaml_file, config in all_yamls.items():
         # parse config.yaml
-        config = YamlConfig(yaml_file)
 
         # extract all test cases (product of cpu x files)
-        for case in config.get_all_cases(pbs_module.Module):
+        for case in config.get_cases_for_file(pbs_module.Module, yaml_file):
             # create run command
             test_command = case.get_command()
             test_command.extend(arg_rest)
@@ -94,7 +102,30 @@ def run_pbs_mode(all_yamls):
 
             # create pbs file
             qsub_command = case.get_pbs_command(arg_options, case.pbs_script)
-            jobs.append((create_pbs_command(qsub_command), case.pbs_script))
+            jobs.append((qsub_command, case.pbs_script))
+
+
+    qjobs = list()
+    for qsub_command, pbs_script in jobs:
+        output = subprocess.check_output(qsub_command)
+        qjobs.append(pbs_module.ModuleJob.create(output))
+
+    printer.line()
+    print '\n'.join(apply_to_all(qjobs, '__str__'))
+    printer.line()
+
+    status = apply_to_all(apply_to_all(qjobs, 'status'), 'enum')
+    while set(status) != set(JobState.COMPLETED):
+        update = subprocess.check_output(pbs_module.ModuleJob.update_command())
+        printer.line()
+        apply_to_all(qjobs, 'parse_status', update)
+        print '\n'.join(apply_to_all(qjobs, '__str__'))
+
+        time.sleep(5)
+    printer.line()
+    print 'All done'
+
+
 
 
 def run_local_mode(all_yamls):
@@ -102,6 +133,7 @@ def run_local_mode(all_yamls):
     """
     :type all_yamls: dict[str, scripts.config.yaml_config.YamlConfig]
     """
+    global arg_options, arg_others, arg_rest
     runner = ParallelRunner(arg_options.parallel)
 
     for yaml_file, config in all_yamls.items():
@@ -144,8 +176,10 @@ def do_work(parser):
     arg_options, arg_others, arg_rest = parser.parse()
     Paths.format = PathFormat.ABSOLUTE
 
-    # we need flow123d, mpiexec and ndiff to exists
-    if not Paths.test_paths('flow123d', 'mpiexec', 'ndiff'):
+    a = arg_options
+
+    # we need flow123d, mpiexec and ndiff to exists in LOCAL mode
+    if not arg_options.queue and not Paths.test_paths('flow123d', 'mpiexec', 'ndiff'):
         printer.err('Some files are not accessible! Exiting')
         printer.dbg('Make sure correct --root is specified')
         exit(1)

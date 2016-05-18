@@ -55,6 +55,7 @@ class DummyConfigCase(ConfigCaseBase):
         """
         super(DummyConfigCase, self).__init__(config)
         self.files = ensure_iterable(yaml_file)
+        self.proc = [1, 2, 3]
 
 
 class YamlConfigCase(ConfigCaseBase):
@@ -86,6 +87,7 @@ class YamlConfig(object):
         self.test_results = Paths.join(self.root, 'test_results')
         self.ref_output = Paths.join(self.root, 'ref_output')
         self.input = Paths.join(self.root, 'input')
+        self.test_cases = list()
 
         # read config or use default mini config
         if Paths.exists(self.filename):
@@ -153,7 +155,7 @@ class YamlConfig(object):
         """
         :type yaml_file: str
         :type prescription_class: class
-        :rtype : list[scripts.core.prescriptions.MPIPrescription] or list[scripts.core.prescriptions.PBSModule]
+        :rtype : list[scripts.core.prescriptions.PBSModule]
         """
         tmp_result = list()
         # prepare product of all possible combinations of input arguments for specified file

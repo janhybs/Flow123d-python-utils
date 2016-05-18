@@ -25,17 +25,12 @@ class TestPrescription(object):
             return
 
         self.shortname = Paths.basename(Paths.without_ext(self.filename))
-        self.ref_output = Paths.join(
-            test_case.config.ref_output,
-            self.shortname
-        )
-        self.output_name = '_{}.{}'.format(
-            self.shortname,
-            self.proc_value
-        )
+        self.ref_output = Paths.join(test_case.config.ref_output, self.shortname)
+        self.output_name = '_{}.{}'.format(self.shortname, self.proc_value)
         self.output_dir = Paths.join(test_case.config.test_results, self.output_name)
         self.ndiff_log = Paths.join(self.output_dir, 'ndiff.log')
         self.pbs_script = Paths.join(self.output_dir, 'pbs_script.qsub')
+        self.output_log = Paths.join(self.output_dir, 'test.log')
 
     def _get_command(self):
         return [

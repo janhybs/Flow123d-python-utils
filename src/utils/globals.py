@@ -21,8 +21,7 @@ def apply_to_all(lst, mtd, *args, **kwargs):
     :param args:
     :param kwargs:
     """
-    for x in lst:
-        getattr(x, mtd)(*args, **kwargs)
+    return [getattr(x, mtd)(*args, **kwargs) for x in lst]
 
 
 def wait_for(obj, property, period=0.1, max_wait=5):

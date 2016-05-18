@@ -3,9 +3,9 @@
 # author:   Jan Hybs
 
 import math, re, datetime
-from scripts.core.base import Printer
 from scripts.core.prescriptions import PBSModule
-from scripts.pbs.job import Job
+from scripts.pbs.job import Job, JobState
+import getpass
 
 
 class Module(PBSModule):
@@ -17,7 +17,7 @@ class Module(PBSModule):
         # number of physical machines to be reserved
         nodes = float(np) / ppn
         if int(nodes) != nodes:
-            Printer.out('Warning: NP is not divisible by PPN')
+            self.printer.wrn('Warning: NP is not divisible by PPN')
         nodes = int(math.ceil(nodes))
 
         # memory limit
@@ -39,6 +39,7 @@ class Module(PBSModule):
             '-l', 'walltime={walltime}'.format(**locals()),
             '-l', 'place=infiniband',
             '-q', '{queue}'.format(**locals()),
+            '-o', self.output_log,
             pbs_script_filename
         ]
 
@@ -46,19 +47,25 @@ class Module(PBSModule):
 
 
 class ModuleJob(Job):
+    username = None
+
     def __init__(self, job_id):
         super(ModuleJob, self).__init__(job_id)
 
-    def update_command(self):
-        return ['qstat', self.id]
-
     def parse_status(self, output=""):
-        lines = output.splitlines()
-        if len(lines) < 2:
-            self.raise_not_found()
+        for line in output.splitlines():
+            if line.find(self.id) != -1:
+                id, self.name, self.queue, self.name, sess_id, nds, tsk, rm, rt, self.state, et = line.split()
+                self.state = JobState(self.state)
+                return self.state
 
-        self.id, self.name, self.owner, self.cpu, self.state, self.queue = lines[2].split()
+        self.state = JobState(JobState.UNKNOWN)
         return self.state
+
+    @classmethod
+    def update_command(cls):
+        cls.username = cls.username or getpass.getuser()
+        return ['qstat', '-u', cls.username]
 
     @classmethod
     def create(cls, output=""):
@@ -105,6 +112,6 @@ echo JOB START: `date`
 pwd
 
 echo "$$command$$"
-$$command$$
+# $$command$$
 
 """.lstrip()

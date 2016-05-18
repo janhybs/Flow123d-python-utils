@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     # for debug only set dir to where script should be
     Paths.base_dir(Paths.dirname(__file__))
-    Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/bin/python')
+    # Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/bin/python')
 
     # run work
     do_work(parser)
