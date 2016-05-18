@@ -26,6 +26,19 @@ default_values = dict(
 )
 
 
+class DummyConfigCase(object):
+    def __init__(self, config, yaml_file):
+        self.config = config
+
+        self.proc = ensure_iterable(1)
+        self.files = ensure_iterable(yaml_file)
+
+        self.time_limit = default_values.get('time_limit')
+        self.memory_limit = default_values.get('memory_limit')
+        self.check_rules = default_values.get('check_rules')
+        self.tags = set(default_values.get('tags'))
+
+
 class YamlConfigCase(object):
     def __init__(self,  config, o={}):
         """
@@ -125,13 +138,14 @@ class YamlConfig(object):
         else:
             return self._yaml.get(names, default)
 
-    def get_all_cases(self, prescription_class, yaml_file):
+    def get_cases_for_file(self, prescription_class, yaml_file):
         """
+        :type yaml_file: str
         :type prescription_class: class
         :rtype : list[scripts.core.prescriptions.MPIPrescription] or list[scripts.core.prescriptions.PBSModule]
         """
         tmp_result = list()
-        # prepare product of all possible combinations of input arguments
+        # prepare product of all possible combinations of input arguments for specified file
         # for now we use only proc (cpu list) and files (file)
         for test_case in self.test_cases:
             if yaml_file in test_case.files:
@@ -141,6 +155,16 @@ class YamlConfig(object):
                     ensure_iterable(test_case.files),
                 )))
 
+        # if no results exists for this particular config
+        # we add dummy case which is basically default values
+        if not tmp_result:
+            dummy_case = DummyConfigCase(self, yaml_file)
+            tmp_result.append(list(itertools.product(
+                ensure_iterable(dummy_case),
+                ensure_iterable(dummy_case.proc),
+                ensure_iterable(dummy_case.files)
+            )))
+
         result = list()
         for lst in tmp_result:
             result.extend([prescription_class(*x) for x in lst])
@@ -149,6 +173,26 @@ class YamlConfig(object):
         if not result:
             # TODO YamlConfigCase(for default_values)
             result.append(prescription_class(default_values, 1, yaml_file))
+        return result
+
+    def get_all_cases(self, prescription_class):
+        """
+        :type prescription_class: class
+        :rtype : list[scripts.core.prescriptions.MPIPrescription] or list[scripts.core.prescriptions.PBSModule]
+        """
+        tmp_result = list()
+        # prepare product of all possible combinations of input arguments
+        # for now we use only proc (cpu list) and files (file)
+        for test_case in self.test_cases:
+            tmp_result.append(list(itertools.product(
+                ensure_iterable(test_case),
+                ensure_iterable(test_case.proc),
+                ensure_iterable(test_case.files),
+            )))
+
+        result = list()
+        for lst in tmp_result:
+            result.extend([prescription_class(*x) for x in lst])
         return result
 
     @classmethod
