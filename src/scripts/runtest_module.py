@@ -121,6 +121,7 @@ def run_pbs_mode(all_yamls):
         apply_to_all(qjobs, 'parse_status', update)
         print '\n'.join(apply_to_all(qjobs, '__str__'))
 
+        status = apply_to_all(apply_to_all(qjobs, 'status'), 'enum')
         time.sleep(5)
     printer.line()
     print 'All done'
