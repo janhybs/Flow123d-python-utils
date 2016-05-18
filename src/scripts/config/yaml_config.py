@@ -15,7 +15,14 @@ default_values = dict(
     proc=[1],
     time_limit=30,
     memory_limit=400,
-    check_rules=[]
+    tags=[],
+    check_rules=[
+        {
+            'ndiff': {
+                'files': '*'
+            }
+        }
+    ]
 )
 
 
@@ -29,6 +36,7 @@ class YamlConfigCase(object):
         self.memory_limit = self._get(o, 'memory_limit')
         self.check_rules = self._get(o, 'check_rules')
         self.files = ensure_iterable(self._get(o, 'file'))
+        self.tags = set(self._get(o, 'tags'))
 
         self.config = config
         for i in range(len(self.files)):
@@ -55,17 +63,21 @@ class YamlConfig(object):
         self.ref_output = Paths.join(self.root, 'ref_output')
         self.input = Paths.join(self.root, 'input')
 
-        # list yaml files which are not 'config.yaml' files
-        # self.yaml_files = Paths.browse(self.root, [
-        #     PathFilters.filter_type_is_file(),
-        #     PathFilters.filter_ext('.yaml'),
-        #     PathFilters.filter_not(PathFilters.filter_name('config.yaml'))
-        # ])
+        # read config or use default mini config
+        if Paths.exists(self.filename):
+            with open(self.filename, 'r') as fp:
+                self._yaml = yaml.load(fp)
+        else:
+            self._yaml = dict(
+                common_config=default_values.copy()
+            )
+        self._iter_index = 0
+        self.common_config = None
+        self.test_cases = None
+        self.include = []
+        self.exclude = []
 
-        # read config
-        with open(self.filename, 'r') as fp:
-            self._yaml = yaml.load(fp)
-
+    def parse(self):
         # update common config using global values
         self.common_config = self._get(('common_config', 'commons'), {})
         self.common_config = self.merge(default_values, self.common_config)
@@ -75,9 +87,27 @@ class YamlConfig(object):
         test_cases = self._get('test_cases', [])
         for test_case in test_cases:
             test_case = self.merge(self.common_config, test_case)
-            self.test_cases.append(YamlConfigCase(self, test_case))
+            if self.check_tags(test_case):
+                self.test_cases.append(YamlConfigCase(self, test_case))
 
-        self._iter_index = 0
+    def check_tags(self, test_case):
+        tags = set(test_case['tags'])
+        inn = set(self.include)
+        exc = set(self.exclude)
+        result = True
+
+        if inn:
+            # if intersection between tags and include tags is empty
+            # do not include this case
+            if not tags.intersection(inn):
+                return False
+        if exc:
+            # if intersection between tags and exclude tags is not empty
+            # do not include this case
+            if tags.intersection(exc):
+                return False
+
+        return result
 
     def get(self, index):
         """
@@ -95,7 +125,7 @@ class YamlConfig(object):
         else:
             return self._yaml.get(names, default)
 
-    def get_all_cases(self, prescription_class):
+    def get_all_cases(self, prescription_class, yaml_file):
         """
         :type prescription_class: class
         :rtype : list[scripts.core.prescriptions.MPIPrescription] or list[scripts.core.prescriptions.PBSModule]
@@ -104,14 +134,21 @@ class YamlConfig(object):
         # prepare product of all possible combinations of input arguments
         # for now we use only proc (cpu list) and files (file)
         for test_case in self.test_cases:
-            tmp_result.append(list(itertools.product(
-                ensure_iterable(test_case),
-                ensure_iterable(test_case.proc),
-                ensure_iterable(test_case.files),
-            )))
+            if yaml_file in test_case.files:
+                tmp_result.append(list(itertools.product(
+                    ensure_iterable(test_case),
+                    ensure_iterable(test_case.proc),
+                    ensure_iterable(test_case.files),
+                )))
+
         result = list()
         for lst in tmp_result:
             result.extend([prescription_class(*x) for x in lst])
+
+        # no config was given yaml file was declared
+        if not result:
+            # TODO YamlConfigCase(for default_values)
+            result.append(prescription_class(default_values, 1, yaml_file))
         return result
 
     @classmethod

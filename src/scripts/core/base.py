@@ -7,6 +7,60 @@ import random
 import sys, os, re
 
 
+class Printer(object):
+    LEVEL_DBG = 00
+    LEVEL_KEY = 10
+    LEVEL_WRN = 20
+    LEVEL_ERR = 30
+    indent = 0
+
+    def __init__(self, level=LEVEL_DBG):
+        self.level = level
+
+    def dbg(self, *args, **kwargs):
+        if self.level <= self.LEVEL_DBG:
+            self.out(*args, **kwargs)
+
+    def key(self, *args, **kwargs):
+        if self.level <= self.LEVEL_KEY:
+            self.out(*args, **kwargs)
+
+    def wrn(self, *args, **kwargs):
+        if self.level <= self.LEVEL_WRN:
+            self.out(*args, **kwargs)
+
+    def err(self, *args, **kwargs):
+        if self.level <= self.LEVEL_ERR:
+            self.out(*args, **kwargs)
+
+    def copy(self):
+        return Printer(self.level)
+    # ----------------------------------------------
+
+    def out(self, msg, *args, **kwargs):
+        if self.indent:
+            sys.stdout.write('    ' * self.indent)
+        sys.stdout.write(msg.format(*args, **kwargs))
+        sys.stdout.write('\n')
+
+    def out_r(self, msg, *args, **kwargs):
+        sys.stdout.write(msg.format(*args, **kwargs))
+
+    def out_rr(self, msg, *args, **kwargs):
+        sys.stdout.write(msg.format(*args, **kwargs))
+        sys.stderr.write('\r')
+        sys.stdout.flush()
+    # ----------------------------------------------
+
+    @classmethod
+    def open(cls):
+        cls.indent += 1
+
+    @classmethod
+    def close(cls):
+        cls.indent -= 1
+
+
 def make_relative(f):
     def wrapper(*args, **kwargs):
         path = f(*args, **kwargs)
@@ -47,7 +101,8 @@ class PathFilters(object):
     def filter_wildcards(fmt=""):
         fmt = fmt\
             .replace('.', r'\.')\
-            .replace('*', r'.*')
+            .replace('*', r'.*')\
+            .replace('/', r'\/')
         patt = re.compile(fmt)
         return lambda x: patt.match(x)
 
@@ -61,14 +116,16 @@ class PathFormat(object):
 class Paths(object):
     _base_dir = ''
     format = PathFormat.ABSOLUTE
+    printer = Printer(Printer.LEVEL_WRN)
 
     @classmethod
     def base_dir(cls, v=None):
         if v is None:
             return cls._base_dir
         else:
-            cls._base_dir = v
+            cls._base_dir = os.path.abspath(v)
             os.chdir(v)
+            cls.printer.err('switching to {}', cls._base_dir)
 
     @classmethod
     def source_dir(cls):
@@ -80,7 +137,7 @@ class Paths(object):
         for path in paths:
             filename = getattr(cls, path)()
             if not cls.exists(filename):
-                Printer.err('Error: file {:10s} ({}) does not exists!', path, filename)
+                cls.printer.err('Error: file {:10s} ({}) does not exists!', path, filename)
                 status = False
 
         return status
@@ -95,17 +152,17 @@ class Paths(object):
     @classmethod
     @make_relative
     def ndiff(cls):
-        return cls.path_to('bin', 'ndiff', 'ndiff.pl')
+        return cls.path_to('..', 'ndiff', 'ndiff.pl')
 
     @classmethod
     @make_relative
     def flow123d(cls):
-        return cls.path_to('bin', 'flow123d')
+        return cls.path_to('..', 'flow123d')
 
     @classmethod
     @make_relative
     def mpiexec(cls):
-        return cls.path_to('bin', 'mpiexec')
+        return cls.path_to('..', 'mpiexec')
 
     # -----------------------------------
 
@@ -183,6 +240,22 @@ class Paths(object):
             s /= 1000.
         return '[Huge file]'
 
+    @classmethod
+    def path_end(cls, path, level=3):
+        p = path
+        for i in range(level):
+            p = cls.dirname(p)
+        return cls.relpath(path, p)
+
+    @classmethod
+    def path_end_until(cls, path, endswith, level=10):
+        p = path
+        for i in range(level):
+            p = cls.dirname(p)
+            if p.endswith(endswith):
+                break
+        return cls.relpath(path, p)
+
     # -----------------------------------
 
     @staticmethod
@@ -213,29 +286,9 @@ class Paths(object):
     def unlink(*args, **kwargs):
         return os.unlink(*args, **kwargs)
 
-
-class Printer(object):
     @classmethod
-    def out(cls, msg, *args, **kwargs):
-        sys.stdout.write(msg.format(*args, **kwargs))
-        sys.stdout.write('\n')
-
-    @classmethod
-    def out_r(cls, msg, *args, **kwargs):
-        sys.stdout.write(msg.format(*args, **kwargs))
-
-    @classmethod
-    def out_rr(cls, msg, *args, **kwargs):
-        sys.stdout.write(msg.format(*args, **kwargs))
-        sys.stderr.write('\r')
-        sys.stdout.flush()
-
-
-    @classmethod
-    def err(cls, msg, *args, **kwargs):
-        cls.out(msg, *args, **kwargs)
-        # sys.stderr.write(msg.format(*args, **kwargs))
-        # sys.stderr.write('\n')
+    def rename(cls, path, new_name):
+        return cls.join(cls.dirname(path), new_name)
 
 
 class CommandEscapee(object):

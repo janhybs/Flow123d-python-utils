@@ -17,7 +17,7 @@ class Module(PBSModule):
         # number of physical machines to be reserved
         nodes = float(np) / ppn
         if int(nodes) != nodes:
-            Printer.err('Warning: NP is not divisible by PPN')
+            Printer.out('Warning: NP is not divisible by PPN')
         nodes = int(math.ceil(nodes))
 
         # memory limit
@@ -76,6 +76,8 @@ template = """
 
 # load modules
 #################
+$$modules$$
+#################
 module purge
 module add /software/modules/current/metabase
 module add svn-1.7.6
@@ -93,7 +95,7 @@ module add perl-5.10.1
 module add python26-modules-gcc
 module add numpy-py2.6
 module add python-2.7.6-gcc
-moduel add
+module add
 #################
 
 

@@ -50,6 +50,9 @@ _list_formats = [
     [_list_nobrace_format, _list_nobrace_format_convert]
 ]
 
+# regex for getting arg name
+_parse_arg_name = re.compile(r'^(--[a-zA-Z0-9_-]+|-[a-zA-Z0-9_-])')
+
 
 class ArgOption(object):
     def __init__(self, short, long, type=str, default=None, name=None, subtype=str, docs='', placeholder=None):
@@ -148,6 +151,7 @@ class ArgParser(object):
         self._usage = usage
         self.all_options = list()
         self.add('-h', '--help', type=True, name='help', docs='Display this help and exit')
+        self.printer = Printer(Printer.LEVEL_WRN)
 
     def add(self, short='', long='', type=str, default=None, name=None, subtype=str, docs='', placeholder=''):
         ao = ArgOption(short, long, type, default, name, subtype, docs, placeholder)
@@ -155,7 +159,6 @@ class ArgParser(object):
         self.all_options.append(ao)
         if name:
             self.options[name] = ao
-            self.options_map[name] = ao
         if short:
             self.options_map[short] = ao
         if long:
@@ -179,9 +182,9 @@ class ArgParser(object):
 
     def exit_usage(self, msg=None, exit_code=1, *args, **kwargs):
         if msg:
-            Printer.err('Error: {}'.format(msg), *args, **kwargs)
+            self.printer.err('Error: {}'.format(msg), *args, **kwargs)
 
-        Printer.out(self.usage())
+        self.printer.err(self.usage())
 
         if exit_code is not None:
             exit(exit_code)
@@ -216,16 +219,25 @@ class ArgParser(object):
             option.value.extend(option.parse_list(self.next()))
             self.move_on()
         elif type(option.type) is list:
-            # next arg is probably not argument but other flag
-            if self.next().startswith('-'):
+            # if next arg is -- or if next arg is registered set value to True
+            # otherwise save next value
+            if self.next() == '--' or self.next_is_registered():
                 option.value = option.type[0]
             else:
                 option.value = self.next()
                 self.move_on()
         else:
             option.value = option.type(self.next())
+            self.move_on()
 
         return option.value
+
+    def next_is_registered(self):
+        arg = self.next()
+        match = _parse_arg_name.match(arg)
+        if match:
+            return self.options_map.has_key(match.group(1))
+
 
     def split_current(self):
         arg = self.current()

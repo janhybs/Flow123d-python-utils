@@ -5,7 +5,7 @@
 from scripts.core.base import Paths, Printer, CommandEscapee, IO
 from scripts.core.base import PathFormat
 from scripts.core.prescriptions import PBSModule
-from scripts.execs.monitor import ProcessMonitor
+from scripts.execs.monitor import PyProcess
 from scripts.execs.test_executor import BinExecutor
 from scripts.pbs.common import get_pbs_module
 import subprocess, time, datetime
@@ -17,6 +17,7 @@ from utils.dotdict import Map
 arg_options = None
 arg_others = None
 arg_rest = None
+printer = Printer(Printer.LEVEL_KEY)
 
 
 def run_local_mode():
@@ -26,16 +27,28 @@ def run_local_mode():
         mpi_binary,
         '-np', str(arg_options.get('cpu', 1))
     ]
+    if arg_options.valgrind:
+        valgrind = ['valgrind']
+        if type(arg_options.valgrind) is str:
+            valgrind.extend(arg_options.valgrind.split())
+        # append to command
+        command = command + valgrind
     # append rest arguments
     command.extend(arg_rest)
 
     # prepare executor
     executor = BinExecutor(command)
-    process_monitor = ProcessMonitor(executor)
+    process_monitor = PyProcess(executor, printer, batch_mode=arg_options.batch)
 
     # set limits
     process_monitor.limit_monitor.time_limit = arg_options.time_limit
     process_monitor.limit_monitor.memory_limit = arg_options.memory_limit
+
+    # turn on output
+    if arg_options.batch:
+        process_monitor.info_monitor.stdout_stderr = None
+    else:
+        process_monitor.info_monitor.stdout_stderr = Paths.temp_file('exec-paral.log')
 
     # start process
     process_monitor.start()
@@ -74,11 +87,10 @@ def run_pbs_mode():
     )
 
     # print debug info
-    Printer.out('Command : {}', escaped_command)
-    Printer.out('PBS     : {}', ' '.join(pbs_command))
-    Printer.out('script  : {}', temp_file)
-    Printer.out('')
-    exit(0)
+    printer.dbg('Command : {}', escaped_command)
+    printer.dbg('PBS     : {}', ' '.join(pbs_command))
+    printer.dbg('script  : {}', temp_file)
+    printer.dbg('')
 
     # save pbs script
     IO.write(temp_file, pbs_content)
@@ -88,14 +100,14 @@ def run_pbs_mode():
     start_time = time.time()
     job = pbs_module.ModuleJob.create(output)
     job.update_status()
-    Printer.out('Job submitted: {}', job)
+    printer.key('Job submitted: {}', job)
 
     # wait for job to end
     while job.state != JobState.COMPLETED:
         for j in range(6):
             elapsed_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
-            Printer.out_rr(' ' * 60)
-            Printer.out_rr('Job #{job.id} status: {job.state} ({t})', job=job, t=elapsed_str)
+            printer.out_rr(' ' * 60)
+            printer.out_rr('Job #{job.id} status: {job.state} ({t})', job=job, t=elapsed_str)
 
             # test job state
             if job.state == JobState.COMPLETED:
@@ -106,15 +118,14 @@ def run_pbs_mode():
 
         # update status every 6 * 0.5 seconds (3 sec update)
         job.update_status()
-    Printer.out('\nJob ended')
+    printer.key('\nJob ended')
 
     # delete tmp file
     IO.delete(temp_file)
 
 
-def do_work(frontend_file, parser):
+def do_work(parser):
     """
-    :type frontend_file: str
     :type parser: utils.argparser.ArgParser
     """
 
@@ -127,23 +138,12 @@ def do_work(frontend_file, parser):
     if not arg_rest:
         parser.exit_usage('No command specified!')
 
-    # check root
-    if not arg_options.root:
-        # try to find our root
-        arg_options.root = Paths.join(Paths.dirname(frontend_file), '..', '..')
-        Printer.out('Argument --root not specified, assuming root is {}', arg_options.root)
-
-    # make root absolute
-    arg_options.root = Paths.abspath(arg_options.root)
-    # change dir to root
-    Paths.base_dir(arg_options.root)
-
     # run local or pbs mode
     if arg_options.queue:
-        Printer.out('Running in PBS mode')
-        Printer.out('-' * 60)
+        printer.dbg('Running in PBS mode')
+        printer.key('-' * 60)
         run_pbs_mode()
     else:
-        Printer.out('Running in LOCAL mode')
-        Printer.out('-' * 60)
+        printer.dbg('Running in LOCAL mode')
+        printer.key('-' * 60)
         run_local_mode()

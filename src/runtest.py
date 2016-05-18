@@ -5,6 +5,7 @@
 from __future__ import absolute_import
 import pathfix
 # ----------------------------------------------
+from scripts.core.base import Paths
 from utils.argparser import ArgParser
 from utils.duration import Duration
 
@@ -16,17 +17,27 @@ parser.add('-a', '--keep-going', type=True, name='keep_going', docs=[
     'Run all tests, do not stop on the first error.',
     'In PBS mode this arguments is ignored.',
 ])
-parser.add('-v', '', type=True, name='valgrind_on', docs=[
-    'Run tests under valgrind, with python suppression.',
-    '(In PBS mode this arguments is ignored.)',
-])
-parser.add('', '--valgrind', type=str, name='valgrind_args', placeholder='<VALGRIND ARGS>', docs=[
-    'Same as previous option, but  pass arguments <valgrind args>',
-    'to the valgrind. (In PBS mode this arguments is ignored.)',
+parser.add('-v', '--valgrind', type=[True, str], name='valgrind', placeholder='[<VALGRIND ARGS>]', docs=[
+    'Run tests under valgrind, with python suppression with optional argument',
+    ' <valgrind args> passed to the valgrind. (In PBS mode this arguments is ignored.)?',
 ])
 parser.add('-p', '--parallel', type=int, name='parallel', default=1, placeholder='<N>', docs=[
     'Run at most N jobs in parallel.',
     'In PBS mode this arguments is ignored.',
+])
+parser.add('', '--batch', type=True, name='batch', docs=[
+    'Make output of this script more for an off-line reading',
+    'In batch mode, stdout and stderr from executed processes will be printed, not saved'
+])
+parser.add('', '--include', type=list, subtype=str, name='include', docs=[
+    'By default all tags are processed but if --include is set, ',
+    'only those matching tags will be processed.',
+    'If combined with --exclude, only tags matching --include,',
+    'filtered with --exclude will be processed.'
+])
+parser.add('', '--exclude', type=list, subtype=str, name='exclude', docs=[
+    'Filter tags which should be processed.',
+    'See --include for more information.'
 ])
 # ----------------------------------------------
 parser.add_section('Passable arguments to run_parallel.py')
@@ -61,7 +72,7 @@ parser.add('', '--host', type=str, name='host', placeholder='<host>', docs=[
 # ----------------------------------------------
 parser.add_section('Passable arguments to exec_with_limit.py')
 parser.add('-t', '--limit-time', type=Duration.parse, name='time_limit', placeholder='<time>', docs=[
-    'Obligatory wall clock time limit for execution in seconds',
+    'Obligatory wall clock time limit for execution in seconds or in HH:MM:SS format.',
     'For precision use float value'
 ])
 parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder='<memory>', docs=[
@@ -69,15 +80,13 @@ parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder=
     'For precision use float value'
 ])
 # ----------------------------------------------
-parser.add_section('Proposed arguments')
-parser.add('', '--root', type=str, name='root', placeholder='<root>', docs=[
-    'Optional hint for flow123d path, if not specified, default value will be',
-    'Extracted from this file path, assuming it is located in flow123d bin/python dir',
-    '',
-    'Script will always change-dir itself to location of root, so all path match'
-])
-# ----------------------------------------------
 
 if __name__ == '__main__':
     from scripts.runtest_module import do_work
-    do_work(__file__, parser)
+
+    # for debug only set dir to where script should be
+    Paths.base_dir(Paths.dirname(__file__))
+    Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/bin/python')
+
+    # run work
+    do_work(parser)

@@ -8,12 +8,13 @@ class ProgressCounter(object):
     def __init__(self, fmt):
         self.i = 0
         self.fmt = fmt
+        self.printer = Printer(Printer.LEVEL_DBG)
 
     def reset(self):
         self.i = 0
 
     def next(self, attributes):
         self.i += 1
-        Printer.out(self.fmt.format(
+        self.printer.dbg(self.fmt.format(
             self.i, **attributes
         ))

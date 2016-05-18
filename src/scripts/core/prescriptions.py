@@ -5,8 +5,9 @@
 import shutil
 import math
 from scripts.core.base import Paths, Printer, PathFilters
-from scripts.execs.monitor import ProcessMonitor
+from scripts.execs.monitor import PyProcess
 from scripts.execs.test_executor import BinExecutor, SequentialProcesses, ExtendedThread
+from scripts.comparisons import file_comparison
 
 
 class TestPrescription(object):
@@ -19,6 +20,7 @@ class TestPrescription(object):
         self.test_case = test_case
         self.proc_value = proc_value
         self.filename = filename
+        self.printer = Printer(Printer.LEVEL_KEY)
 
         if not self.filename:
             return
@@ -56,40 +58,58 @@ class TestPrescription(object):
             for p in paths
         ]
 
-    def get_ref_output_ndiff_files(self):
-        ndiff = self.test_case.check_rules.get('ndiff', {})
-        # no filters for ndiff? return empty list so save some IO ops
-        if not ndiff:
-            return list()
+    def get_ref_output_files(self, comp_data):
+        """
+        :type check_rule: dict
+        """
+        # parse filters
+        filters = [PathFilters.filter_wildcards(x) for x in comp_data.get('files', [])]
 
-        filters = [PathFilters.filter_wildcards(x) for x in ndiff.get('filters', [])]
-        paths = Paths.walk(self.ref_output, [PathFilters.filter_type_is_file()])
-        paths = Paths.match(paths, filters)
+        # browse files and make them relative to ref output so filters works properly
+        files = Paths.walk(self.ref_output, [PathFilters.filter_type_is_file()])
+        files = [Paths.relpath(f, self.ref_output) for f in files]
 
-        return zip(paths, self._get_mirror_files(paths))
+        # filter files and make them absolute again
+        files = Paths.match(files, filters)
+        files = [Paths.join(self.ref_output, f) for f in files]
+        return zip(files, self._get_mirror_files(files))
 
     def create_clean_thread(self):
         def target():
             if Paths.exists(self.output_dir):
-                Printer.out('Cleaning output dir {}'.format(self.output_dir))
+                self.printer.dbg('Cleaning output dir {}'.format(self.output_dir))
                 shutil.rmtree(self.output_dir)
-        return ExtendedThread(target=target)
+        return ExtendedThread(name='clean', target=target)
 
     def create_comparison_threads(self):
-        pairs = self.get_ref_output_ndiff_files()
-        compares = SequentialProcesses()
+        compares = SequentialProcesses(name='Comparison', pbar=True, indent=True)
         compares.thread_name_property = True
-        compares.name = "File compare"
-        for pair in pairs:
-            pm = ProcessMonitor(
-                BinExecutor([
-                    Paths.ndiff(),
-                    Paths.abspath(pair[0]),
-                    Paths.abspath(pair[1])
-                ]))
-            pm.name = '{} {}'.format(Paths.basename(pair[0]), Paths.filesize(pair[0], True))
-            pm.info_monitor.stdout_stderr = self.ndiff_log
-            compares.add(pm)
+
+        for check_rule in self.test_case.check_rules:
+
+            method = str(check_rule.keys()[0])
+            module = getattr(file_comparison, 'Compare{}'.format(method.capitalize()), None)
+            comp_data = check_rule[method]
+            if not module:
+                self.printer.dbg('Warning! No module for check_rule method "{}"', method)
+                continue
+
+            pairs = self.get_ref_output_files(comp_data)
+            if pairs:
+                for pair in pairs:
+                    command = module.get_command(*pair, **comp_data)
+                    pm = PyProcess(BinExecutor(command))
+
+                    pm.info_monitor.active = False
+                    pm.limit_monitor.active = False
+                    pm.progress_monitor.active = False
+
+                    path = Paths.path_end_until(pair[0], 'ref_output')
+                    test_name = Paths.basename(Paths.dirname(Paths.dirname(self.ref_output)))
+                    size = Paths.filesize(pair[0], True)
+                    pm.name = '{}: {} ({})'.format(test_name, path, size)
+                    pm.info_monitor.stdout_stderr = self.ndiff_log
+                    compares.add(pm)
         return compares
 
 

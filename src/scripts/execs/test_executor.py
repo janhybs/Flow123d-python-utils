@@ -11,15 +11,17 @@ import psutil, shutil
 from progressbar import ProgressBar, Bar, Counter
 
 from scripts.core.base import Paths, PathFilters, Printer
-from scripts.execs.monitor import ProcessMonitor
+from scripts.execs.monitor import PyProcess
 from utils.counter import ProgressCounter
 from utils.globals import ensure_iterable
 
 
 class ExtendedThread(threading.Thread):
-    def __init__(self, target=None):
-        super(ExtendedThread, self).__init__(target=target)
+    def __init__(self, name, target=None):
+        super(ExtendedThread, self).__init__(name=name, target=target)
         self._is_over = False
+        self.name = name
+        assert type(name) is str
 
     def run(self):
         super(ExtendedThread, self).run()
@@ -33,14 +35,14 @@ class BinExecutor(ExtendedThread):
     """
     :type process: psutil.Popen
     """
-    def __init__(self, command=list()):
+    def __init__(self, command=list(), name='bin'):
         self.command = [str(x) for x in ensure_iterable(command)]
         self.process = None
         self.running = False
         self.stdout = PIPE
         self.stderr = PIPE
         self.returncode = None
-        super(BinExecutor, self).__init__()
+        super(BinExecutor, self).__init__(name)
 
     def run(self):
         # run command and block current thread
@@ -68,8 +70,8 @@ class ParallelProcesses(ExtendedThread):
     """
     :type threads: list[threading.Thread]
     """
-    def __init__(self, *args):
-        super(ParallelProcesses, self).__init__()
+    def __init__(self, name, *args):
+        super(ParallelProcesses, self).__init__(name)
         self.threads = list()
         self.threads.extend(args)
 
@@ -89,15 +91,15 @@ class SequentialProcesses(ExtendedThread):
     """
     :type threads: list[threading.Thread]
     """
-    def __init__(self, pbar=True, *args):
-        super(SequentialProcesses, self).__init__()
+    def __init__(self, name, pbar=True, indent=False, *args):
+        super(SequentialProcesses, self).__init__(name)
         self.pbar = pbar
         self.threads = list()
         self.threads.extend(args)
-        self.name = ''
         self.thread_name_property = False
         self.stop_on_error = False
         self.returncode = None
+        self.indent = indent
 
     def add(self, thread):
         self.threads.append(thread)
@@ -107,11 +109,14 @@ class SequentialProcesses(ExtendedThread):
         rcs = [None]
         pc = None
 
+        if self.indent:
+            Printer.open()
+
         if self.pbar:
             if self.thread_name_property:
-                pc = ProgressCounter('{self.name}: {:02d}/{total:02d} ({t.name})')
+                pc = ProgressCounter('{self.name}: {:02d} of {total:02d} | {t.name}')
             else:
-                pc = ProgressCounter('{self.name}: {:02d}/{total:02d}')
+                pc = ProgressCounter('{self.name}: {:02d} of {total:02d}')
 
         for t in self.threads:
             if self.pbar:
@@ -123,11 +128,14 @@ class SequentialProcesses(ExtendedThread):
             rcs.append(rc)
 
             if self.stop_on_error and rc > 0:
-                Printer.err('Aborted next operations due to error')
+                # Printer.out('Aborted next operations due to error')
                 break
 
         self.returncode = max(rcs)
         super(SequentialProcesses, self).run()
+
+        if self.indent:
+            Printer.close()
 
 
 class ParallelRunner(object):
@@ -138,6 +146,7 @@ class ParallelRunner(object):
         self.n = n if type(n) is int else 1
         self.i = 0
         self.threads = list()
+        self.printer = Printer(Printer.LEVEL_KEY)
 
     def add(self, process):
         self.threads.append(process)
@@ -158,17 +167,10 @@ class ParallelRunner(object):
         self.i = 0
         total = len(self.threads)
 
-        fd = FD()
-        pbar = ProgressBar(maxval=total, fd=fd, widgets=[], term_width=24)
-        pbar.start()
+        pc = ProgressCounter('Case {:02d} of {total:02d}')
         while self.i < total:
             while self.active_count() < self.n:
-                pbar.update(self.i + 1)
-                Printer.out('{} {}'.format(
-                    'Case {:02d} of {:02d}'.format(self.i + 1, total),
-                    fd.data, '5', '6'
-                    )
-                )
+                pc.next(locals())
                 self.threads[self.i].start()
                 self.i += 1
 
@@ -178,7 +180,6 @@ class ParallelRunner(object):
                 # sleep a bit to other threads can be active again
                 time.sleep(0.1)
             time.sleep(0.1)
-        pbar.finish()
 
     def __repr__(self):
         return '<ParallelRunner x {self.n}>'.format(self=self)
