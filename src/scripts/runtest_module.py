@@ -111,13 +111,19 @@ def run_pbs_mode(all_yamls):
             jobs.append((qsub_command, case))
 
     # start jobs
+    total = len(jobs)
     printer.dyn('Starting jobs')
+    job_id = 0
     multijob = MultiJob(pbs_module.ModuleJob)
     for qsub_command, case in jobs:
+        job_id += 1
+        printer.dyn('Starting jobs {:02d} of {:02d}', job_id, total)
+
         output = subprocess.check_output(qsub_command)
         job = pbs_module.ModuleJob.create(output, case)
         job.case = case
         multijob.add(job)
+    printer.dyn('{} job/s inserted into queue', total)
 
     # first update to get more info about multijob jobs
     printer.out()
@@ -134,7 +140,6 @@ def run_pbs_mode(all_yamls):
     while multijob.is_running():
         printer.dyn('Updating job status')
         multijob.update()
-        time.sleep(1)
         printer.dyn(multijob.get_status_line())
 
         # if some jobs changed status add new line to dynamic output remains
