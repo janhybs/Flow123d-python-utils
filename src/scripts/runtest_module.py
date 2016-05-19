@@ -35,6 +35,13 @@ def create_process(command, limits=None):
     return process_monitor
 
 
+def format_case(case):
+    return '{} x {}'.format(
+        case.proc_value,
+        Paths.path_end(case.test_case.files[0])
+    )
+
+
 def create_process_from_case(case):
     """
     :type case: scripts.core.prescriptions.TestPrescription
@@ -43,10 +50,7 @@ def create_process_from_case(case):
     process_monitor.limit_monitor.active = True
     process_monitor.info_monitor.active = True
     process_monitor.info_monitor.end_fmt = ''
-    process_monitor.info_monitor.start_fmt = 'Running: {} x {}'.format(
-        case.proc_value,
-        Paths.path_end(case.test_case.files[0])
-        )
+    process_monitor.info_monitor.start_fmt = 'Running: {}'.format(format_case(case))
 
     # turn on output
     if arg_options.batch:
@@ -132,11 +136,11 @@ def run_pbs_mode(all_yamls):
                 if job_output:
                     if job_output.find(job_ok_string) > 0:
                         # we found the string
-                        printer.key('OK: Job {} ended.', update)
+                        printer.key('OK: Job {} ended. Case: {}', update, update.case)
                         update.status = JobState.COMPLETED_OK
                     else:
                         # we did not find the string :(
-                        printer.key('ERROR: Job {} ended (wrong output).', update)
+                        printer.key('ERROR: Job {} ended (wrong output). Case: {}', update, update.case)
                         update.status = JobState.COMPLETED_ERROR
 
                     # in batch mode print job output
@@ -147,7 +151,7 @@ def run_pbs_mode(all_yamls):
                 else:
                     # no output file was generated assuming it went wrong
                     update.status = JobState.COMPLETED_ERROR
-                    printer.key('ERROR: Job {} ended (no output file).', update)
+                    printer.key('ERROR: Job {} ended (no output file). Case: {}', update, update.case)
             else:
                 # update status was not into COMPLETE
                 pass
