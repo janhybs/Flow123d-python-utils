@@ -92,6 +92,7 @@ def run_pbs_mode(all_yamls):
     global arg_options, arg_others, arg_rest
     pbs_module = get_pbs_module(arg_options.host)
 
+    printer.out_rr('Parsing yaml files')
     jobs = list()
     """ :type: list[(str, scripts.core.prescriptions.PBSModule)] """
     for yaml_file, config in all_yamls.items():
@@ -110,6 +111,7 @@ def run_pbs_mode(all_yamls):
             jobs.append((qsub_command, case))
 
     # start jobs
+    printer.out_rr('Starting jobs')
     multijob = MultiJob(pbs_module.ModuleJob)
     for qsub_command, case in jobs:
         output = subprocess.check_output(qsub_command)
@@ -133,13 +135,13 @@ def run_pbs_mode(all_yamls):
         jobs_changed = multijob.status_changed()
         if jobs_changed:
             printer.out()
+            printer.line()
 
         # get all jobs where was status update
         for update in jobs_changed:
             printer.key('Job update: {:10s} -> {:10s}: {}', update.last_status, update.status, update)
             if update.status == JobState.COMPLETED:
                 printer.open()
-                printer.line()
                 # try to get more detailed job status
                 update.active = False
                 job_output = IO.read(update.case.output_log)
@@ -162,7 +164,7 @@ def run_pbs_mode(all_yamls):
                     # no output file was generated assuming it went wrong
                     update.status = JobState.ERROR
                     printer.key('ERROR: Job {} ended (no output file). Case: {}', update, format_case(update.case))
-                printer.line()
+                printer.out()
                 printer.close()
             else:
                 # update status was not into COMPLETE

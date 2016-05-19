@@ -196,7 +196,7 @@ class MultiJob(object):
         for s in set(status):
             result[s] = status.count(s)
 
-        return '{delta} : {status}'.format(
+        return 'Time elapsed: {delta} | {status}'.format(
             delta=datetime.timedelta(seconds=int(time.time() - self.start_time)),
-            status=', '.join(['{}: {:02d}'.format(k, v) for k, v in result.items()])
+            status=', '.join(['{}: {:d}'.format(k, v) for k, v in result.items()])
         )
