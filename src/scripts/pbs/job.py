@@ -49,9 +49,12 @@ class JobState(object):
 
 
 class Job(object):
-    def __init__(self, job_id, output_file):
+    """
+    :type case : scripts.core.prescriptions.PBSModule
+    """
+    def __init__(self, job_id, case):
         self.id = job_id
-        self.output_file = output_file
+        self.case = case
 
         self.name = None
         self.queue = None
@@ -59,6 +62,7 @@ class Job(object):
         self.status_changed = False
         self.parser = lambda x: None
         self.active = True
+
         self._status = JobState(JobState.UNKNOWN)
 
     @property
@@ -107,7 +111,7 @@ class Job(object):
         return self.parser(output)
 
     @classmethod
-    def create(cls, output, output_file):
+    def create(cls, output, case):
         """
         Creates instance of Job from qsub output
         :param output: output of qsub command
@@ -129,8 +133,8 @@ class Job(object):
 
 class MultiJob(object):
     """
-    :type items             : list[scripts.pbs.job.Job]
-    :type cls               : class
+    :type items : list[scripts.pbs.job.Job]
+    :type cls   : class
     """
     def __init__(self, cls):
         self.items = list()

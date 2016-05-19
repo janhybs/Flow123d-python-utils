@@ -100,7 +100,6 @@ def run_pbs_mode(all_yamls):
             test_command.extend(arg_rest)
             pbs_content = create_pbs_job_content(pbs_module, test_command)
             IO.write(case.pbs_script, pbs_content)
-            print pbs_content
 
             # create pbs file
             qsub_command = case.get_pbs_command(arg_options, case.pbs_script)
@@ -110,7 +109,9 @@ def run_pbs_mode(all_yamls):
     multijob = MultiJob(pbs_module.ModuleJob)
     for qsub_command, case in jobs:
         output = subprocess.check_output(qsub_command)
-        multijob.add(pbs_module.ModuleJob.create(output, case.output_log))
+        job = pbs_module.ModuleJob.create(output, case)
+        job.case = case
+        multijob.add(job)
 
     # first update to get more info about multijob jobs
     printer.line()
@@ -127,7 +128,7 @@ def run_pbs_mode(all_yamls):
             if update.status == JobState.COMPLETED:
                 # try to get more detailed job status
                 update.active = False
-                job_output = IO.read(update.output_file)
+                job_output = IO.read(update.case.output_log)
                 if job_output:
                     if job_output.find(job_ok_string) > 0:
                         # we found the string

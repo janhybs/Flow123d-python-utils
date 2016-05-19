@@ -64,8 +64,8 @@ class ModuleJob(Job):
         return ['qstat', '-u', cls.username]
 
     @classmethod
-    def create(cls, command_output, output_file):
-        return ModuleJob(re.findall(r'(\d+)', command_output)[0], output_file)
+    def create(cls, command_output, case):
+        return ModuleJob(re.findall(r'(\d+)', command_output)[0], case)
 
 
 template = """
