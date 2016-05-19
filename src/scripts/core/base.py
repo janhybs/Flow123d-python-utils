@@ -55,9 +55,9 @@ class Printer(object):
         sys.stdout.flush()
 
     def dyn(self, msg, *args, **kwargs):
-        sys.stdout.write(' ' * 60)
-        sys.stdout.write(msg.format(*args, **kwargs))
-        sys.stderr.write('\r')
+        sys.stdout.write('\r' + ' ' * 60)
+        sys.stdout.write('\r' + msg.format(*args, **kwargs))
+        sys.stdout.flush()
     # ----------------------------------------------
 
     @classmethod
