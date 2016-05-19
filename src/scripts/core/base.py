@@ -53,6 +53,11 @@ class Printer(object):
         sys.stdout.write(msg.format(*args, **kwargs))
         sys.stderr.write('\r')
         sys.stdout.flush()
+
+    def dyn(self, msg, *args, **kwargs):
+        sys.stdout.write(' ' * 60)
+        sys.stdout.write(msg.format(*args, **kwargs))
+        sys.stderr.write('\r')
     # ----------------------------------------------
 
     @classmethod
