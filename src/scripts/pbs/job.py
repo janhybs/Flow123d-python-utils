@@ -3,6 +3,8 @@
 # author:   Jan Hybs
 
 import subprocess
+import time
+import datetime
 
 
 class JobState(object):
@@ -15,8 +17,8 @@ class JobState(object):
     WAITING = 'W'
     SUSPENDED = 'S'
     UNKNOWN = 'U'
-    COMPLETED_OK = 'K'
-    COMPLETED_ERROR = 'W'
+    OK = 'K'
+    ERROR = 'W'
     _map = {}
 
     def __init__(self, value='U'):
@@ -58,11 +60,11 @@ class Job(object):
 
         self.name = None
         self.queue = None
-        self.last_status = JobState(JobState.UNKNOWN)
         self.status_changed = False
         self.parser = lambda x: None
         self.active = True
 
+        self.last_status = JobState(JobState.UNKNOWN)
         self._status = JobState(JobState.UNKNOWN)
 
     @property
@@ -140,6 +142,7 @@ class MultiJob(object):
         self.items = list()
         self.cls = cls
         self._iter_index = 0
+        self.start_time = None
 
     def __iter__(self):
         self.iter_index = 0
@@ -164,12 +167,13 @@ class MultiJob(object):
         return {item: item.status for item in self.items}
 
     def update(self):
+        self.start_time = self.start_time or time.time()
         output = subprocess.check_output(self.cls.update_command())
         return [item.update_status(output) for item in self.items]
 
     def is_running(self):
         status = set(self.status().values())
-        status = status - {JobState.COMPLETED_OK, JobState.COMPLETED_ERROR}
+        status = status - {JobState.OK, JobState.ERROR}
         return bool(status)
 
     def print_status(self, printer):
@@ -192,4 +196,7 @@ class MultiJob(object):
         for s in set(status):
             result[s] = status.count(s)
 
-        return ', '.join(['{}: {:02d}'.format(k, v) for k, v in result.items()])
+        return '{delta} : {status}'.format(
+            delta=datetime.timedelta(seconds=int(time.time() - self.start_time)),
+            status=', '.join(['{}: {:02d}'.format(k, v) for k, v in result.items()])
+        )

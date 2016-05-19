@@ -40,7 +40,7 @@ class Printer(object):
         return Printer(self.level)
     # ----------------------------------------------
 
-    def out(self, msg, *args, **kwargs):
+    def out(self, msg='', *args, **kwargs):
         if self.indent:
             sys.stdout.write('    ' * self.indent)
         sys.stdout.write(msg.format(*args, **kwargs))

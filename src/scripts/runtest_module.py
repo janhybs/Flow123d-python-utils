@@ -119,39 +119,51 @@ def run_pbs_mode(all_yamls):
 
     # first update to get more info about multijob jobs
     printer.line()
+    printer.out_rr('Updating job status')
     multijob.update()
+    printer.out(multijob.get_status_line())
     multijob.print_status(printer)
-    printer.line()
 
     while multijob.is_running():
+        printer.out_rr('Updating job status')
         multijob.update()
+        printer.out_rr(multijob.get_status_line())
+
+        # if some jobs changed status add new line to dynamic output remains
+        jobs_changed = multijob.status_changed()
+        if jobs_changed:
+            printer.out()
 
         # get all jobs where was status update
-        for update in multijob.status_changed():
-            printer.key('Job update: from {} to {}: {}', update.status, update.last_status, update)
+        for update in jobs_changed:
+            printer.key('Job update: {:10s} -> {:10s}: {}', update.last_status, update.status, update)
             if update.status == JobState.COMPLETED:
+                printer.open()
+                printer.line()
                 # try to get more detailed job status
                 update.active = False
                 job_output = IO.read(update.case.output_log)
                 if job_output:
                     if job_output.find(job_ok_string) > 0:
                         # we found the string
-                        printer.key('OK: Job {} ended. Case: {}', update, update.case)
-                        update.status = JobState.COMPLETED_OK
+                        printer.key('OK: Job {} ended. Case: {}', update, format_case(update.case))
+                        update.status = JobState.OK
                     else:
                         # we did not find the string :(
-                        printer.key('ERROR: Job {} ended (wrong output). Case: {}', update, update.case)
-                        update.status = JobState.COMPLETED_ERROR
+                        printer.key('ERROR: Job {} ended (wrong output). Case: {}', update, format_case(update.case))
+                        update.status = JobState.ERROR
 
                     # in batch mode print job output
                     # otherwise print output on error only
-                    if arg_options.batch or update.status == JobState.COMPLETED_ERROR:
+                    if arg_options.batch or update.status == JobState.ERROR:
                         printer.key('OUTPUT: ')
                         printer.key(job_output)
                 else:
                     # no output file was generated assuming it went wrong
-                    update.status = JobState.COMPLETED_ERROR
-                    printer.key('ERROR: Job {} ended (no output file). Case: {}', update, update.case)
+                    update.status = JobState.ERROR
+                    printer.key('ERROR: Job {} ended (no output file). Case: {}', update, format_case(update.case))
+                printer.line()
+                printer.close()
             else:
                 # update status was not into COMPLETE
                 pass
