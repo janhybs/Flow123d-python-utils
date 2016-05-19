@@ -167,16 +167,16 @@ def run_pbs_mode(all_yamls):
             if job_output:
                 if job_output.find(job_ok_string) > 0:
                     # we found the string
-                    job.status = JobState.OK
+                    job.status = JobState.EXIT_OK
                     printer.key('OK: Job {} ended. Case: {}', job, format_case(job.case))
                 else:
                     # we did not find the string :(
-                    job.status = JobState.ERROR
+                    job.status = JobState.EXIT_ERROR
                     printer.key('ERROR: Job {} ended (wrong output). Case: {}', job, format_case(job.case))
 
                 # in batch mode print job output
                 # otherwise print output on error only
-                if arg_options.batch or job.status == JobState.ERROR:
+                if arg_options.batch or job.status == JobState.EXIT_ERROR:
                     printer.key('OUTPUT: ')
                     printer.line()
                     printer.key(job_output)
@@ -190,6 +190,9 @@ def run_pbs_mode(all_yamls):
         # after printing update status lets sleep for a bit
         if multijob.is_running():
             time.sleep(5)
+            
+    printer.line()
+    printer.key(multijob.get_status_line())
     printer.key('All jobs finished')
 
 def run_local_mode(all_yamls):

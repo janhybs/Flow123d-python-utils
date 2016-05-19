@@ -50,8 +50,8 @@ class ModuleJob(Job):
     username = None
     instances = list()
 
-    def __init__(self, job_id, output_file):
-        super(ModuleJob, self).__init__(job_id, output_file)
+    def __init__(self, job_id, case):
+        super(ModuleJob, self).__init__(job_id, case)
         self.parser = self.parser_builder(
             self, 9, JobState.UNKNOWN,
             queue=2,

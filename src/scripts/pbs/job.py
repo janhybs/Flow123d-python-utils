@@ -17,13 +17,13 @@ class JobState(object):
     WAITING = 'W'
     SUSPENDED = 'S'
     UNKNOWN = 'U'
-    OK = 'K'
-    ERROR = 'W'
+    EXIT_OK = 'K'
+    EXIT_ERROR = 'X'
     _map = {}
 
     def __init__(self, value='U'):
         if not JobState._map:
-            JobState._map = {v[0]: v for v in dir(JobState) if v.upper() == v}
+            JobState._map = {getattr(JobState, v): v for v in dir(JobState) if v.upper() == v}
         self.value = str(value).upper()
 
     def __eq__(self, other):
