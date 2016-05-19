@@ -173,7 +173,7 @@ class MultiJob(object):
 
     def is_running(self):
         status = set(self.status().values())
-        status = status - {JobState.OK, JobState.ERROR}
+        status = status - {JobState.EXIT_OK, JobState.EXIT_ERROR}
         return bool(status)
 
     def print_status(self, printer):
