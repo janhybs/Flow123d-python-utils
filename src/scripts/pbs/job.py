@@ -95,7 +95,7 @@ class Job(object):
         raise Exception('Job with id {self.id} does not exists'.format(self=self))
 
     def __repr__(self):
-        return "<Job #{s.id}, status {s.status} in queue {s.queue}>".format(s=self)
+        return "<Job #{s.id}, status {s._status} in queue {s.queue}>".format(s=self)
 
     # --------------------------------------------------------
 
