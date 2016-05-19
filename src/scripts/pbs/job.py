@@ -62,7 +62,7 @@ class Job(object):
         self.queue = None
         self.status_changed = False
         self.parser = lambda x: None
-        self.active = True
+        self.is_active = True
 
         self.last_status = JobState(JobState.UNKNOWN)
         self._status = JobState(JobState.UNKNOWN)
@@ -88,7 +88,7 @@ class Job(object):
         self.status_changed = self.last_status != self._status
 
     def update_status(self, output):
-        if self.active:
+        if self.is_active:
             self.status = self.parse_status(output)
 
     def raise_not_found(self):
@@ -183,11 +183,17 @@ class MultiJob(object):
         for item in self.items:
             printer.key(str(item))
 
-    def status_changed(self):
+    def status_changed(self, desired=JobState.COMPLETED):
         """
         :rtype : list[scripts.pbs.job.Job]
         """
-        return [item for item in self.items if item.status_changed]
+        if desired is None:
+            return [item for item in self.items if item.status_changed]
+        if type(desired) is not set:
+            desired = set(desired)
+
+        return [item for item in self.items if item.status_changed and item.status in desired]
+
 
     def get_status_line(self):
         status = self.status().values()
