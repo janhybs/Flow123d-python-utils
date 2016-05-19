@@ -77,9 +77,9 @@ class Job(object):
             value = JobState(value)
 
         # set state
+        self.last_status = self._status
         self._status = value
         self.status_changed = self.last_status != self._status
-        self.last_status = self._status
 
     def update_status(self, output):
         if self.active:
