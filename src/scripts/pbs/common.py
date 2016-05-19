@@ -7,6 +7,8 @@ import platform
 from scripts.core.base import Paths, Printer
 
 printer = Printer(Printer.LEVEL_KEY)
+job_ok_string = '[JOB_STATUS:OK]'
+
 
 class DummyModule(object):
     """

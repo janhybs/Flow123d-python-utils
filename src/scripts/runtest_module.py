@@ -14,8 +14,8 @@ from scripts.execs.test_executor import BinExecutor, ParallelRunner, SequentialP
 
 
 # global arguments
-from scripts.pbs.common import get_pbs_module
-from scripts.pbs.job import JobState
+from scripts.pbs.common import get_pbs_module, job_ok_string
+from scripts.pbs.job import JobState, MultiJob
 from utils.globals import apply_to_all
 
 arg_options = None
@@ -75,6 +75,7 @@ def create_pbs_job_content(module, command):
         command=escaped_command,
         root=Paths.base_dir()
     )
+    template += '\n\n{:-<60s}\necho "{}"'.format('# ', job_ok_string)
 
     return template
 
@@ -87,8 +88,8 @@ def run_pbs_mode(all_yamls):
     global arg_options, arg_others, arg_rest
     pbs_module = get_pbs_module(arg_options.host)
 
-
     jobs = list()
+    """ :type: list[(str, scripts.core.prescriptions.PBSModule)] """
     for yaml_file, config in all_yamls.items():
         # parse config.yaml
 
@@ -99,35 +100,60 @@ def run_pbs_mode(all_yamls):
             test_command.extend(arg_rest)
             pbs_content = create_pbs_job_content(pbs_module, test_command)
             IO.write(case.pbs_script, pbs_content)
+            print pbs_content
 
             # create pbs file
             qsub_command = case.get_pbs_command(arg_options, case.pbs_script)
-            jobs.append((qsub_command, case.pbs_script))
+            jobs.append((qsub_command, case))
 
-
-    qjobs = list()
-    for qsub_command, pbs_script in jobs:
+    # start jobs
+    multijob = MultiJob(pbs_module.ModuleJob)
+    for qsub_command, case in jobs:
         output = subprocess.check_output(qsub_command)
-        qjobs.append(pbs_module.ModuleJob.create(output))
+        multijob.add(pbs_module.ModuleJob.create(output, case.output_log))
 
+    # first update to get more info about multijob jobs
     printer.line()
-    print '\n'.join(apply_to_all(qjobs, '__str__'))
+    multijob.update()
+    multijob.print_status(printer)
     printer.line()
 
-    status = apply_to_all(apply_to_all(qjobs, 'status'), 'enum')
-    while set(status) != set(JobState.COMPLETED):
-        update = subprocess.check_output(pbs_module.ModuleJob.update_command())
-        printer.line()
-        apply_to_all(qjobs, 'parse_status', update)
-        print '\n'.join(apply_to_all(qjobs, '__str__'))
+    while multijob.is_running():
+        multijob.update()
 
-        status = apply_to_all(apply_to_all(qjobs, 'status'), 'enum')
+        # get all jobs where was status update
+        for update in multijob.status_changed():
+            printer.key('Job update: from {} to {}: {}', update.status, update.last_status, update)
+            if update.status == JobState.COMPLETED:
+                # try to get more detailed job status
+                update.active = False
+                job_output = IO.read(update.output_file)
+                if job_output:
+                    if job_output.find(job_ok_string) > 0:
+                        # we found the string
+                        printer.key('OK: Job {} ended.', update)
+                        update.status = JobState.COMPLETED_OK
+                    else:
+                        # we did not find the string :(
+                        printer.key('ERROR: Job {} ended (wrong output).', update)
+                        update.status = JobState.COMPLETED_ERROR
+
+                    # in batch mode print job output
+                    # otherwise print output on error only
+                    if arg_options.batch or update.status == JobState.COMPLETED_ERROR:
+                        printer.key('OUTPUT: ')
+                        printer.key(job_output)
+                else:
+                    # no output file was generated assuming it went wrong
+                    update.status = JobState.COMPLETED_ERROR
+                    printer.key('ERROR: Job {} ended (no output file).', update)
+            else:
+                # update status was not into COMPLETE
+                pass
+
+        # after printing update status lets sleep for a bit
         time.sleep(5)
-    printer.line()
-    print 'All done'
-
-
-
+    printer.key('All jobs finished')
 
 def run_local_mode(all_yamls):
     # create parallel runner instance
@@ -205,7 +231,7 @@ def do_work(parser):
         else:
             all_yamls.append(path)
 
-    printer.key("Found {} .yaml solve file/s", len(all_yamls))
+    printer.key("Found {} .yaml file/s", len(all_yamls))
     if not all_yamls:
         printer.wrn('Warning! No yaml files found in locations: \n  {}', '\n  '.join(arg_others))
         exit(1)

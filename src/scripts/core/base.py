@@ -308,6 +308,9 @@ class CommandEscapee(object):
 class IO(object):
     @classmethod
     def read(cls, name, mode='r'):
+        """
+        :rtype : str or None
+        """
         if Paths.exists(name):
             with open(name, mode) as fp:
                 return fp.read()

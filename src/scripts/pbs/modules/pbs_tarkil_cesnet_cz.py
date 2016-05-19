@@ -48,19 +48,15 @@ class Module(PBSModule):
 
 class ModuleJob(Job):
     username = None
+    instances = list()
 
-    def __init__(self, job_id):
-        super(ModuleJob, self).__init__(job_id)
-
-    def parse_status(self, output=""):
-        for line in output.splitlines():
-            if line.find(self.id) != -1:
-                id, self.name, self.queue, self.name, sess_id, nds, tsk, rm, rt, self.state, et = line.split()
-                self.state = JobState(self.state)
-                return self.state
-
-        self.state = JobState(JobState.UNKNOWN)
-        return self.state
+    def __init__(self, job_id, output_file):
+        super(ModuleJob, self).__init__(job_id, output_file)
+        self.parser = self.parser_builder(
+            self, 9, JobState.UNKNOWN,
+            queue=2,
+            name=3,
+        )
 
     @classmethod
     def update_command(cls):
@@ -68,8 +64,8 @@ class ModuleJob(Job):
         return ['qstat', '-u', cls.username]
 
     @classmethod
-    def create(cls, output=""):
-        return ModuleJob(re.findall(r'(\d+)', output)[0])
+    def create(cls, command_output, output_file):
+        return ModuleJob(re.findall(r'(\d+)', command_output)[0], output_file)
 
 
 template = """
@@ -83,7 +79,7 @@ template = """
 
 # load modules
 #################
-$$modules$$
+# $$modules$$
 #################
 module purge
 module add /software/modules/current/metabase

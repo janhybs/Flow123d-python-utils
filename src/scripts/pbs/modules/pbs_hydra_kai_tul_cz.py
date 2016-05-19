@@ -7,6 +7,7 @@ from scripts.pbs.job import Job, JobState
 
 import re
 
+
 class Module(PBSModule):
     def get_pbs_command(self, options, pbs_script_filename):
         # total parallel process
@@ -26,27 +27,23 @@ class Module(PBSModule):
 
 
 class ModuleJob(Job):
-    def __init__(self, job_id):
-        super(ModuleJob, self).__init__(job_id)
+    instances = list()
 
-    def parse_status(self, output=""):
-        for line in output.splitlines():
-            if line.find(self.id) != -1:
-                id, self.prior, self.name, self.user, self.state, \
-                self.date, self.time, self.queue, self.slots = line.split()
-                self.state = JobState(self.state)
-                return self.state
-
-        self.state = JobState(JobState.COMPLETED)
-        return self.state
+    def __init__(self, job_id, output_file):
+        super(ModuleJob, self).__init__(job_id, output_file)
+        self.parser = self.parser_builder(
+            self, 4, JobState.UNKNOWN,
+            queue=7,
+            name=2,
+        )
 
     @classmethod
     def update_command(cls):
         return ['qstat']
 
     @classmethod
-    def create(cls, output=""):
-        return ModuleJob(re.findall(r'(\d+)', output)[0])
+    def create(cls, command_output, output_file):
+        return ModuleJob(re.findall(r'(\d+)', command_output)[0], output_file)
 
 template = """
 #!/bin/bash
