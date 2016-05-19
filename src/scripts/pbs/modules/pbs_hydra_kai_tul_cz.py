@@ -20,6 +20,7 @@ class Module(PBSModule):
             'qsub',
             '-pe', 'orte', '{np}'.format(**locals()),
             '-l', 'num_proc={ppn}'.format(**locals()),
+            '-o', self.output_log,
             pbs_script_filename
         ]
 
