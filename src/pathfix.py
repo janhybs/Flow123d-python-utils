@@ -28,9 +28,11 @@ def append_to_path():
     # add src/python into module path
     path = os.path.join('..', '..', 'src', 'python')
     sys.path.append(path)
+
     path = os.path.join('src', 'python')
     sys.path.append(path)
     sys.path.append(os.getcwd())
+    sys.path.append(os.path.join(os.path.dirname(__file__), 'lib'))
     # print 'paths: \n{:s}'.format ('\n'.join(sys.path))
 
 # append to path on import
