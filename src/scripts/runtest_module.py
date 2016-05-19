@@ -92,7 +92,8 @@ def run_pbs_mode(all_yamls):
     global arg_options, arg_others, arg_rest
     pbs_module = get_pbs_module(arg_options.host)
 
-    printer.dyn('Parsing yaml files')
+    if not arg_options.batch:
+        printer.dyn('Parsing yaml files')
     jobs = list()
     """ :type: list[(str, scripts.core.prescriptions.PBSModule)] """
     for yaml_file, config in all_yamls.items():
@@ -111,36 +112,46 @@ def run_pbs_mode(all_yamls):
             jobs.append((qsub_command, case))
 
     # start jobs
+    if not arg_options.batch:
+        printer.dyn('Starting jobs')
     total = len(jobs)
-    printer.dyn('Starting jobs')
     job_id = 0
     multijob = MultiJob(pbs_module.ModuleJob)
     for qsub_command, case in jobs:
         job_id += 1
-        printer.dyn('Starting jobs {:02d} of {:02d}', job_id, total)
+        if not arg_options.batch:
+            printer.dyn('Starting jobs {:02d} of {:02d}', job_id, total)
 
         output = subprocess.check_output(qsub_command)
         job = pbs_module.ModuleJob.create(output, case)
         job.case = case
         multijob.add(job)
-    printer.dyn('{} job/s inserted into queue', total)
+    if not arg_options.batch:
+        printer.dyn('{} job/s inserted into queue', total)
+    else:
+        printer.key('{} job/s inserted into queue', total)
 
     # first update to get more info about multijob jobs
     printer.out()
     printer.line()
-    printer.dyn('Updating job status')
+    if not arg_options.batch:
+        printer.dyn('Updating job status')
     multijob.update()
-    printer.dyn(multijob.get_status_line())
+    if not arg_options.batch:
+        printer.dyn(multijob.get_status_line())
 
     # print jobs statuses
     printer.out()
-    multijob.print_status(printer)
+    if not arg_options.batch:
+        multijob.print_status(printer)
 
     # wait for finish
     while multijob.is_running():
-        printer.dyn('Updating job status')
+        if not arg_options.batch:
+            printer.dyn('Updating job status')
         multijob.update()
-        printer.dyn(multijob.get_status_line())
+        if not arg_options.batch:
+            printer.dyn(multijob.get_status_line())
 
         # if some jobs changed status add new line to dynamic output remains
         jobs_changed = multijob.status_changed()
@@ -150,9 +161,7 @@ def run_pbs_mode(all_yamls):
 
         # get all jobs where was status update
         for update in jobs_changed:
-            printer.key('Job update: {:10s} -> {:10s}: {}', update.last_status, update.status, update)
             if update.status == JobState.COMPLETED:
-                printer.open()
                 # try to get more detailed job status
                 update.active = False
                 job_output = IO.read(update.case.output_log)
@@ -170,13 +179,14 @@ def run_pbs_mode(all_yamls):
                     # otherwise print output on error only
                     if arg_options.batch or update.status == JobState.ERROR:
                         printer.key('OUTPUT: ')
+                        printer.line()
                         printer.key(job_output)
+                        printer.line()
                 else:
                     # no output file was generated assuming it went wrong
                     update.status = JobState.ERROR
                     printer.key('ERROR: Job {} ended (no output file). Case: {}', update, format_case(update.case))
                 printer.out()
-                printer.close()
             else:
                 # update status was not into COMPLETE
                 pass
