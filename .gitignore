@@ -54,3 +54,4 @@ src/**/*.txt
 src/**/*.log
 
 example.*
+/lib/
