@@ -39,10 +39,11 @@ if flow_dir:
     for t in targets:
 
         # files on 1 level to bin/python
-        if os.path.isfile(t) and t.endswith('.py'):
-            tt = os.path.join(bin_python, rel(t))
-            copyfile(t, tt)
-            print 'COPY  bin/python file', os.path.relpath(tt, flow_dir)
+        if os.path.isfile(t):
+            if t.endswith('.py') or t.endswith("requirements.txt"):
+                tt = os.path.join(bin_python, rel(t))
+                copyfile(t, tt)
+                print 'COPY  bin/python file', os.path.relpath(tt, flow_dir)
 
         # files and folders on other level to src/python
         if os.path.isdir(t):
