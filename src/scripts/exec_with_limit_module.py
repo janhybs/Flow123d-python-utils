@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from scripts.core.base import Printer, Paths
 
 from scripts.execs.monitor import PyProcess
-from scripts.execs.test_executor import BinExecutor
+from scripts.core.threads import BinExecutor
 
 
 def do_work(parser):

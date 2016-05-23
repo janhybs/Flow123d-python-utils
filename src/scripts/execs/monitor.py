@@ -3,23 +3,23 @@
 # author:   Jan Hybs
 from __future__ import absolute_import
 
-import threading, time, sys, psutil, subprocess
+import time, sys, psutil, subprocess
 from subprocess import PIPE
-from psutil import NoSuchProcess
 from scripts.core.base import Printer, Paths
+from scripts.core.threads import ExtendedThread
 from scripts.execs.test_executor import ProcessUtils
 from utils.globals import wait_for
 from progressbar import ProgressBar, Timer, AnimatedMarker
 
 
-class PyProcess(threading.Thread):
+class PyProcess(ExtendedThread):
     """
     :type monitors: list[AbstractMonitor]
     """
     def __init__(self, executor, printer=None, batch_mode=False, period=.1,):
         """
         :type printer: scripts.core.base.Printer
-        :type executor: scripts.execs.test_executor.BinExecutor
+        :type executor: scripts.core.threads.BinExecutor
         """
         super(PyProcess, self).__init__(name='pypy')
         self.executor = executor
@@ -46,7 +46,7 @@ class PyProcess(threading.Thread):
     def add_monitor(self, monitor):
         self.monitors.append(monitor)
 
-    def run(self):
+    def _run(self):
         # alter streams
         self.executor.stdout = self.info_monitor.stdout_stderr
         self.executor.stderr = subprocess.STDOUT
@@ -61,7 +61,7 @@ class PyProcess(threading.Thread):
 
         # and wait for process to be created
         wait_for(self.executor, 'process')
-        from scripts.execs.test_executor import BrokenProcess
+        from scripts.core.threads import BrokenProcess
 
         if type(self.executor.process) is BrokenProcess:
             self.broken_process = True

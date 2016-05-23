@@ -5,7 +5,7 @@
 import shutil
 from scripts.core.base import Paths, Printer, PathFilters
 from scripts.execs.monitor import PyProcess
-from scripts.execs.test_executor import BinExecutor, SequentialProcesses, ExtendedThread
+from scripts.core.threads import BinExecutor, SequentialThreads, ExtendedThread
 from scripts.comparisons import file_comparison
 
 
@@ -76,7 +76,7 @@ class TestPrescription(object):
         return ExtendedThread(name='clean', target=target)
 
     def create_comparison_threads(self):
-        compares = SequentialProcesses(name='Comparison', pbar=True, indent=True)
+        compares = SequentialThreads(name='Comparison', progress=True, indent=True)
         compares.thread_name_property = True
 
         for check_rule in self.test_case.check_rules:

@@ -4,13 +4,14 @@
 import subprocess
 
 import time
+from apt import progress
 
 from scripts.core import prescriptions
 from scripts.core.base import Paths, PathFormat, PathFilters, Printer, CommandEscapee, IO
 from scripts.config.yaml_config import YamlConfig
 from scripts.core.prescriptions import PBSModule
 from scripts.execs.monitor import PyProcess
-from scripts.execs.test_executor import BinExecutor, ParallelRunner, SequentialProcesses
+from scripts.core.threads import BinExecutor, ParallelThreads, SequentialThreads
 
 
 # global arguments
@@ -59,7 +60,7 @@ def create_process_from_case(case):
     else:
         process_monitor.info_monitor.stdout_stderr = Paths.temp_file('run-test.log')
 
-    seq = SequentialProcesses('test-case', pbar=False)
+    seq = SequentialThreads('test-case', progress=False)
     seq.add(case.create_clean_thread())
     seq.add(process_monitor)
 
@@ -195,13 +196,14 @@ def run_pbs_mode(all_yamls):
     printer.key(multijob.get_status_line())
     printer.key('All jobs finished')
 
+
 def run_local_mode(all_yamls):
     # create parallel runner instance
     """
     :type all_yamls: dict[str, scripts.config.yaml_config.YamlConfig]
     """
     global arg_options, arg_others, arg_rest
-    runner = ParallelRunner(arg_options.parallel)
+    runner = ParallelThreads(arg_options.parallel)
     runner.stop_on_error = not arg_options.keep_going
 
     for yaml_file, config in all_yamls.items():

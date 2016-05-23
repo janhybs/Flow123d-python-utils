@@ -6,7 +6,7 @@ from scripts.core.base import Paths, Printer, CommandEscapee, IO
 from scripts.core.base import PathFormat
 from scripts.core.prescriptions import PBSModule
 from scripts.execs.monitor import PyProcess
-from scripts.execs.test_executor import BinExecutor
+from scripts.core.threads import BinExecutor
 from scripts.pbs.common import get_pbs_module
 import subprocess, time, datetime
 
