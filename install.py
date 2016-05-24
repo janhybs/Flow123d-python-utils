@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-# if env variable FLOWLOC is set, copy python files in corret fodlers
+# if env variable FLOWLOC is set, copy python files in correct folders
 # for example /et/profile: export FLOWLOC=/home/jan-hybs/projects/Flow123d/flow123d
 
 import os, sys
