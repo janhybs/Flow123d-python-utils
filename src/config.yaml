@@ -8,22 +8,22 @@ common_config:
 test_cases:
   - file: [flow_implicit.yaml]
     tags: [long-run, problematic]
-    proc: [3, 2, 3]
+    proc: [3, 2]
     time_limit: 5.0
     check_rules:
       - ndiff:
-            files: ["*/*.vtau"]
+            files: ["*/*.vtu"]
             r_tol: 1e-3
             a_tol: 1e-6
       - ndiff:
             files: ["*.vtu"]
-            r_tol: 1
-            a_tol: 2
+            r_tol: 100
+            a_tol: 200
       - exact:
             filters: ["*.pvd"]
   - file: [flow_implicit.yaml]
     tags: [problematic]
-    proc: [6]
+    proc: [1, 2]
     time_limit: 5.0
     memory_limit: 800
     check_rules:
@@ -33,8 +33,8 @@ test_cases:
             a_tol: 1e-6
       - ndiff:
             files: ["*.txt"]
-            r_tol: 1
-            a_tol: 2
+            r_tol: 10
+            a_tol: 20
       - exact:
             filters: ["*.pvd"]
         

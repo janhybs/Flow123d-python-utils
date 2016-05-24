@@ -72,7 +72,7 @@ class InfoMonitor(ThreadMonitor):
         super(InfoMonitor, self).__init__(pypy)
         self.command_str = Command.to_string(self.pypy.executor.command)
         self.start_fmt = 'Executing {self.command_str}'
-        self.end_fmt = 'Command (self.pypy.executor.process.pid) ended with {self.pypy.returncode}'
+        self.end_fmt = 'Command ({self.pypy.executor.process.pid}) ended with {self.pypy.returncode}'
 
     @ensure_active
     def on_start(self, pypy=None):
@@ -81,16 +81,20 @@ class InfoMonitor(ThreadMonitor):
 
     @ensure_active
     def on_complete(self, pypy=None):
-        if self.end_fmt:
-            self.printer.key(self.end_fmt.format(**dict(self=self)))
 
-        if not self.pypy.progress:
-            self.printer.out(self.pypy.output_file)
-
+        # print either error that command failed or on_complete info id exists
         if self.pypy.returncode > 0:
             self.printer.err('Error! Command ({process.pid}) ended with {process.returncode}'.
                              format(process=self.pypy.executor.process))
             self.printer.err(Command.to_string(self.pypy.executor.command))
+        elif self.end_fmt:
+            self.printer.key(self.end_fmt.format(**dict(self=self)))
+
+        if not self.pypy.progress:
+            self.printer.line()
+            output = IO.read(self.pypy.output_file)
+            if output:
+                self.printer.out(output)
 
 
 class Limits(object):
