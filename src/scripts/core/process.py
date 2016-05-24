@@ -1,9 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-from __future__ import absolute_import
-
 import time
+
 import psutil
 
 
@@ -99,3 +98,4 @@ class ProcessUtils(object):
         # False meaning some process is still running
 
         return not max(cls.apply(children, 'is_running'))
+

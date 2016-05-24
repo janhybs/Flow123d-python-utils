@@ -8,7 +8,7 @@ common_config:
 test_cases:
   - file: [flow_implicit.yaml]
     tags: [long-run, problematic]
-    proc: [3]
+    proc: [3, 2, 3]
     time_limit: 5.0
     check_rules:
       - ndiff:
@@ -16,7 +16,7 @@ test_cases:
             r_tol: 1e-3
             a_tol: 1e-6
       - ndiff:
-            files: ["*.txt"]
+            files: ["*.vtu"]
             r_tol: 1
             a_tol: 2
       - exact:

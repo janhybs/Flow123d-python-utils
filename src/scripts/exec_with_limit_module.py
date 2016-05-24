@@ -4,8 +4,8 @@
 from __future__ import absolute_import
 from scripts.core.base import Printer, Paths
 
-from scripts.execs.monitor import PyProcess
-from scripts.core.threads import BinExecutor
+from scripts.core.process import PyPy
+from scripts.core.threads import BinExecutor, PyPy
 
 
 def do_work(parser):
@@ -27,7 +27,7 @@ def do_work(parser):
 
     # prepare executor
     executor = BinExecutor(rest)
-    process_monitor = PyProcess(executor, batch_mode=options.batch)
+    process_monitor = PyPy(executor, batch_mode=options.batch)
 
     # set limits
     process_monitor.limit_monitor.time_limit = options.time_limit
@@ -40,5 +40,5 @@ def do_work(parser):
         process_monitor.info_monitor.stdout_stderr = Paths.temp_file('exec-limit.log')
 
     # start process
-    printer.key('-' * 60)
+    printer.line()
     process_monitor.start()

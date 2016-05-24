@@ -7,12 +7,10 @@ import time
 from apt import progress
 
 from scripts.core import prescriptions
-from scripts.core.base import Paths, PathFormat, PathFilters, Printer, CommandEscapee, IO
+from scripts.core.base import Paths, PathFormat, PathFilters, Printer, Command, IO
 from scripts.config.yaml_config import YamlConfig
 from scripts.core.prescriptions import PBSModule
-from scripts.execs.monitor import PyProcess
-from scripts.core.threads import BinExecutor, ParallelThreads, SequentialThreads
-
+from scripts.core.threads import BinExecutor, ParallelThreads, SequentialThreads, PyPy
 
 # global arguments
 from scripts.pbs.common import get_pbs_module, job_ok_string
@@ -28,10 +26,10 @@ printer = Printer(Printer.LEVEL_KEY)
 def create_process(command, limits=None):
     """
     :type command: list[str]
-    :type limits: scripts.execs.monitor.Limits
+    :type limits: scripts.config.yaml_config.YamlConfigCase
     """
     test_executor = BinExecutor(command)
-    process_monitor = PyProcess(test_executor)
+    process_monitor = PyPy(test_executor)
     process_monitor.limit_monitor.set_limits(limits)
     return process_monitor
 
@@ -48,17 +46,12 @@ def create_process_from_case(case):
     :type case: scripts.core.prescriptions.TestPrescription
     """
     process_monitor = create_process(case.get_command(), case.test_case)
-    process_monitor.limit_monitor.active = True
-    process_monitor.info_monitor.active = True
     process_monitor.info_monitor.end_fmt = ''
     process_monitor.info_monitor.start_fmt = 'Running: {}'.format(format_case(case))
 
     # turn on output
-    if arg_options.batch:
-        process_monitor.progress_monitor.active = False
-        process_monitor.info_monitor.stdout_stderr = None
-    else:
-        process_monitor.info_monitor.stdout_stderr = Paths.temp_file('run-test.log')
+    process_monitor.progress = not arg_options.batch
+    process_monitor.stdout_stderr = Paths.temp_file('run-test.log')
 
     seq = SequentialThreads('test-case', progress=False)
     seq.add(case.create_clean_thread())
@@ -74,7 +67,7 @@ def create_pbs_job_content(module, command):
     :type module: scripts.pbs.modules.pbs_tarkil_cesnet_cz
     :rtype : str
     """
-    escaped_command = ' '.join(CommandEscapee.escape_command(command))
+    escaped_command = ' '.join(Command.escape_command(command))
     template = PBSModule.format(
         module.template,
         command=escaped_command,
@@ -283,9 +276,7 @@ def do_work(parser):
 
     if arg_options.queue:
         printer.key('Running in PBS mode')
-        printer.key('-' * 60)
         run_pbs_mode(all_configs)
     else:
         printer.key('Running in LOCAL mode')
-        printer.key('-' * 60)
         run_local_mode(all_configs)

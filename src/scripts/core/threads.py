@@ -8,12 +8,15 @@ import sys
 
 import time
 
+import math
 import psutil
-from scripts.core.base import Printer
-from scripts.execs.test_executor import ProcessUtils
+
+from scripts.core import monitors
+from scripts.core.base import Printer, Paths, Command
+from scripts.core.process import ProcessUtils
 from utils.counter import ProgressCounter
 from utils.events import Event
-from utils.globals import ensure_iterable
+from utils.globals import ensure_iterable, wait_for
 
 
 class ExtendedThread(threading.Thread):
@@ -24,10 +27,12 @@ class ExtendedThread(threading.Thread):
 
         self._is_over = True
         self._returncode = None
+        self.printer = Printer(Printer.LEVEL_KEY)
 
         # create event objects
         self.on_start = Event()
         self.on_complete = Event()
+        self.on_update = Event()
 
     def _run(self):
         if self.target:
@@ -42,10 +47,10 @@ class ExtendedThread(threading.Thread):
         self._returncode = value
 
     def run(self):
-        self._is_over = False
+        # self._is_over = False
         self.on_start(self)
         self._run()
-        self._is_over = True
+        # self._is_over = True
         self.on_complete(self)
 
     def is_over(self):
@@ -82,13 +87,13 @@ class BinExecutor(ExtendedThread):
             except Exception as e:
                 pass
         sys.exit(1)
-        raise Exception('You pressed Ctrl+C!')
 
     def __init__(self, command, name='exec-thread'):
         super(BinExecutor, self).__init__(name)
         BinExecutor.threads.append(self)
         self.command = [str(x) for x in ensure_iterable(command)]
         self.process = None
+        self.broken = False
         self.stdout = subprocess.PIPE
         self.stderr = subprocess.PIPE
 
@@ -96,10 +101,16 @@ class BinExecutor(ExtendedThread):
         # run command and block current thread
         try:
             self.process = psutil.Popen(self.command, stdout=self.stdout, stderr=self.stderr)
-            self.process.wait()
         except Exception as e:
             # broken process
-            self.process = BrokenProcess(e)
+            process = BrokenProcess(e)
+            self.returncode = process.returncode
+            self.broken = True
+            self.process = process
+
+        # process successfully started to wait for result
+        self.broken = False
+        self.process.wait()
         self.returncode = getattr(self.process, 'returncode', None)
 
 
@@ -129,6 +140,7 @@ class MultiThreads(ExtendedThread):
         self.counter = None
         self.index = 0
         self.stopped = False
+        self.separate = False
 
     def run_next(self):
         if self.stopped:
@@ -139,6 +151,8 @@ class MultiThreads(ExtendedThread):
         self.index += 1
 
         if self.counter:
+            if self.separate:
+                self.printer.line()
             self.counter.next(locals())
 
         self.threads[self.index - 1].start()
@@ -217,6 +231,7 @@ class ParallelThreads(MultiThreads):
         self.counter = ProgressCounter('Case {:02d} of {self.total:02d}')
         self.printer = Printer(Printer.LEVEL_KEY)
         self.stop_on_error = True
+        self.separate = True
 
     def on_thread_complete(self, thread):
         """
@@ -239,10 +254,101 @@ class ParallelThreads(MultiThreads):
         return True
 
     def _run(self):
-        # start first thread which will cascade to start next threads if necessarily
-        while True:
-            if not self.ensure_run_count():
+        # determine how many parallel batches will be
+        # later on take cpu into account
+        steps = int(math.ceil(float(self.total)/self.n))
+
+        # run each batch
+        for i in range(steps):
+            batch = [x for x in range(i*self.n, i*self.n+self.n) if x < len(self.threads)]
+            for t in batch:
+                self.run_next()
+
+            for t in batch:
+                self.threads[t].join()
+
+            if self.stop_on_error and self.returncode > 0:
+                self.stopped = True
+                # no need to stop processes, just break
                 break
-            time.sleep(1)
 
 
+class PyPy(ExtendedThread):
+    """
+    :type printer: scripts.core.base.Printer
+    :type executor: scripts.core.threads.BinExecutor
+    """
+
+    def __init__(self, executor, progress=False, period=.5, ):
+        super(PyPy, self).__init__(name='pypy')
+        self.executor = executor
+        self.period = period
+        self._progress = None
+
+        self.printer = Printer(Printer.LEVEL_DBG)
+
+        self.on_process_start = Event()
+        self.on_process_complete = Event()
+        self.on_process_update = Event()
+
+        # register monitors
+        self.info_monitor = monitors.InfoMonitor(self)
+        self.limit_monitor = monitors.LimitMonitor(self)
+        self.progress_monitor = monitors.ProgressMonitor(self)
+        self.error_monitor = monitors.ErrorMonitor(self)
+
+        self.log = False
+        self.output_file = None
+        self.output_fp = None
+
+        # default value is to "hide" all output
+        self.stdout_stderr = subprocess.PIPE
+
+        # different settings in batch mode
+        self.progress = progress
+
+    @property
+    def progress(self):
+        return self._progress
+
+    @progress.setter
+    def progress(self, value):
+        self._progress = value
+        self.progress_monitor.active = value
+        self.stdout_stderr = subprocess.PIPE if value else Paths.temp_file()
+
+    def _run(self):
+        fp = self.stdout_stderr
+        if self.stdout_stderr not in (subprocess.PIPE, None):
+            self.output_file = self.stdout_stderr
+
+            Paths.ensure_path(self.output_file)
+            self.output_fp = open(self.output_file, 'w')
+            fp = self.output_fp
+
+        # set outputs
+        self.executor.stdout = fp
+        self.executor.stderr = subprocess.STDOUT
+
+        # start executor
+        self.executor.start()
+        wait_for(self.executor, 'process')
+
+        if self.executor.broken:
+            self.printer.err('Could not start command {}: {}',
+                             Command.to_string(self.executor.command),
+                             getattr(self.executor, 'exception', 'Unknown error'))
+            self.returncode = self.executor.returncode
+
+        # if process is not broken, propagate start event
+        self.on_process_start(self)
+
+        while self.executor.process.is_running():
+            self.on_process_update(self)
+            time.sleep(self.period)
+
+        # get return code
+        self.returncode = getattr(self.executor, 'returncode', None)
+
+        # propagate on_complete event
+        self.on_process_complete(self)
