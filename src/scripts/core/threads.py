@@ -9,8 +9,8 @@ import sys
 import time
 
 import math
-import psutil
 
+from scripts import psutils
 from scripts.core import monitors
 from scripts.core.base import Printer, Paths, Command
 from scripts.core.process import ProcessUtils
@@ -100,7 +100,7 @@ class BinExecutor(ExtendedThread):
     def _run(self):
         # run command and block current thread
         try:
-            self.process = psutil.Popen(self.command, stdout=self.stdout, stderr=self.stderr)
+            self.process = psutils.Execute(self.command, stdout=self.stdout, stderr=self.stderr)
         except Exception as e:
             # broken process
             process = BrokenProcess(e)
