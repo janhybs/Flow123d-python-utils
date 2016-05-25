@@ -6,7 +6,6 @@ from __future__ import absolute_import
 import pathfix
 # ----------------------------------------------
 from scripts.core.base import Paths
-from scripts.core.threads import BinExecutor
 from utils.argparser import ArgParser
 from utils.duration import Duration
 
@@ -83,12 +82,25 @@ parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder=
 # ----------------------------------------------
 
 if __name__ == '__main__':
-    from scripts.runtest_module import do_work
+    from scripts.core.threads import BinExecutor
+    # from scripts.runtest_module import do_work
+    #
+    # # for debug only set dir to where script should be
+    # Paths.base_dir(__file__)
+    # # Paths.base_dir('/home/jan-hybs/Dokumenty/projects/Flow123d/flow123d/bin/python/foo')
+    #
+    # # run work
+    # BinExecutor.register_sigint()
+    # # do_work(parser)
+    #
+    from scripts.psutils import Execute
 
-    # for debug only set dir to where script should be
-    Paths.base_dir(__file__)
-    # Paths.base_dir('/home/jan-hybs/Dokumenty/projects/Flow123d/flow123d/bin/python/foo')
+    import subprocess
 
-    # run work
-    BinExecutor.register_sigint()
-    do_work(parser)
+    command = 'wmic process where (ProcessId={} or ProcessId={} or ProcessId={}) get ParentProcessId /format:csv '.format(728, 9188, 6968)
+    print subprocess.check_output(command, shell=True)
+    # wmic process where (ParentProcessId=2480) get Caption,ProcessId
+    # command = 'wmic process where ProcessId="{}" get * /format:csv'.format(9188)
+    # print subprocess.check_output([command], shell=True)
+    # command = 'wmic process where ProcessId="{}" get * /format:csv'.format(6968)
+    # print subprocess.check_output([command], shell=True)

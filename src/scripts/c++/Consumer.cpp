@@ -29,6 +29,8 @@ void limit_time(long time) {
 			t++;
 		}
 		cout << "time limit done" << endl << endl;
+	} else {
+		this_thread::sleep_for(chrono::hours(1));
 	}
 }
 

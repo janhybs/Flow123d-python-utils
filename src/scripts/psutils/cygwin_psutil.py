@@ -50,5 +50,5 @@ class Execute(subprocess.Popen):
         return self._memory_info
 
 
-e = Execute(['sleep', '1'])
-print e.memory_info().rss
+# e = Execute(['superleep', '1'])
+# print e.memory_info().rss

@@ -4,8 +4,6 @@
 import subprocess
 
 import time
-from psutil import NoSuchProcess
-
 from scripts.core.base import Printer, Command, Paths, IO
 from scripts.core.process import ProcessUtils
 from utils.counter import ProgressTime
@@ -150,8 +148,8 @@ class LimitMonitor(ThreadMonitor):
                     self.terminated_cause = 'TIME_LIMIT'
                     self.terminated = True
                     ProcessUtils.secure_kill(self.process)
-            except NoSuchProcess as e1:
-                pass
+            # except NoSuchProcess as e1:
+            #     pass
             except AttributeError as e2:
                 pass
 
@@ -166,8 +164,8 @@ class LimitMonitor(ThreadMonitor):
                     self.terminated_cause = 'MEMORY_LIMIT'
                     self.terminated = True
                     ProcessUtils.secure_kill(self.process)
-            except NoSuchProcess as e1:
-                pass
+            # except NoSuchProcess as e1:
+            #     pass
             except AttributeError as e2:
                 pass
 

@@ -3,7 +3,7 @@
 # author:   Jan Hybs
 import time
 
-import psutil
+from scripts.psutils import NoSuchProcess
 
 
 class ProcessUtils(object):
@@ -39,7 +39,7 @@ class ProcessUtils(object):
         for child in children:
             try:
                 total += getattr(child.memory_info(), prop)
-            except psutil.NoSuchProcess:
+            except NoSuchProcess:
                 continue
         return total / units
 
@@ -49,7 +49,7 @@ class ProcessUtils(object):
         for child in children:
             try:
                 result.append(getattr(child, prop)(*args, **kwargs))
-            except psutil.NoSuchProcess as e: pass
+            except NoSuchProcess as e: pass
         return result
 
     @classmethod

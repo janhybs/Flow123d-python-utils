@@ -4,7 +4,6 @@
 import subprocess
 
 import time
-from apt import progress
 
 import sys
 

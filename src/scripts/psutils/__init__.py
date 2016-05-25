@@ -16,4 +16,7 @@ if system.startswith('cygwin'):
     from scripts.psutils.cygwin_psutil import Execute
 
 
+class NoSuchProcess(Exception):
+    pass
+
 # print 'Loading psutil for platform {}'.format(Execute.platform)
