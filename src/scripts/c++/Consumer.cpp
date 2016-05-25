@@ -33,7 +33,7 @@ void limit_time(long time) {
 }
 
 /**
-* Function will allocate specific amount of MB 
+* Function will allocate specific amount of MB
 * @param long memory: amount in MB
 */
 void limit_memory(long memory) {
@@ -51,6 +51,9 @@ void limit_memory(long memory) {
 				std::cerr << "bad_alloc: " << ba.what() << endl;
 				throw ba;
 			}
+			// work on data to put them into Working set
+			for (int j = 0; j < ALLOC_SIZE * MB; j++)
+				bytes[j] = 0;
 		}
 		cout << "allocated[MB]: " << m << endl;
 		cout << "memory limit done" << endl << endl;
@@ -81,6 +84,9 @@ void limit_time_memory(long simul, long time, long memory) {
 			std::cerr << "bad_alloc: " << ba.what() << endl;
 			throw ba;
 		}
+		// work on data to put them into Working set
+		for (int j = 0; j < ALLOC_SIZE; j++)
+			bytes[j] = 0;
 
 		// sleep
 		this_thread::sleep_for(chrono::milliseconds(SLEEP_TIME));
