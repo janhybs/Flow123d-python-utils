@@ -73,9 +73,9 @@ class Process(object):
     :type process : subprocess.Popen
     """
     platform = 'cygwin'
-    memory_info_command = 'wmic process where (ProcessId="{}") get WorkingSetSize /format:csv'
-    children_command = 'wmic process where (ParentProcessId="{}") get ProcessId /format:csv'
-    is_running_command = 'wmic process where (ProcessId="{}") get ProcessId /format:csv'
+    memory_info_command = 'wmic process where ProcessId="{}" get WorkingSetSize /format:csv'
+    children_command = 'wmic process where ParentProcessId="{}" get ProcessId /format:csv'
+    is_running_command = 'wmic process where ProcessId="{}" get ProcessId /format:csv'
 
     @classmethod
     def popen(cls, *args, **kwargs):
@@ -98,7 +98,7 @@ class Process(object):
     @use_cache()
     def _memory_usage(self, prop='vms', units=MiB):
         # call wmic
-        output = subprocess.check_output(self.memory_info_command.format(self.pid))
+        output = subprocess.check_output(self.memory_info_command.format(self.pid), shell=True)
         # get second line second column value
         csv_output = parse_csv(output)
         return 0.0 if len(csv_output) != 2 else int(csv_output[1][1])
@@ -106,7 +106,7 @@ class Process(object):
     @use_cache()
     def children(self, recursive=True):
         # call wmic
-        output = subprocess.check_output(self.children_command.format(self.pid))
+        output = subprocess.check_output(self.children_command.format(self.pid), shell=True)
 
         # parse csv output and cut first line (header info)
         children = list()
@@ -117,21 +117,27 @@ class Process(object):
         return children
 
     def terminate(self):
-        if self.process:
-            return self.process.terminate()
+        try:
+            if self.process:
+                return self.process.terminate()
 
-        os.kill(self.pid, getattr(signal, 'CTRL_C_EVENT', signal.SIGTERM))
+            os.kill(self.pid, getattr(signal, 'CTRL_C_EVENT', signal.SIGTERM))
+        except OSError as e:
+            pass
 
     def kill(self):
-        if self.process:
-            return self.process.kill()
+        try:
+            if self.process:
+                return self.process.kill()
 
-        os.kill(self.pid, getattr(signal, 'CTRL_C_EVENT', signal.SIGKILL))
+            os.kill(self.pid, signal.CTRL_C_EVENT)
+        except OSError as e:
+            pass
 
     @use_cache(cache_duration=1.0)
     def is_running(self):
         # call wmic
-        output = subprocess.check_output(self.is_running_command.format(self.pid))
+        output = subprocess.check_output(self.is_running_command.format(self.pid, shell=True))
         csv_output = parse_csv(output)
         return len(csv_output) == 2
 
@@ -177,3 +183,8 @@ class Process(object):
             except Exception as e:
                 pass
         return result
+
+    def __repr__(self):
+        if self.process:
+            return '<Process ({self.pid}), {self.process}>'.format(self=self)
+        return '<Process ({self.pid})>'.format(self=self)
