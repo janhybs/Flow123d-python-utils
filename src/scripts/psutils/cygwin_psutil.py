@@ -130,7 +130,7 @@ class Process(object):
             if self.process:
                 return self.process.kill()
 
-            os.kill(self.pid, signal.CTRL_C_EVENT)
+            os.kill(self.pid, getattr(signal, 'CTRL_C_EVENT', getattr(signal, 'SIGKILL', signal.SIGTERM)))
         except OSError as e:
             pass
 
