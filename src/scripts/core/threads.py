@@ -99,13 +99,15 @@ class BinExecutor(ExtendedThread):
     def _run(self):
         # run command and block current thread
         try:
-            self.process = psutils.Process(self.command, stdout=self.stdout, stderr=self.stderr)
+            print self.command
+            self.process = psutils.Process.popen(self.command, stdout=self.stdout, stderr=self.stderr)
         except Exception as e:
             # broken process
             process = BrokenProcess(e)
             self.returncode = process.returncode
             self.broken = True
             self.process = process
+            return
 
         # process successfully started to wait for result
         self.broken = False
