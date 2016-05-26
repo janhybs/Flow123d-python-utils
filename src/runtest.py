@@ -93,7 +93,7 @@ if __name__ == '__main__':
     # BinExecutor.register_sigint()
     # # do_work(parser)
     #
-    from scripts.psutils import Execute
+    from scripts.psutils import Process
 
     import subprocess
 

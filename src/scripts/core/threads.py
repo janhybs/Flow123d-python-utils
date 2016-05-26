@@ -13,7 +13,6 @@ import math
 from scripts import psutils
 from scripts.core import monitors
 from scripts.core.base import Printer, Paths, Command
-from scripts.core.process import ProcessUtils
 from utils.counter import ProgressCounter
 from utils.events import Event
 from utils.globals import ensure_iterable, wait_for
@@ -62,7 +61,7 @@ class ExtendedThread(threading.Thread):
 
 class BinExecutor(ExtendedThread):
     """
-    :type process: psutil.Popen
+    :type process: scripts.psutils.Process
     :type threads: list[scripts.core.threads.BinExecutor]
     """
     threads = list()
@@ -83,7 +82,7 @@ class BinExecutor(ExtendedThread):
             try:
                 if executor.process.is_running():
                     sys.stderr.write('\nTerminating process {}...\n'.format(executor.process.pid))
-                    ProcessUtils.secure_kill(executor.process)
+                    executor.process.secure_kill()
             except Exception as e:
                 pass
         sys.exit(1)
@@ -100,7 +99,7 @@ class BinExecutor(ExtendedThread):
     def _run(self):
         # run command and block current thread
         try:
-            self.process = psutils.Execute(self.command, stdout=self.stdout, stderr=self.stderr)
+            self.process = psutils.Process(self.command, stdout=self.stdout, stderr=self.stderr)
         except Exception as e:
             # broken process
             process = BrokenProcess(e)

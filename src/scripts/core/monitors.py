@@ -5,7 +5,6 @@ import subprocess
 
 import time
 from scripts.core.base import Printer, Command, Paths, IO
-from scripts.core.process import ProcessUtils
 from utils.counter import ProgressTime
 
 
@@ -103,7 +102,7 @@ class Limits(object):
 
 class LimitMonitor(ThreadMonitor):
     """
-    :type process: psutil.Process
+    :type process: scripts.psutils.Process
     """
     def __init__(self, pypy):
         super(LimitMonitor, self).__init__(pypy)
@@ -138,7 +137,7 @@ class LimitMonitor(ThreadMonitor):
 
         if self.time_limit:
             try:
-                runtime = time.time() - self.process.create_time()
+                runtime = self.process.runtime()
                 if runtime > self.time_limit:
                     self.printer.err(
                         'Error: Time limit exceeded! {:1.2f}s of runtime, {:1.2f}s allowed'.format(
@@ -147,7 +146,7 @@ class LimitMonitor(ThreadMonitor):
                     )
                     self.terminated_cause = 'TIME_LIMIT'
                     self.terminated = True
-                    ProcessUtils.secure_kill(self.process)
+                    self.process.secure_kill()
             # except NoSuchProcess as e1:
             #     pass
             except AttributeError as e2:
@@ -155,7 +154,7 @@ class LimitMonitor(ThreadMonitor):
 
         if self.memory_limit:
             try:
-                memory_usage = ProcessUtils.get_memory_info(self.process)
+                memory_usage = self.process.memory_usage()
                 if memory_usage > self.memory_limit:
                     self.printer.err('Error: Memory limit exceeded! {:1.2f}MB used, {:1.2f}MB allowed'.format(
                         memory_usage, self.memory_limit
@@ -163,7 +162,7 @@ class LimitMonitor(ThreadMonitor):
                     )
                     self.terminated_cause = 'MEMORY_LIMIT'
                     self.terminated = True
-                    ProcessUtils.secure_kill(self.process)
+                    self.process.secure_kill()
             # except NoSuchProcess as e1:
             #     pass
             except AttributeError as e2:
