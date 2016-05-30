@@ -45,11 +45,15 @@ class ExtendedThread(threading.Thread):
     def returncode(self, value):
         self._returncode = value
 
+    def start(self):
+        self._is_over = False
+        super(ExtendedThread, self).start()
+
     def run(self):
-        # self._is_over = False
+        self._is_over = False
         self.on_start(self)
         self._run()
-        # self._is_over = True
+        self._is_over = True
         self.on_complete(self)
 
     def is_over(self):
@@ -65,6 +69,7 @@ class BinExecutor(ExtendedThread):
     :type threads: list[scripts.core.threads.BinExecutor]
     """
     threads = list()
+    stopped = False
 
     @staticmethod
     def register_sigint():
@@ -73,6 +78,8 @@ class BinExecutor(ExtendedThread):
 
     @staticmethod
     def signal_handler(signal, frame):
+        BinExecutor.stopped = True
+
         if signal:
             sys.stderr.write("\nError: Caught SIGINT! Terminating application in peaceful manner...\n")
         else:
@@ -97,9 +104,15 @@ class BinExecutor(ExtendedThread):
         self.stderr = subprocess.PIPE
 
     def _run(self):
+        if self.stopped:
+            process = BrokenProcess(Exception('Application terminating'))
+            self.returncode = process.returncode
+            self.broken = True
+            self.process = process
+            return
+
         # run command and block current thread
         try:
-            print self.command
             self.process = psutils.Process.popen(self.command, stdout=self.stdout, stderr=self.stderr)
         except Exception as e:
             # broken process

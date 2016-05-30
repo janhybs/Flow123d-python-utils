@@ -8,8 +8,10 @@ import os
 import re
 import platform
 
-flow123d_name = "flow123d" if platform.system().startswith('linux') else "flow123d.exe"
-mpiexec_name = "mpiexec" if platform.system().startswith('linux') else "mpiexec.hydra"
+is_linux = platform.system().lower().startswith('linux')
+
+flow123d_name = "flow123d" if is_linux else "flow123d.exe"
+mpiexec_name = "mpiexec" if is_linux else "mpiexec.hydra"
 
 import datetime
 
