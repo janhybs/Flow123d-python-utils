@@ -113,7 +113,8 @@ class BinExecutor(ExtendedThread):
 
         # run command and block current thread
         try:
-            self.process = psutils.Process.popen(self.command, stdout=self.stdout, stderr=self.stderr)
+            process = psutils.Process.popen(self.command, stdout=self.stdout, stderr=self.stderr)
+            self.process = psutils.Process(process.pid)
         except Exception as e:
             # broken process
             process = BrokenProcess(e)
@@ -124,8 +125,8 @@ class BinExecutor(ExtendedThread):
 
         # process successfully started to wait for result
         self.broken = False
-        self.process.wait()
-        self.returncode = getattr(self.process, 'returncode', None)
+        process.wait()
+        self.returncode = getattr(process, 'returncode', None)
 
 
 class BrokenProcess(object):

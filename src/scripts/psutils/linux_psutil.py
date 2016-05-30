@@ -23,6 +23,10 @@ class Process(psutil.Process):
 
     @classmethod
     def popen(cls, *args, **kwargs):
+        return psutil.Popen(*args, **kwargs)
+
+    @classmethod
+    def _popen(cls, *args, **kwargs):
         process = psutil.Popen(*args, **kwargs)
         return Process(process.pid)
 
