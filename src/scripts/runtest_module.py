@@ -110,7 +110,6 @@ def run_pbs_mode(all_yamls):
     if not arg_options.batch:
         printer.dyn('Starting jobs')
 
-    exit(0)
     total = len(jobs)
     job_id = 0
     multijob = MultiJob(pbs_module.ModuleJob)
