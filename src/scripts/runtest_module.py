@@ -190,6 +190,7 @@ def run_pbs_mode(all_yamls):
                 job.status = JobState.EXIT_ERROR
                 printer.key('ERROR: Job {} ended (no output file found). Case: {}', job, format_case(job.case))
                 printer.key('       Log file: {} (exists: {})', job.case.output_log, os.listdir(job.case.output_dir))
+                printer.key('       output: {}, {}', job_output, os.path.exists(job.case.output_log))
             printer.line()
 
         # after printing update status lets sleep for a bit
