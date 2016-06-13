@@ -123,8 +123,8 @@ class MPIPrescription(TestPrescription):
 class PBSModule(TestPrescription):
     def _get_command(self):
         return [
-            'mpirun',
-            '-n', self.proc_value
+            Paths.mpiexec(),
+            '-np', self.proc_value
         ] + super(PBSModule, self)._get_command()
 
     def get_pbs_command(self, options, pbs_script_filename):
