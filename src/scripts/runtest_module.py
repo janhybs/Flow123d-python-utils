@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 # ----------------------------------------------
+import os
 import subprocess
 import time
 import sys
@@ -152,7 +153,7 @@ def run_pbs_mode(all_yamls):
             printer.dyn(multijob.get_status_line())
 
         # if some jobs changed status add new line to dynamic output remains
-        jobs_changed = multijob.status_changed(JobState.COMPLETED)
+        jobs_changed = multijob.get_all(status=JobState.COMPLETED)
         if jobs_changed:
             printer.out()
             printer.line()
@@ -162,6 +163,8 @@ def run_pbs_mode(all_yamls):
             # try to get more detailed job status
             job.is_active = False
             job_output = IO.read(job.case.output_log)
+            printer.key('INFO: {}, {}, {} -> {}', job, job.case.output_log, job.case.output_dir, os.listdir(job.case.output_dir))
+
             if job_output:
                 if job_output.find(job_ok_string) > 0:
                     # we found the string
@@ -185,7 +188,7 @@ def run_pbs_mode(all_yamls):
             else:
                 # no output file was generated assuming it went wrong
                 job.status = JobState.EXIT_ERROR
-                printer.key('ERROR: Job {} ended (no output file). Case: {}', job, format_case(job.case))
+                printer.key('ERROR: Job {} ended (no output file found). Case: {}', job, format_case(job.case))
             printer.line()
 
         # after printing update status lets sleep for a bit

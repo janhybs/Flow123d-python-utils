@@ -188,13 +188,23 @@ class MultiJob(object):
         """
         :rtype : list[scripts.pbs.job.Job]
         """
+        # get all changed jobs if not specified
         if desired is None:
             return [item for item in self.items if item.status_changed]
+
+        # otherwise just desired status
         if type(desired) is not set:
             desired = set(desired)
 
         return [item for item in self.items if item.status_changed and item.status in desired]
 
+    def get_all(self, status=None):
+        if not status:
+            return [item for item in self.items]
+
+        # return all jobs having certain status
+        status = set(status) if type(status) is str else status
+        return [item for item in self.items if item.status in status]
 
     def get_status_line(self):
         status = self.status().values()
