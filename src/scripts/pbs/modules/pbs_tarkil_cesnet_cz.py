@@ -112,6 +112,6 @@ echo JOB START: `date`
 pwd
 
 echo "$$command$$"
-# $$command$$
+$$command$$
 
 """.lstrip()

@@ -62,6 +62,6 @@ template = """
 ROOT="$$root$$"
 
 echo "$$command$$"
-# $$command$$
+$$command$$
 
 """.lstrip()
