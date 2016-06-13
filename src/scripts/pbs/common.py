@@ -1,10 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
+# ----------------------------------------------
 import importlib
 import json
 import platform
+# ----------------------------------------------
 from scripts.core.base import Paths, Printer
+# ----------------------------------------------
+
 
 printer = Printer(Printer.LEVEL_KEY)
 job_ok_string = '[JOB_STATUS:OK]'

@@ -1,13 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-
+# ----------------------------------------------
 from __future__ import absolute_import
-import pathfix
+import pathfix; pathfix.init()
+# ----------------------------------------------
+import sys
 # ----------------------------------------------
 from scripts.core.base import Paths
 from utils.argparser import ArgParser
 from utils.duration import Duration
+# ----------------------------------------------
 
 
 parser = ArgParser("exec_parallel.py <parameters>  -- <executable> <executable arguments>")

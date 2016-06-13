@@ -1,23 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
+# ----------------------------------------------
 import subprocess
-
 import time
-
 import sys
-
+# ----------------------------------------------
 from scripts.core import prescriptions
 from scripts.core.base import Paths, PathFormat, PathFilters, Printer, Command, IO
 from scripts.config.yaml_config import YamlConfig
 from scripts.core.prescriptions import PBSModule
 from scripts.core.threads import BinExecutor, ParallelThreads, SequentialThreads, PyPy
-
-# global arguments
 from scripts.pbs.common import get_pbs_module, job_ok_string
 from scripts.pbs.job import JobState, MultiJob
-from utils.globals import apply_to_all
+# ----------------------------------------------
 
+
+# global arguments
 arg_options = None
 arg_others = None
 arg_rest = None

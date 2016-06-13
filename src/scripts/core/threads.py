@@ -1,21 +1,20 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
+# ----------------------------------------------
 import threading
 import subprocess
-
 import sys
-
 import time
-
 import math
-
+# ----------------------------------------------
 from scripts import psutils
 from scripts.core import monitors
 from scripts.core.base import Printer, Paths, Command
 from utils.counter import ProgressCounter
 from utils.events import Event
 from utils.globals import ensure_iterable, wait_for
+# ----------------------------------------------
 
 
 class ExtendedThread(threading.Thread):

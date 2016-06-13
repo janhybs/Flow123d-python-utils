@@ -1,18 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-
+# ----------------------------------------------
+import subprocess
+import datetime
+import time
+# ----------------------------------------------
 from scripts.core.base import Paths, Printer, Command, IO
 from scripts.core.base import PathFormat
 from scripts.core.prescriptions import PBSModule
 from scripts.core.threads import BinExecutor, PyPy
 from scripts.pbs.common import get_pbs_module
-import subprocess, time, datetime
-
-# global arguments
 from scripts.pbs.job import JobState
 from utils.dotdict import Map
+# ----------------------------------------------
 
+# global arguments
 arg_options = None
 arg_others = None
 arg_rest = None

@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-
+# ----------------------------------------------
+import re
+# ----------------------------------------------
 from scripts.core.prescriptions import PBSModule
 from scripts.pbs.job import Job, JobState
-
-import re
+# ----------------------------------------------
 
 
 class Module(PBSModule):

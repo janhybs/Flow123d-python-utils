@@ -1,11 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-
+# ----------------------------------------------
 import shutil
+# ----------------------------------------------
 from scripts.core.base import Paths, Printer, PathFilters
 from scripts.core.threads import BinExecutor, SequentialThreads, ExtendedThread, PyPy
 from scripts.comparisons import file_comparison
+# ----------------------------------------------
 
 
 class TestPrescription(object):

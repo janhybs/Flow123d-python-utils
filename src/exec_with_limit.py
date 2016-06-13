@@ -1,9 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-
+# ----------------------------------------------
 from __future__ import absolute_import
-import pathfix
+import pathfix; pathfix.init()
+# ----------------------------------------------
+import sys
 # ----------------------------------------------
 from scripts.core.base import Paths
 from utils.argparser import ArgParser

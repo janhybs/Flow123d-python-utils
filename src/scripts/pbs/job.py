@@ -1,10 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-
+# ----------------------------------------------
 import subprocess
 import time
 import datetime
+# ----------------------------------------------
 
 
 class JobState(object):

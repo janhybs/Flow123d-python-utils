@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-from __future__ import absolute_import
+# ----------------------------------------------
 from scripts.core.base import Printer, Paths
 from scripts.core.threads import BinExecutor, PyPy
-
+# ----------------------------------------------
 
 def do_work(parser):
     """

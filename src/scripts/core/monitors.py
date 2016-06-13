@@ -1,11 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-import subprocess
-
-import time
+# ----------------------------------------------
 from scripts.core.base import Printer, Command, Paths, IO
 from utils.counter import ProgressTime
+# ----------------------------------------------
 
 
 def ensure_active(f):

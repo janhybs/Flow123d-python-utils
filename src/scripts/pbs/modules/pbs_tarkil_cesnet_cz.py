@@ -1,11 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-
-import math, re, datetime
+# ----------------------------------------------
+import math
+import re
+import datetime
+import getpass
+# ----------------------------------------------
 from scripts.core.prescriptions import PBSModule
 from scripts.pbs.job import Job, JobState
-import getpass
+# ----------------------------------------------
 
 
 class Module(PBSModule):

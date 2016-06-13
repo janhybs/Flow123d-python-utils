@@ -1,9 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-
+# ----------------------------------------------
 import psutil
 import time
+# ----------------------------------------------
+
 
 KB = 1000.0
 MB = KB ** 2

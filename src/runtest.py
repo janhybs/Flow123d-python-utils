@@ -1,14 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
-
+# ----------------------------------------------
 from __future__ import absolute_import
-import pathfix
+import pathfix; pathfix.init()
+# ----------------------------------------------
+import sys
 # ----------------------------------------------
 from scripts.core.base import Paths
 from utils.argparser import ArgParser
 from utils.duration import Duration
-
+# ----------------------------------------------
 
 parser = ArgParser("runtest.py [<parametes>] [<test set>]  [-- <test arguments>]")
 # ----------------------------------------------
@@ -85,6 +87,13 @@ parser.add('', '--root', hidden=True, type=str, name='root', placeholder='<ROOT>
 # ----------------------------------------------
 
 if __name__ == '__main__':
+
+    from utils.globals import check_modules
+
+    required = ('psutil', 'yaml', 'shutil', 'importlib', 'platform')
+    if not check_modules(*required):
+        sys.exit(1)
+
     from scripts.core.threads import BinExecutor
     from scripts.runtest_module import do_work
     #
