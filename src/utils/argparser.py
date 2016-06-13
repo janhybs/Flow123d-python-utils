@@ -55,13 +55,14 @@ _parse_arg_name = re.compile(r'^(--[a-zA-Z0-9_-]+|-[a-zA-Z0-9_-])')
 
 
 class ArgOption(object):
-    def __init__(self, short, long, type=str, default=None, name=None, subtype=str, docs='', placeholder=None):
+    def __init__(self, short, long, type=str, default=None, name=None, subtype=str, docs='', placeholder=None, hidden=False):
         self.short = short
         self.long = long
         self.type = type
         self.subtype = subtype
         self.default = default
         self.docs = docs
+        self.hidden = hidden
 
         if self.type is True or self.type is False:
             self.value = not self.type
@@ -154,8 +155,8 @@ class ArgParser(object):
         self.add('-h', '--help', type=True, name='help', docs='Display this help and exit')
         self.printer = Printer(Printer.LEVEL_WRN)
 
-    def add(self, short='', long='', type=str, default=None, name=None, subtype=str, docs='', placeholder=''):
-        ao = ArgOption(short, long, type, default, name, subtype, docs, placeholder)
+    def add(self, short='', long='', type=str, default=None, name=None, subtype=str, docs='', placeholder='', hidden=False):
+        ao = ArgOption(short, long, type, default, name, subtype, docs, placeholder, hidden)
 
         self.all_options.append(ao)
         if name:
@@ -173,7 +174,7 @@ class ArgParser(object):
         for option in self.all_options:
             if type(option) is str:
                 usage_lst.append('{option}\n'.format(option=option))
-            else:
+            elif not option.hidden:
                 usage_lst.append('{option}\n'.format(option=option.usage()))
         return '\n'.join(usage_lst)
 

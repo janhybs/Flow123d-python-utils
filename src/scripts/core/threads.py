@@ -62,6 +62,10 @@ class ExtendedThread(threading.Thread):
     def is_running(self):
         return not self._is_over
 
+    def __repr__(self):
+        return "<{self.__class__.__name__}:{running} E:{self.returncode}>".format(
+            self=self, running="RUNNING" if self.is_alive() else "STOPPED")
+
 
 class BinExecutor(ExtendedThread):
     """
@@ -113,8 +117,7 @@ class BinExecutor(ExtendedThread):
 
         # run command and block current thread
         try:
-            process = psutils.Process.popen(self.command, stdout=self.stdout, stderr=self.stderr)
-            self.process = psutils.Process(process.pid)
+            self.process = psutils.Process.popen(self.command, stdout=self.stdout, stderr=self.stderr)
         except Exception as e:
             # broken process
             process = BrokenProcess(e)
@@ -124,9 +127,10 @@ class BinExecutor(ExtendedThread):
             return
 
         # process successfully started to wait for result
+        # call wait on Popen process
         self.broken = False
-        process.wait()
-        self.returncode = getattr(process, 'returncode', None)
+        self.process.process.wait()
+        self.returncode = getattr(self.process, 'returncode', None)
 
 
 class BrokenProcess(object):

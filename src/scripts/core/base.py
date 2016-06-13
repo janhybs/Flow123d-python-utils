@@ -139,7 +139,14 @@ class Paths(object):
     def base_dir(cls, v=None):
         if v is None:
             return cls._base_dir
-        cls._base_dir = os.path.dirname(os.path.realpath(v))
+
+        if os.path.isfile(v):
+            # if file is given, we assume file in bin/python was given
+            cls._base_dir = os.path.dirname(os.path.dirname(os.path.realpath(v)))
+        else:
+            # if dir was given we just convert it to real path and use it
+            cls._base_dir = os.path.realpath(v)
+        return cls._base_dir
 
     @classmethod
     def source_dir(cls):
@@ -176,7 +183,7 @@ class Paths(object):
     @classmethod
     @make_relative
     def bin_dir(cls):
-        return cls.join(cls.base_dir(), '..')
+        return cls.join(cls.base_dir(), 'bin')
 
     @classmethod
     @make_relative

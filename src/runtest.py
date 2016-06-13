@@ -79,6 +79,9 @@ parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder=
     'Optional memory limit per node in MB',
     'For precision use float value'
 ])
+parser.add('', '--root', hidden=True, type=str, name='root', placeholder='<ROOT>', docs=[
+    'Path to base dir of flow123d'
+])
 # ----------------------------------------------
 
 if __name__ == '__main__':
@@ -87,9 +90,7 @@ if __name__ == '__main__':
     #
     # # for debug only set dir to where script should be
     Paths.base_dir(__file__)
-    # Paths.base_dir('/home/jan-hybs/Dokumenty/projects/Flow123d/flow123d/bin/python/foo')
-    # Paths.base_dir(r'c:\cygwin64\home\Jan\flow\bin\python\testrun.py')
-    #
+
     # run work
     BinExecutor.register_sigint()
     do_work(parser)

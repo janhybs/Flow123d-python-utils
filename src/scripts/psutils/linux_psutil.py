@@ -23,15 +23,25 @@ class Process(psutil.Process):
 
     @classmethod
     def popen(cls, *args, **kwargs):
-        return psutil.Popen(*args, **kwargs)
-
-    @classmethod
-    def _popen(cls, *args, **kwargs):
         process = psutil.Popen(*args, **kwargs)
-        return Process(process.pid)
+        return Process(process.pid, process)
 
-    def __init__(self, pid):
+    # @classmethod
+    # def _popen(cls, *args, **kwargs):
+    #     process = psutil.Popen(*args, **kwargs)
+    #     return Process(process.pid)
+
+    def __init__(self, pid, process=None):
+        """
+        :type process: psutil.Popen
+        """
         super(Process, self).__init__(pid)
+        self.process = process
+
+    @property
+    def returncode(self):
+        if self.process:
+            return self.process.returncode
 
     def children(self, recursive=True):
         children = super(Process, self).children(recursive)

@@ -282,8 +282,8 @@ def do_work(parser):
     global arg_options, arg_others, arg_rest
     arg_options, arg_others, arg_rest = parser.parse()
     Paths.format = PathFormat.ABSOLUTE
-
-    a = arg_options
+    if arg_options.root:
+        Paths.base_dir(arg_options.root)
 
     # we need flow123d, mpiexec and ndiff to exists in LOCAL mode
     if not arg_options.queue and not Paths.test_paths('flow123d', 'mpiexec', 'ndiff'):
