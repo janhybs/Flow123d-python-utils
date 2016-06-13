@@ -163,7 +163,7 @@ def run_pbs_mode(all_yamls):
             # try to get more detailed job status
             job.is_active = False
             job_output = IO.read(job.case.output_log)
-            # printer.key('INFO: {}, {}, {} -> {}', job, job.case.output_log, job.case.output_dir, os.listdir(job.case.output_dir))
+            printer.key('INFO: {}, {}, {} -> {}', job, job.case.output_log, job.case.output_dir, os.listdir(job.case.output_dir))
 
             if job_output:
                 if job_output.find(job_ok_string) > 0:
