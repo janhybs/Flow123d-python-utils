@@ -100,7 +100,7 @@ class TypeRecord(Parsable):
     def get_fields(self, *args):
         for arg in args:
             for sub_item in self.keys:
-                if sub_item.key.lower() == arg.lower():
+                if sub_item.out.lower() == arg.lower():
                     return sub_item
 
 

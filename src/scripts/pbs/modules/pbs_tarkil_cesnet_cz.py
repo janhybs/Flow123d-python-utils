@@ -21,7 +21,7 @@ class Module(PBSModule):
         # number of physical machines to be reserved
         nodes = float(np) / ppn
         if int(nodes) != nodes:
-            self.printer.wrn('Warning: NP is not divisible by PPN')
+            Printer.wrn('Warning: NP is not divisible by PPN')
         nodes = int(math.ceil(nodes))
 
         # memory limit

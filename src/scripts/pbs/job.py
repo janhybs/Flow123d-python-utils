@@ -177,12 +177,9 @@ class MultiJob(object):
         status = status - {JobState.EXIT_OK, JobState.EXIT_ERROR}
         return bool(status)
 
-    def print_status(self, printer):
-        """
-        :type printer: scripts.core.base.Printer
-        """
+    def print_status(self):
         for item in self.items:
-            printer.key(str(item))
+            Printer.out(str(item))
 
     def status_changed(self, desired=JobState.COMPLETED):
         """

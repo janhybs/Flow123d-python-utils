@@ -153,7 +153,6 @@ class ArgParser(object):
         self._usage = usage
         self.all_options = list()
         self.add('-h', '--help', type=True, name='help', docs='Display this help and exit')
-        self.printer = Printer(Printer.LEVEL_WRN)
 
     def add(self, short='', long='', type=str, default=None, name=None, subtype=str, docs='', placeholder='', hidden=False):
         ao = ArgOption(short, long, type, default, name, subtype, docs, placeholder, hidden)
@@ -184,9 +183,9 @@ class ArgParser(object):
 
     def exit_usage(self, msg=None, exit_code=1, *args, **kwargs):
         if msg:
-            self.printer.err('Error: {}'.format(msg), *args, **kwargs)
+            Printer.err('Error: {}'.format(msg), *args, **kwargs)
 
-        self.printer.err(self.usage())
+        Printer.err(self.usage())
 
         if exit_code is not None:
             exit(exit_code)

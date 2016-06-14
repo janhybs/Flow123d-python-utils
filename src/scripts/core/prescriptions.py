@@ -20,7 +20,6 @@ class TestPrescription(object):
         self.test_case = test_case
         self.proc_value = proc_value
         self.filename = Paths.join(filename)
-        self.printer = Printer(Printer.LEVEL_KEY)
 
         if not self.filename:
             return
@@ -73,7 +72,6 @@ class TestPrescription(object):
     def create_clean_thread(self):
         def target():
             if Paths.exists(self.output_dir):
-                self.printer.dbg('Cleaning output dir {}'.format(self.output_dir))
                 shutil.rmtree(self.output_dir)
         return ExtendedThread(name='clean', target=target)
 
@@ -87,7 +85,7 @@ class TestPrescription(object):
             module = getattr(file_comparison, 'Compare{}'.format(method.capitalize()), None)
             comp_data = check_rule[method]
             if not module:
-                self.printer.dbg('Warning! No module for check_rule method "{}"', method)
+                Printer.err('Warning! No module for check_rule method "{}"', method)
                 continue
 
             pairs = self.get_ref_output_files(comp_data)

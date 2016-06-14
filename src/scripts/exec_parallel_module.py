@@ -19,7 +19,6 @@ from utils.dotdict import Map
 arg_options = None
 arg_others = None
 arg_rest = None
-printer = Printer(Printer.LEVEL_KEY)
 
 
 def run_local_mode():
@@ -88,12 +87,6 @@ def run_pbs_mode():
         root=arg_options.root
     )
 
-    # print debug info
-    printer.dbg('Command : {}', escaped_command)
-    printer.dbg('PBS     : {}', ' '.join(pbs_command))
-    printer.dbg('script  : {}', temp_file)
-    printer.dbg('')
-
     # save pbs script
     IO.write(temp_file, pbs_content)
 
@@ -102,14 +95,13 @@ def run_pbs_mode():
     start_time = time.time()
     job = pbs_module.ModuleJob.create(output)
     job.update_status()
-    printer.key('Job submitted: {}', job)
+    Printer.out('Job submitted: {}', job)
 
     # wait for job to end
     while job.state != JobState.COMPLETED:
         for j in range(6):
             elapsed_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
-            printer.out_rr(' ' * 60)
-            printer.out_rr('Job #{job.id} status: {job.state} ({t})', job=job, t=elapsed_str)
+            Printer.dyn('Job #{job.id} status: {job.state} ({t})', job=job, t=elapsed_str)
 
             # test job state
             if job.state == JobState.COMPLETED:
@@ -120,7 +112,7 @@ def run_pbs_mode():
 
         # update status every 6 * 0.5 seconds (3 sec update)
         job.update_status()
-    printer.key('\nJob ended')
+    Printer.out('\nJob ended')
 
     # delete tmp file
     IO.delete(temp_file)
@@ -142,10 +134,10 @@ def do_work(parser):
 
     # run local or pbs mode
     if arg_options.queue:
-        printer.dbg('Running in PBS mode')
-        printer.line()
+        Printer.out('Running in PBS mode')
+        Printer.separator()
         run_pbs_mode()
     else:
-        printer.dbg('Running in LOCAL mode')
-        printer.line()
+        Printer.out('Running in LOCAL mode')
+        Printer.separator()
         run_local_mode()

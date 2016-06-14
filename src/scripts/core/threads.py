@@ -25,7 +25,6 @@ class ExtendedThread(threading.Thread):
 
         self._is_over = True
         self._returncode = None
-        self.printer = Printer(Printer.LEVEL_KEY)
 
         # create event objects
         self.on_start = Event()
@@ -170,7 +169,7 @@ class MultiThreads(ExtendedThread):
 
         if self.counter:
             if self.separate:
-                self.printer.line()
+                Printer.separator()
             self.counter.next(locals())
 
         self.threads[self.index - 1].start()
@@ -247,7 +246,6 @@ class ParallelThreads(MultiThreads):
         super(ParallelThreads, self).__init__(name, progress)
         self.n = n if type(n) is int else 1
         self.counter = ProgressCounter('Case {:02d} of {self.total:02d}')
-        self.printer = Printer(Printer.LEVEL_KEY)
         self.stop_on_error = True
         self.separate = True
 
@@ -283,7 +281,6 @@ class ParallelThreads(MultiThreads):
 
 class PyPy(ExtendedThread):
     """
-    :type printer  : scripts.core.base.Printer
     :type executor : scripts.core.threads.BinExecutor
     :type case     : scripts.core.prescriptions.TestPrescription
     """
@@ -301,8 +298,6 @@ class PyPy(ExtendedThread):
         self.period = period
         self.case = None
         self._progress = None
-
-        self.printer = Printer(Printer.LEVEL_DBG)
 
         self.on_process_start = Event()
         self.on_process_complete = Event()
@@ -352,7 +347,7 @@ class PyPy(ExtendedThread):
         wait_for(self.executor, 'process')
 
         if self.executor.broken:
-            self.printer.err('Could not start command {}: {}',
+            Printer.err('Could not start command {}: {}',
                              Command.to_string(self.executor.command),
                              getattr(self.executor, 'exception', 'Unknown error'))
             self.returncode = self.executor.returncode

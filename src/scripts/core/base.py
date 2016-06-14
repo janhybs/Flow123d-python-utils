@@ -18,56 +18,45 @@ mpiexec_name = "mpiexec" if is_linux else "mpiexec.hydra"
 
 
 class Printer(object):
-    LEVEL_DBG = 00
-    LEVEL_KEY = 10
-    LEVEL_WRN = 20
-    LEVEL_ERR = 30
     indent = 0
+    batch_output = True
+    dynamic_output = not batch_output
 
-    def __init__(self, level=LEVEL_DBG):
-        self.level = level
-
-    def dbg(self, *args, **kwargs):
-        if self.level <= self.LEVEL_DBG:
-            self.out(*args, **kwargs)
-
-    def key(self, *args, **kwargs):
-        if self.level <= self.LEVEL_KEY:
-            self.out(*args, **kwargs)
-
-    def line(self):
-        self.key('-' * 60)
-
-    def wrn(self, *args, **kwargs):
-        if self.level <= self.LEVEL_WRN:
-            self.out(*args, **kwargs)
-
-    def err(self, *args, **kwargs):
-        if self.level <= self.LEVEL_ERR:
-            self.out(*args, **kwargs)
-
-    def copy(self):
-        return Printer(self.level)
-    # ----------------------------------------------
-
-    def out(self, msg='', *args, **kwargs):
-        if self.indent:
-            sys.stdout.write('    ' * self.indent)
+    @classmethod
+    def style(cls, msg='', *args, **kwargs):
         sys.stdout.write(msg.format(*args, **kwargs))
         sys.stdout.write('\n')
 
-    def out_r(self, msg, *args, **kwargs):
-        sys.stdout.write(msg.format(*args, **kwargs))
+    @classmethod
+    def separator(cls):
+        cls.out('-' * 60)
 
-    def out_rr(self, msg, *args, **kwargs):
+    @classmethod
+    def wrn(cls, msg='', *args, **kwargs):
         sys.stdout.write(msg.format(*args, **kwargs))
-        sys.stderr.write('\r')
-        sys.stdout.flush()
+        sys.stdout.write('\n')
 
-    def dyn(self, msg, *args, **kwargs):
-        sys.stdout.write('\r' + ' ' * 60)
-        sys.stdout.write('\r' + msg.format(*args, **kwargs))
-        sys.stdout.flush()
+    @classmethod
+    def err(cls, msg='', *args, **kwargs):
+        sys.stdout.write(msg.format(*args, **kwargs))
+        sys.stdout.write('\n')
+
+    # ----------------------------------------------
+
+    @classmethod
+    def out(cls, msg='', *args, **kwargs):
+        if cls.indent:
+            sys.stdout.write('    ' * cls.indent)
+        sys.stdout.write(msg.format(*args, **kwargs))
+        sys.stdout.write('\n')
+
+    @classmethod
+    def dyn(cls, msg, *args, **kwargs):
+        if cls.dynamic_output:
+            sys.stdout.write('\r' + ' ' * 80)
+            sys.stdout.write('\r' + msg.format(*args, **kwargs))
+            sys.stdout.flush()
+
     # ----------------------------------------------
 
     @classmethod
@@ -134,7 +123,6 @@ class PathFormat(object):
 class Paths(object):
     _base_dir = ''
     format = PathFormat.ABSOLUTE
-    printer = Printer(Printer.LEVEL_WRN)
 
     @classmethod
     def base_dir(cls, v=None):
@@ -159,7 +147,7 @@ class Paths(object):
         for path in paths:
             filename = getattr(cls, path)()
             if not cls.exists(filename):
-                cls.printer.err('Error: file {:10s} ({}) does not exists!', path, filename)
+                Printer.err('Error: file {:10s} ({}) does not exists!', path, filename)
                 status = False
 
         return status

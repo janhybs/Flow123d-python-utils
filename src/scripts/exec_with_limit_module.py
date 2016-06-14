@@ -6,6 +6,7 @@ from scripts.core.base import Printer, Paths
 from scripts.core.threads import BinExecutor, PyPy
 # ----------------------------------------------
 
+
 def do_work(parser):
     """
     :type parser: utils.argparser.ArgParser
@@ -13,7 +14,6 @@ def do_work(parser):
 
     # parse arguments
     options, others, rest = parser.parse()
-    printer = Printer(Printer.LEVEL_KEY)
 
     # check commands
     if not rest:
@@ -39,5 +39,5 @@ def do_work(parser):
         pypy.info_monitor.stdout_stderr = Paths.temp_file('exec-limit.log')
 
     # start process
-    printer.line()
+    Printer.separator()
     pypy.start()

@@ -36,8 +36,6 @@ test_cases:
             files: ["*.vtu"]
             r_tol: 100
             a_tol: 200
-      - exact:
-            filters: ["*.pvd"]
   - file: [flow_implicit.yaml]
     tags: [problematic]
     proc: [1, 2]
@@ -52,8 +50,6 @@ test_cases:
             files: ["*.txt"]
             r_tol: 10
             a_tol: 20
-      - exact:
-            filters: ["*.pvd"]
         
   # - file: newton_bc.yaml
   #   # List of number of processes to run the test with.

@@ -9,7 +9,9 @@ Simple module which provides string/list utilities
 from __future__ import absolute_import
 
 
-def format_n_lines(text, n_lines=0, line_prefix='## ', line_suffix='', first_line='#'*60, last_line='#'*60, empty="<file is empty>"):
+def format_n_lines(text, n_lines=0, line_prefix='## ', line_suffix='',
+                   first_line='#'*60, last_line='#'*60,
+                   empty="<file is empty>", indent=''):
 
     # empty output
     if text is None or not text:
@@ -31,13 +33,13 @@ def format_n_lines(text, n_lines=0, line_prefix='## ', line_suffix='', first_lin
 
     result = list()
     if first_line:
-        result.append(first_line)
+        result.append(indent + first_line)
 
     for line in text:
-        result.append(line_prefix + line + line_suffix)
+        result.append(indent + line_prefix + line + line_suffix)
 
     if last_line:
-        result.append(last_line)
+        result.append(indent + last_line)
 
     return '\n'.join(result)
 
