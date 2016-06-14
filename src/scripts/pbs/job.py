@@ -6,6 +6,8 @@ import subprocess
 import time
 import datetime
 # ----------------------------------------------
+from scripts.core.base import Printer
+# ----------------------------------------------
 
 
 class JobState(object):
