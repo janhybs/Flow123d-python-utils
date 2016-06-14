@@ -31,7 +31,8 @@ class TestPrescription(object):
         self.output_dir = Paths.join(test_case.config.test_results, self.output_name)
         self.ndiff_log = Paths.join(self.output_dir, 'ndiff.log')
         self.pbs_script = Paths.join(self.output_dir, 'pbs_script.qsub')
-        self.output_log = Paths.join(self.output_dir, 'pbs_job.log')
+        self.pbs_output = Paths.join(self.output_dir, 'pbs_output.log')
+        self.job_output = Paths.join(self.output_dir, 'job_output.log')
 
     def _get_command(self):
         return [

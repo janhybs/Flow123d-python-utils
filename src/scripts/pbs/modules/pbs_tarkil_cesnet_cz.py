@@ -43,7 +43,7 @@ class Module(PBSModule):
             '-l', 'walltime={walltime}'.format(**locals()),
             '-l', 'place=infiniband',
             '-q', '{queue}'.format(**locals()),
-            '-o', self.output_log,
+            '-o', self.pbs_output,
             pbs_script_filename
         ]
 
@@ -111,7 +111,8 @@ uname -a
 echo JOB START: `date`
 pwd
 
-echo "$$command$$"
-$$command$$
+echo "$$command$$" > "$$output$$"
+$$command$$ >> "$$output$$" 2>&1
 
+echo "$$status_ok$$" >> "$$output$$"
 """.lstrip()

@@ -18,6 +18,8 @@ from scripts.pbs.job import JobState, MultiJob
 
 
 # global arguments
+from utils.strings import format_n_lines
+
 arg_options = None
 arg_others = None
 arg_rest = None
@@ -64,7 +66,7 @@ def create_process_from_case(case):
     return seq
 
 
-def create_pbs_job_content(module, command):
+def create_pbs_job_content(module, command, case):
     """
     :type module: scripts.pbs.modules.pbs_tarkil_cesnet_cz
     :rtype : str
@@ -73,9 +75,10 @@ def create_pbs_job_content(module, command):
     template = PBSModule.format(
         module.template,
         command=escaped_command,
-        root=Paths.base_dir()
+        root=Paths.base_dir(),
+        output=case.job_output,
+        status_ok=job_ok_string,
     )
-    template += '\n\n{:-<60s}\necho "{}"'.format('# ', job_ok_string)
 
     return template
 
@@ -100,7 +103,7 @@ def run_pbs_mode(all_yamls):
             # create run command
             test_command = case.get_command()
             test_command.extend(arg_rest)
-            pbs_content = create_pbs_job_content(pbs_module, test_command)
+            pbs_content = create_pbs_job_content(pbs_module, test_command, case)
             IO.write(case.pbs_script, pbs_content)
 
             # create pbs file
@@ -162,18 +165,17 @@ def run_pbs_mode(all_yamls):
         for job in jobs_changed:
             # try to get more detailed job status
             job.is_active = False
-            job_output = IO.read(job.case.output_log)
-            printer.key('INFO: {}, {}, {} -> {}', job, job.case.output_log, job.case.output_dir, os.listdir(job.case.output_dir))
+            job_output = IO.read(job.case.job_output)
 
             if job_output:
                 if job_output.find(job_ok_string) > 0:
                     # we found the string
                     job.status = JobState.EXIT_OK
-                    printer.key('OK: Job {} ended. Case: {}', job, format_case(job.case))
+                    printer.key('OK:    Job {} ended. Case: {}', job, format_case(job.case))
                 else:
                     # we did not find the string :(
                     job.status = JobState.EXIT_ERROR
-                    printer.key('ERROR: Job {} ended (wrong output). Case: {}', job, format_case(job.case))
+                    printer.key('ERROR: Job {} ended. Case: {}', job, format_case(job.case))
 
                 # save return code
                 returncodes[job] = 0 if job.status == JobState.EXIT_OK else 1
@@ -181,16 +183,18 @@ def run_pbs_mode(all_yamls):
                 # in batch mode print job output
                 # otherwise print output on error only
                 if arg_options.batch or job.status == JobState.EXIT_ERROR:
-                    printer.key('OUTPUT: ')
-                    printer.line()
-                    printer.key(job_output)
-                    printer.line()
+                    if arg_options.batch:
+                        printer.key('       output: ')
+                        printer.key(format_n_lines(job_output, 0))
+                    else:
+                        printer.key('       output (last 20 lines): ')
+                        printer.key(format_n_lines(job_output, -20))
             else:
                 # no output file was generated assuming it went wrong
                 job.status = JobState.EXIT_ERROR
                 printer.key('ERROR: Job {} ended (no output file found). Case: {}', job, format_case(job.case))
-                printer.key('       Log file: {} (exists: {})', job.case.output_log, os.listdir(job.case.output_dir))
-                printer.key('       output: {}, {}', job_output, os.path.exists(job.case.output_log))
+                printer.key('       pbs output: ')
+                printer.key(format_n_lines(IO.read(job.case.pbs_output), 0))
             printer.line()
 
         # after printing update status lets sleep for a bit
