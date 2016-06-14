@@ -188,6 +188,9 @@ def run_pbs_mode(all_yamls):
                 Printer.out('ERROR: Job {} ended (no output file found). Case: {}', job, format_case(job.case))
                 Printer.out('       pbs output: ')
                 Printer.out(format_n_lines(IO.read(job.case.pbs_output), 0))
+
+        if jobs_changed:
+            Printer.out()
             Printer.separator()
 
         # after printing update status lets sleep for a bit
