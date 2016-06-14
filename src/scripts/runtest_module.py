@@ -282,6 +282,10 @@ def do_work(parser):
     if arg_options.root:
         Paths.base_dir(arg_options.root)
 
+    # configure printer
+    Printer.batch_output = arg_options.batch
+    Printer.dynamic_output = not arg_options.batch
+
     # we need flow123d, mpiexec and ndiff to exists in LOCAL mode
     if not arg_options.queue and not Paths.test_paths('flow123d', 'mpiexec', 'ndiff'):
         Printer.err('Some files are not accessible! Exiting')
