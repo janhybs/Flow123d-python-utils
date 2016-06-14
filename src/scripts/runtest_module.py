@@ -131,15 +131,15 @@ def run_pbs_mode(all_yamls):
     Printer.out()
     Printer.separator()
     Printer.dyn('Updating job status')
+    multijob.update()
 
     # print jobs statuses
     Printer.out()
     if not arg_options.batch:
         multijob.print_status()
 
-    multijob.update()
+    Printer.separator()
     Printer.dyn(multijob.get_status_line())
-
     returncodes = dict()
 
     # wait for finish
@@ -190,14 +190,13 @@ def run_pbs_mode(all_yamls):
                 Printer.out(format_n_lines(IO.read(job.case.pbs_output), 0))
 
         if jobs_changed:
-            Printer.out()
             Printer.separator()
+            Printer.out()
 
         # after printing update status lets sleep for a bit
         if multijob.is_running():
             time.sleep(5)
             
-    Printer.separator()
     Printer.out(multijob.get_status_line())
     Printer.out('All jobs finished')
 
