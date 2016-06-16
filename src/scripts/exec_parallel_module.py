@@ -11,7 +11,7 @@ from scripts.core.base import PathFormat
 from scripts.core.prescriptions import PBSModule
 from scripts.core.threads import BinExecutor, PyPy
 from scripts.pbs.common import get_pbs_module, job_ok_string
-from scripts.pbs.job import JobState, finish_pbs_job
+from scripts.pbs.job import JobState, finish_pbs_job, MultiJob
 from utils.dotdict import Map
 # ----------------------------------------------
 
@@ -111,8 +111,11 @@ def run_pbs_mode():
     job = pbs_module.ModuleJob.create(output, case)
     job.full_name = "MPI exec job"
 
+    multijob = MultiJob(pbs_module.ModuleJob)
+    multijob.add(job)
+
     Printer.dyn('Updating job status...')
-    job.update_status()
+    multijob.update()
     Printer.out('Job submitted: {}', job)
 
     # wait for job to end
@@ -129,7 +132,7 @@ def run_pbs_mode():
             time.sleep(0.5)
 
         # update status every 6 * 0.5 seconds (3 sec update)
-        job.update_status()
+        multijob.update()
 
     returncode = finish_pbs_job(job, arg_options.batch)
     if debug_mode:
