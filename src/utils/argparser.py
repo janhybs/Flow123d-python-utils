@@ -63,15 +63,18 @@ class ArgOption(object):
         self.default = default
         self.docs = docs
         self.hidden = hidden
+        self.name = name or self.long[2:] or self.short[1:]
+        self.placeholder = placeholder or self.name
 
+        self.reset()
+
+    def reset(self):
         if self.type is True or self.type is False:
             self.value = not self.type
         elif self.type is list:
             self.value = list()
         else:
-            self.value = default
-        self.name = name or self.long[2:] or self.short[1:]
-        self.placeholder = placeholder or self.name
+            self.value = self.default
 
     def is_primitive(self):
         return self.type in (True, False)
@@ -179,7 +182,7 @@ class ArgParser(object):
 
     def check_help(self):
         if self.simple_options.get('help'):
-            self.exit_usage()
+            self.exit_usage(exit_code=0)
 
     def exit_usage(self, msg=None, exit_code=1, *args, **kwargs):
         if msg:
@@ -188,7 +191,7 @@ class ArgParser(object):
         Printer.err(self.usage())
 
         if exit_code is not None:
-            exit(exit_code)
+            sys.exit(exit_code)
 
     def current(self):
         """
@@ -237,8 +240,7 @@ class ArgParser(object):
         arg = self.next()
         match = _parse_arg_name.match(arg)
         if match:
-            return self.options_map.has_key(match.group(1))
-
+            return match.group(1) in self.options_map
 
     def split_current(self):
         arg = self.current()
@@ -286,13 +288,19 @@ class ArgParser(object):
         self.i = 0
         self.keys = sorted(self.options_map.keys(), reverse=True)
         self.source = args or self._args
+        self.others = []
+        self.rest = []
+
+        for opt in self.all_options:
+            if type(opt) is not str:
+                opt.reset()
 
         if not self.source:
             self.exit_usage()
 
         while self.i < len(self.source):
             find = False
-            if self.options_map.has_key(self.current()):
+            if self.current() in self.options_map:
                 find = True
                 self.process_option(self.options_map[self.current()])
             else:
