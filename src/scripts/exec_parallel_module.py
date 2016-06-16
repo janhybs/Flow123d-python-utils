@@ -10,8 +10,8 @@ from scripts.core.base import Paths, Printer, Command, IO
 from scripts.core.base import PathFormat
 from scripts.core.prescriptions import PBSModule
 from scripts.core.threads import BinExecutor, PyPy
-from scripts.pbs.common import get_pbs_module
-from scripts.pbs.job import JobState
+from scripts.pbs.common import get_pbs_module, job_ok_string
+from scripts.pbs.job import JobState, finish_pbs_job
 from utils.dotdict import Map
 # ----------------------------------------------
 
@@ -19,9 +19,14 @@ from utils.dotdict import Map
 arg_options = None
 arg_others = None
 arg_rest = None
+debug_mode = False
 
 
 def run_local_mode():
+    """
+    :rtype: scripts.core.threads.PyPy or int
+    """
+    global arg_options, arg_others, arg_rest, debug_mode
     # build command
     mpi_binary = 'mpirun' if arg_options.mpirun else Paths.mpiexec()
     command = [
@@ -53,9 +58,18 @@ def run_local_mode():
 
     # start process
     pypy.start()
+    pypy.join()
+
+    if debug_mode:
+        return pypy
+    return pypy.returncode
 
 
 def run_pbs_mode():
+    """
+    :rtype: scripts.core.threads.PyPy or int
+    """
+    global arg_options, arg_others, arg_rest, debug_mode
     # build command
     mpi_binary = 'mpirun' if arg_options.mpirun else Paths.mpiexec()
     command = [
@@ -73,9 +87,8 @@ def run_pbs_mode():
         memory_limit=arg_options.get('memory_limit', None) or 400,
         time_limit=arg_options.get('time_limit', None) or 30
     )
-    module = pbs_module.Module(test_case, arg_options.cpu, None)
-    temp_file = Paths.temp_file('exec-temp.qsub')
-    pbs_command = module.get_pbs_command(arg_options, temp_file)
+    case = pbs_module.Module(test_case, arg_options.cpu, None)
+    pbs_command = case.get_pbs_command(arg_options, case.pbs_script)
 
     # create regular command for execution
     escaped_command = ' '.join(Command.escape_command(command))
@@ -84,16 +97,21 @@ def run_pbs_mode():
     pbs_content = PBSModule.format(
         pbs_module.template,
         command=escaped_command,
-        root=arg_options.root
+        root=case.output_dir,
+        output=case.job_output,
+        status_ok=job_ok_string,
     )
 
     # save pbs script
-    IO.write(temp_file, pbs_content)
+    IO.write(case.pbs_script, pbs_content)
 
     # run qsub command
     output = subprocess.check_output(pbs_command)
     start_time = time.time()
-    job = pbs_module.ModuleJob.create(output)
+    job = pbs_module.ModuleJob.create(output, case)
+    job.full_name = "MPI exec job"
+
+    Printer.dyn('Updating job status...')
     job.update_status()
     Printer.out('Job submitted: {}', job)
 
@@ -112,32 +130,44 @@ def run_pbs_mode():
 
         # update status every 6 * 0.5 seconds (3 sec update)
         job.update_status()
-    Printer.out('\nJob ended')
 
-    # delete tmp file
-    IO.delete(temp_file)
+    returncode = finish_pbs_job(job, arg_options.batch)
+    if debug_mode:
+        return job
+    return returncode
 
 
-def do_work(parser):
+def do_work(parser, args=None, debug=False):
     """
+    :type args: list
     :type parser: utils.argparser.ArgParser
     """
 
     # parse arguments
-    global arg_options, arg_others, arg_rest
-    arg_options, arg_others, arg_rest = parser.parse()
+    global arg_options, arg_others, arg_rest, debug_mode
+    arg_options, arg_others, arg_rest = parser.parse(args)
+    debug_mode = debug
+
+    # configure path
     Paths.format = PathFormat.ABSOLUTE
+    if arg_options.root:
+        Paths.base_dir(arg_options.root)
 
     # check commands
     if not arg_rest:
-        parser.exit_usage('No command specified!')
+        parser.exit_usage('No command specified!', exit_code=1)
+
+    # we need flow123d, mpiexec and ndiff to exists in LOCAL mode
+    if not arg_options.queue and not Paths.test_paths('mpiexec'):
+        Printer.err('Missing obligatory files! Exiting')
+        exit(1)
 
     # run local or pbs mode
     if arg_options.queue:
         Printer.out('Running in PBS mode')
         Printer.separator()
-        run_pbs_mode()
+        return run_pbs_mode()
     else:
         Printer.out('Running in LOCAL mode')
         Printer.separator()
-        run_local_mode()
+        return run_local_mode()

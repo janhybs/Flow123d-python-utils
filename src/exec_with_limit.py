@@ -36,4 +36,5 @@ if __name__ == '__main__':
     # Paths.base_dir('/home/jan-hybs/Dokumenty/Smartgit-flow/flow123d/bin/python')
 
     # run work
-    do_work(parser)
+    returncode = do_work(parser)
+    sys.exit(returncode)
