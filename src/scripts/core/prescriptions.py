@@ -13,21 +13,30 @@ from scripts.comparisons import file_comparison
 class TestPrescription(object):
     def __init__(self, test_case, proc_value, filename):
         """
-        :type filename: str
+        :type filename: str yaml test file
         :type proc_value: int
-        :type test_case: scripts.config.yaml_config.YamlConfigCase
+        :type test_case: scripts.config.yaml_config.YamlConfigCase or Map
         """
         self.test_case = test_case
         self.proc_value = proc_value
-        self.filename = Paths.join(filename)
 
-        if not self.filename:
+        # if no yaml file is present we greatly simplify all prescription
+        if not filename:
+            self.output_dir = Paths.join(Paths.temp_name('mpiexec-{rnd}'))
+
+            self.ndiff_log = Paths.join(self.output_dir, 'ndiff.log')
+            self.pbs_script = Paths.join(self.output_dir, 'pbs_script.qsub')
+            self.pbs_output = Paths.join(self.output_dir, 'pbs_output.log')
+            self.job_output = Paths.join(self.output_dir, 'job_output.log')
+            Paths.ensure_path(self.output_dir, is_file=False)
             return
 
+        self.filename = Paths.join(filename)
         self.shortname = Paths.basename(Paths.without_ext(self.filename))
         self.ref_output = Paths.join(test_case.config.ref_output, self.shortname)
         self.output_name = '_{}.{}'.format(self.shortname, self.proc_value)
         self.output_dir = Paths.join(test_case.config.test_results, self.output_name)
+
         self.ndiff_log = Paths.join(self.output_dir, 'ndiff.log')
         self.pbs_script = Paths.join(self.output_dir, 'pbs_script.qsub')
         self.pbs_output = Paths.join(self.output_dir, 'pbs_output.log')

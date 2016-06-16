@@ -7,6 +7,7 @@ import re
 import datetime
 import getpass
 # ----------------------------------------------
+from scripts.core.base import Printer
 from scripts.core.prescriptions import PBSModule
 from scripts.pbs.job import Job, JobState
 # ----------------------------------------------

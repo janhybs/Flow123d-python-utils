@@ -87,7 +87,6 @@ parser.add('', '--root', hidden=True, type=str, name='root', placeholder='<ROOT>
 # ----------------------------------------------
 
 if __name__ == '__main__':
-
     from utils.globals import check_modules
 
     required = ('psutil', 'yaml', 'shutil', 'importlib', 'platform')

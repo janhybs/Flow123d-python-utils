@@ -10,7 +10,7 @@ import math
 # ----------------------------------------------
 from scripts import psutils
 from scripts.core import monitors
-from scripts.core.base import Printer, Paths, Command
+from scripts.core.base import Printer, Paths, Command, DynamicSleep
 from utils.counter import ProgressCounter
 from utils.events import Event
 from utils.globals import ensure_iterable, wait_for
@@ -319,6 +319,9 @@ class PyPy(ExtendedThread):
         # different settings in batch mode
         self.progress = progress
 
+        # dynamic sleeper
+        self.sleeper = DynamicSleep()
+
     @property
     def progress(self):
         return self._progress
@@ -357,7 +360,7 @@ class PyPy(ExtendedThread):
 
         while self.executor.process.is_running():
             self.on_process_update(self)
-            time.sleep(self.period)
+            self.sleeper.sleep()
 
         # get return code
         self.returncode = getattr(self.executor, 'returncode', None)

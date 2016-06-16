@@ -13,13 +13,11 @@ from scripts.config.yaml_config import YamlConfig
 from scripts.core.prescriptions import PBSModule
 from scripts.core.threads import BinExecutor, ParallelThreads, SequentialThreads, PyPy
 from scripts.pbs.common import get_pbs_module, job_ok_string
-from scripts.pbs.job import JobState, MultiJob
+from scripts.pbs.job import JobState, MultiJob, finish_pbs_job
 # ----------------------------------------------
 
 
 # global arguments
-from utils.strings import format_n_lines
-
 arg_options = None
 arg_others = None
 arg_rest = None
@@ -122,7 +120,7 @@ def run_pbs_mode(all_yamls):
 
         output = subprocess.check_output(qsub_command)
         job = pbs_module.ModuleJob.create(output, case)
-        job.case = case
+        job.full_name = "Case {}".format(format_case(case))
         multijob.add(job)
 
     Printer.out('{} job/s inserted into queue', total)
@@ -156,38 +154,7 @@ def run_pbs_mode(all_yamls):
 
         # get all jobs where was status update to COMPLETE state
         for job in jobs_changed:
-            # try to get more detailed job status
-            job.is_active = False
-            job_output = IO.read(job.case.job_output)
-
-            if job_output:
-                if job_output.find(job_ok_string) > 0:
-                    # we found the string
-                    job.status = JobState.EXIT_OK
-                    Printer.out('OK:    Job {} ended. Case: {}', job, format_case(job.case))
-                else:
-                    # we did not find the string :(
-                    job.status = JobState.EXIT_ERROR
-                    Printer.out('ERROR: Job {} ended. Case: {}', job, format_case(job.case))
-
-                # save return code
-                returncodes[job] = 0 if job.status == JobState.EXIT_OK else 1
-
-                # in batch mode print job output
-                # otherwise print output on error only
-                if arg_options.batch or job.status == JobState.EXIT_ERROR:
-                    if arg_options.batch:
-                        Printer.out('       output: ')
-                        Printer.out(format_n_lines(job_output, 0))
-                    else:
-                        Printer.out('       output (last 20 lines): ')
-                        Printer.out(format_n_lines(job_output, -20))
-            else:
-                # no output file was generated assuming it went wrong
-                job.status = JobState.EXIT_ERROR
-                Printer.out('ERROR: Job {} ended (no output file found). Case: {}', job, format_case(job.case))
-                Printer.out('       pbs output: ')
-                Printer.out(format_n_lines(IO.read(job.case.pbs_output), 0))
+            returncodes[job] = finish_pbs_job(job, arg_options.batch)
 
         if jobs_changed:
             Printer.separator()
@@ -290,7 +257,7 @@ def do_work(parser):
 
     # we need flow123d, mpiexec and ndiff to exists in LOCAL mode
     if not arg_options.queue and not Paths.test_paths('flow123d', 'mpiexec', 'ndiff'):
-        Printer.err('Some files are not accessible! Exiting')
+        Printer.err('Missing obligatory files! Exiting')
         exit(1)
 
     # test yaml args
