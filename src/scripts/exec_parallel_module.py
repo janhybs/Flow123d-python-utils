@@ -119,13 +119,13 @@ def run_pbs_mode():
     Printer.out('Job submitted: {}', job)
 
     # wait for job to end
-    while job.state != JobState.COMPLETED:
+    while job.status != JobState.COMPLETED:
         for j in range(6):
             elapsed_str = str(datetime.timedelta(seconds=int(time.time() - start_time)))
             Printer.dyn('Job #{job.id} status: {job.state} ({t})', job=job, t=elapsed_str)
 
-            # test job state
-            if job.state == JobState.COMPLETED:
+            # test job status
+            if job.status == JobState.COMPLETED:
                 break
 
             # sleep for a bit
