@@ -8,6 +8,8 @@ import os
 import re
 import platform
 import datetime
+import math
+import time
 # ----------------------------------------------
 
 
@@ -362,3 +364,36 @@ class IO(object):
             Paths.unlink(name)
             return True
         return False
+
+    @classmethod
+    def delete_all(cls, folder):
+        import shutil
+        return shutil.rmtree(folder, ignore_errors=True)
+
+
+class DynamicSleep(object):
+    def __init__(self, min=100, max=5000, steps=13):
+        # -c * Math.cos(t/d * (Math.PI/2)) + c + b;
+        # t: current time, b: begInnIng value, c: change In value, d: duration
+        c = float(max - min)
+        d = float(steps)
+        b = float(min)
+        self.steps = list()
+        for t in range(steps+1):
+            self.steps.append(float(int(
+                -c * math.cos(t/d * (math.pi/2)) + c + b
+            ))/1000)
+        self.current = -1
+        self.total = len(self.steps)
+
+    def sleep(self):
+        sleep_duration = self.next()
+        time.sleep(sleep_duration)
+
+    def next(self):
+        self.current += 1
+
+        if self.current >= self.total:
+            return self.steps[-1]
+
+        return self.steps[self.current]
