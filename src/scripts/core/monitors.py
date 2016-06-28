@@ -114,7 +114,7 @@ class LimitMonitor(ThreadMonitor):
 
     def set_limits(self, case):
         """
-        :type case: scripts.config.yaml_config.YamlConfigCase
+        :type case: scripts.config.yaml_config.ConfigCase
         """
         # empty Limits object
         if not case:

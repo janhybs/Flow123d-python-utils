@@ -93,12 +93,12 @@ class Printer(object):
     # ----------------------------------------------
 
     @classmethod
-    def open(cls):
-        cls.indent += 1
+    def open(cls, l=1):
+        cls.indent += l
 
     @classmethod
-    def close(cls):
-        cls.indent -= 1
+    def close(cls, l=1):
+        cls.indent -= l
 
 
 def make_relative(f):
@@ -144,7 +144,11 @@ class PathFilters(object):
             .replace('*', r'.*')\
             .replace('/', r'\/')
         patt = re.compile(fmt)
-        return lambda x: patt.match(x)
+        return lambda x: patt.match(x)\
+
+    @staticmethod
+    def filter_endswith(suffix=""):
+        return lambda x: x.endswith(suffix)
 
 
 class PathFormat(object):
@@ -246,6 +250,9 @@ class Paths(object):
 
     @classmethod
     def browse(cls, path, filters=()):
+        """
+        :rtype: list[str]
+        """
         paths = [cls.join(path, p) for p in os.listdir(path)]
         return cls.filter(paths, filters)
 

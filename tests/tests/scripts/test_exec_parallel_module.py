@@ -31,7 +31,7 @@ def print_test(f):
             sys.stdout.write('-' * 60 + '\n')
             sys.stdout.write('  FAILED {:^48s}'.format(f.func_name) + '\n')
             sys.stdout.write('\n\n')
-            raise e
+            raise
     return wrapper
 
 

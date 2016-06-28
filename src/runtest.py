@@ -104,9 +104,6 @@ if __name__ == '__main__':
 
     # run work
     BinExecutor.register_sigint()
-    try:
-        do_work(parser)
-    except SystemExit as se:
-        if parser.simple_options.json:
-            GlobalResult.to_json(parser.simple_options.json)
-        sys.exit(se)
+    do_work(parser)
+    if parser.simple_options.json:
+        GlobalResult.to_json(parser.simple_options.json)

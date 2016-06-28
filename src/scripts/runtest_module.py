@@ -7,9 +7,9 @@ import subprocess
 import time
 import sys
 # ----------------------------------------------
+from scripts.config.yaml_config import ConfigPool
 from scripts.core import prescriptions
 from scripts.core.base import Paths, PathFormat, PathFilters, Printer, Command, IO, GlobalResult
-from scripts.config.yaml_config import YamlConfig
 from scripts.core.prescriptions import PBSModule
 from scripts.core.threads import BinExecutor, ParallelThreads, SequentialThreads, PyPy
 from scripts.pbs.common import get_pbs_module, job_ok_string
@@ -18,6 +18,8 @@ from scripts.pbs.job import JobState, MultiJob, finish_pbs_job
 
 
 # global arguments
+from scripts.prescriptions.local_run import LocalRun
+
 arg_options = None
 arg_others = None
 arg_rest = None
@@ -34,30 +36,28 @@ def create_process(command, limits=None):
     process_monitor.limit_monitor.set_limits(limits)
     return process_monitor
 
+
 def create_process_from_case(case):
     """
-    :type case: scripts.core.prescriptions.TestPrescription
+    :type case: scripts.config.yaml_config.ConfigCase
     """
-    pypy = create_process(case.get_command(), case.test_case)
-    pypy.case = case
-    # pypy.info_monitor.end_fmt = ''
-    # pypy.info_monitor.start_fmt = 'Running: {}'.format(format_case(case))
-
-    # turn on output
-    pypy.progress = not arg_options.batch
-    pypy.stdout_stderr = Paths.temp_file('run-test-{datetime}.log')
+    local_run = LocalRun(case)
+    local_run.mpi = case.proc > 1
+    local_run.progress = not arg_options.batch
 
     seq = SequentialThreads('test-case', progress=False)
-    seq.add(case.create_clean_thread())
-    seq.add(pypy)
 
-    # if clean-up fails do not run other
+    seq.add(local_run.create_clean_thread())
+    seq.add(local_run.create_pypy(arg_rest))
+    seq.add(local_run.create_comparisons())
+
     seq.stop_on_error = True
     return seq
 
 
 def create_pbs_job_content(module, case):
     """
+    :type case: scripts.config.yaml_config.ConfigCase
     :type module: scripts.pbs.modules.pbs_tarkil_cesnet_cz
     :rtype : str
     """
@@ -67,21 +67,20 @@ def create_pbs_job_content(module, case):
         module.template,
         python=sys.executable,
         runtest=pkgutil.get_loader('runtest').filename,
-        yaml=case.test_case.config.filename,
-        limits="-n {proc} -m {case.memory_limit} -t {case.time_limit}".format(
-                case=case.test_case,
-                proc=case.proc_value),
+        yaml=case.file,
+        limits="-n {case.proc} -m {case.memory_limit} -t {case.time_limit}".format(
+                case=case),
             args="" if not arg_rest else Command.to_string(arg_rest),
-        json_output=case.json_output
+        json_output=case.fs.json_output
     )
 
     return template
 
 
-def run_pbs_mode(all_yamls):
-    pass
+def run_pbs_mode(configs, debug=False):
     """
-    :type all_yamls: dict[str, scripts.config.yaml_config.YamlConfig]
+    :type debug: bool
+    :type configs: scripts.config.yaml_config.ConfigPool
     """
     global arg_options, arg_others, arg_rest
     pbs_module = get_pbs_module(arg_options.host)
@@ -89,23 +88,19 @@ def run_pbs_mode(all_yamls):
     Printer.dyn('Parsing yaml files')
 
     jobs = list()
-    """ :type: list[(str, scripts.core.prescriptions.PBSModule)] """
+    """ :type: list[(str, PBSModule)] """
 
-    # go through each yaml file
-    for yaml_file, config in all_yamls.items():
-        # extract all test cases (product of cpu x files)
-        config.parse()
-        config.update(
-            proc=set(arg_options.cpu) if arg_options.cpu else None,
-            time_limit=int(arg_options.time_limit) if arg_options.time_limit else None,
-            memory_limit=int(arg_options.memory_limit) if arg_options.memory_limit else None,
-        )
-        for case in config.get_cases_for_file(pbs_module.Module, yaml_file):
+    for yaml_file, yaml_config in configs.files.items():
+        for case in yaml_config.get_one(yaml_file):
+            pbs_run = pbs_module.Module(case)
+            pbs_run.queue = arg_options.get('queue', True)
+            pbs_run.ppn = arg_options.get('ppn', 1)
+
             pbs_content = create_pbs_job_content(pbs_module, case)
-            IO.write(case.pbs_script, pbs_content)
+            IO.write(case.fs.pbs_script, pbs_content)
 
-            qsub_command = case.get_pbs_command(arg_options, case.pbs_script)
-            jobs.append((qsub_command, case))
+            qsub_command = pbs_run.get_pbs_command(case.fs.pbs_script)
+            jobs.append((qsub_command, pbs_run))
 
     # start jobs
     Printer.dyn('Starting jobs')
@@ -113,16 +108,18 @@ def run_pbs_mode(all_yamls):
     total = len(jobs)
     job_id = 0
     multijob = MultiJob(pbs_module.ModuleJob)
-    for qsub_command, case in jobs:
+    for qsub_command, pbs_run in jobs:
+        pass
         job_id += 1
 
         Printer.dyn('Starting jobs {:02d} of {:02d}', job_id, total)
 
         output = subprocess.check_output(qsub_command)
         job = pbs_module.ModuleJob.create(output, case)
-        job.full_name = "Case {}".format(case.to_string())
+        job.full_name = "Case {}".format(pbs_run.case)
         multijob.add(job)
 
+    Printer.out()
     Printer.out('{} job/s inserted into queue', total)
 
     # # first update to get more info about multijob jobs
@@ -172,33 +169,20 @@ def run_pbs_mode(all_yamls):
     sys.exit(returncode)
 
 
-def run_local_mode(all_yamls):
-    # create parallel runner instance
+def run_local_mode(configs, debug=False):
     """
-    :type all_yamls: dict[str, scripts.config.yaml_config.YamlConfig]
+    :type debug: bool
+    :type configs: scripts.config.yaml_config.ConfigPool
     """
     global arg_options, arg_others, arg_rest
     runner = ParallelThreads(arg_options.parallel)
     runner.stop_on_error = not arg_options.keep_going
 
-    # turn on/off MPI mode
-    if set(arg_options.cpu) == {1}:
-        cls = prescriptions.TestPrescription
-        Printer.out('Running WITHOUT MPI')
-    else:
-        cls = prescriptions.MPIPrescription
-
-    # go through each yaml file
-    for yaml_file, config in all_yamls.items():
-        # extract all test cases (product of cpu x files)
-        config.parse()
-        config.update(proc=set(arg_options.cpu) if arg_options.cpu else None)
-        for case in config.get_cases_for_file(cls, yaml_file):
+    for yaml_file, yaml_config in configs.files.items():
+        for case in yaml_config.get_one(yaml_file):
             # create main process which first clean output dir
-            # and then execute test
+            # and then execute test following with comparisons
             multi_process = create_process_from_case(case)
-            # get all comparisons threads and add them to main runner
-            multi_process.add(case.create_comparison_threads())
             runner.add(multi_process)
 
     # run!
@@ -209,39 +193,66 @@ def run_local_mode(all_yamls):
     Printer.separator()
     Printer.out('Summary: ')
     Printer.open()
-    for thread in runner.threads:
-        clean, pypy, comp = getattr(thread, 'threads', [None] * 3)
-        GlobalResult.add([clean, pypy, comp])
-        if pypy.returncode is None:
-            returncode = -1
-        else:
-            returncode = 1 if thread.returncode is None else thread.returncode
-        returncode = str(returncode)
-        if pypy:
-            Printer.out('[{:^3s}] {:7s}: {}', returncode,
-                        PyPy.returncode_map.get(returncode, 'ERROR'),
-                        pypy.case.to_string())
 
+    for thread in runner.threads:
+        multithread = thread
+        """ :type: SequentialThreads """
+
+        clean = multithread.threads[0]
+        """ :type: CleanThread """
+
+        pypy = multithread.threads[1]
+        """ :type: PyPy """
+
+        comp = multithread.threads[2]
+        """ :type: SequentialThreads """
+
+        returncode = max([clean, pypy, comp])
+        GlobalResult.add(multithread.threads)
+
+        if not clean:
+            Printer.out("[{:^6}]:{:3}| Could not clean directory '{}': {}",
+                        'ERROR', clean.returncode, clean.dir, clean.error)
+            continue
+
+        if not pypy:
+            Printer.out("[{:^6}]:{:3}| Run error, case: {}",
+                        'ERROR', pypy.returncode, pypy.case.to_string())
+            continue
+
+        if not comp:
+            Printer.out("[{:^6}]:{:3}| Compare error, case: {}, Details: ",
+                        'FAILED', comp.returncode, pypy.case.to_string())
+            Printer.open(2)
+            for t in comp.threads:
+                if t:
+                    Printer.out('[{:^6}]: {}', 'OK', t.name)
+                else:
+                    Printer.out('[{:^6}]: {}', 'FAILED', t.name)
+            Printer.close(2)
+            continue
+
+        Printer.out("[{:^6}]:{:3}| Test passed: {}",
+                    'PASSED', pypy.returncode, pypy.case.to_string())
     Printer.close()
+
     # exit with runner's exit code
     GlobalResult.returncode = runner.returncode
-    sys.exit(runner.returncode)
+    return runner if debug else runner.returncode
 
 
 def read_configs(all_yamls):
-    all_configs = list(set([Paths.rename(y, 'config.yaml') for y in all_yamls]))
-    all_configs = {c: YamlConfig(c) for c in all_configs}
-    configs = {y: all_configs[Paths.rename(y, 'config.yaml')] for y in set(all_yamls)}
-    for k, v in configs.items():
-        v.include = arg_options.include
-        v.exclude = arg_options.exclude
-        # load all configs a then limit single config instances while traversing
-        v.parse()
-
+    """
+    :rtype: scripts.config.yaml_config.ConfigPool
+    """
+    configs = ConfigPool()
+    for y in all_yamls:
+        configs += y
+    configs.parse()
     return configs
 
 
-def do_work(parser, args=None):
+def do_work(parser, args=None, debug=False):
     """
     :type parser: utils.argparser.ArgParser
     """
@@ -291,11 +302,16 @@ def do_work(parser, args=None):
         GlobalResult.error = "no yaml files or folders given"
         sys.exit(3)
 
-    all_configs = read_configs(all_yamls)
+    configs = read_configs(all_yamls)
+    configs.update(
+        proc=arg_options.cpu,
+        time_limit=arg_options.time_limit,
+        memory_limit=arg_options.memory_limit,
+    )
 
     if arg_options.queue:
         Printer.out('Running in PBS mode')
-        run_pbs_mode(all_configs)
+        return run_pbs_mode(configs, debug)
     else:
         Printer.out('Running in LOCAL mode')
-        run_local_mode(all_configs)
+        return run_local_mode(configs, debug)

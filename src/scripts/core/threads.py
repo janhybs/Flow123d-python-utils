@@ -71,6 +71,9 @@ class ExtendedThread(threading.Thread):
             name=self.name
         )
 
+    def __nonzero__(self):
+        return self.returncode == 0
+
 
 class BinExecutor(ExtendedThread):
     """
@@ -394,6 +397,6 @@ class PyPy(ExtendedThread):
             return dict(
                 returncode=self.returncode,
                 name=self.case.to_string(),
-                case=self.case
+                case=self.case,
             )
         return super(PyPy, self).to_json()
