@@ -287,7 +287,7 @@ class ArgParser(object):
         self.args = []
         self.i = 0
         self.keys = sorted(self.options_map.keys(), reverse=True)
-        self.source = args or self._args
+        self.source = args if args is not None else self._args
         self.others = []
         self.rest = []
 

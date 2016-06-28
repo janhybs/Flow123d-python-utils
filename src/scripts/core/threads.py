@@ -34,6 +34,7 @@ class ExtendedThread(threading.Thread):
     def _run(self):
         if self.target:
             self.target()
+            self.returncode = 0
 
     @property
     def returncode(self):
@@ -63,6 +64,12 @@ class ExtendedThread(threading.Thread):
     def __repr__(self):
         return "<{self.__class__.__name__}:{running} E:{self.returncode}>".format(
             self=self, running="RUNNING" if self.is_alive() else "STOPPED")
+
+    def to_json(self):
+        return dict(
+            returncode=self.returncode,
+            name=self.name
+        )
 
 
 class BinExecutor(ExtendedThread):
@@ -240,6 +247,18 @@ class SequentialThreads(MultiThreads):
         if self.indent:
             Printer.close()
 
+    def to_json(self):
+        items = []
+        for thread in self.threads:
+            items.append(thread)
+
+        return dict(
+            returncode=self.returncode,
+            name=self.name,
+            items=items
+        )
+
+
 
 class ParallelThreads(MultiThreads):
     def __init__(self, n=4, name='runner', progress=True):
@@ -312,6 +331,7 @@ class PyPy(ExtendedThread):
         self.log = False
         self.output_file = None
         self.output_fp = None
+        self.custom_error = None
 
         # default value is to "hide" all output
         self.stdout_stderr = subprocess.PIPE
@@ -363,7 +383,17 @@ class PyPy(ExtendedThread):
             self.sleeper.sleep()
 
         # get return code
-        self.returncode = getattr(self.executor, 'returncode', None)
+        rc = getattr(self.executor, 'returncode', None)
+        self.returncode = rc if self.custom_error is None or str(rc) == "0" else self.custom_error
 
         # propagate on_complete event
         self.on_process_complete(self)
+
+    def to_json(self):
+        if self.case:
+            return dict(
+                returncode=self.returncode,
+                name=self.case.to_string(),
+                case=self.case
+            )
+        return super(PyPy, self).to_json()

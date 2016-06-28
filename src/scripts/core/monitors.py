@@ -146,8 +146,7 @@ class LimitMonitor(ThreadMonitor):
                     self.terminated_cause = 'TIME_LIMIT'
                     self.terminated = True
                     self.process.secure_kill()
-            # except NoSuchProcess as e1:
-            #     pass
+                    return
             except AttributeError as e2:
                 pass
 
@@ -162,6 +161,7 @@ class LimitMonitor(ThreadMonitor):
                     self.terminated_cause = 'MEMORY_LIMIT'
                     self.terminated = True
                     self.process.secure_kill()
+                    return
             # except NoSuchProcess as e1:
             #     pass
             except AttributeError as e2:

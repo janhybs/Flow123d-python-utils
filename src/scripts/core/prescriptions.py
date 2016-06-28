@@ -28,19 +28,21 @@ class TestPrescription(object):
             self.pbs_script = Paths.join(self.output_dir, 'pbs_script.qsub')
             self.pbs_output = Paths.join(self.output_dir, 'pbs_output.log')
             self.job_output = Paths.join(self.output_dir, 'job_output.log')
+            self.json_output = Paths.join(self.output_dir, 'result.json')
             Paths.ensure_path(self.output_dir, is_file=False)
             return
 
         self.filename = Paths.join(filename)
         self.shortname = Paths.basename(Paths.without_ext(self.filename))
         self.ref_output = Paths.join(test_case.config.ref_output, self.shortname)
-        self.output_name = '_{}.{}'.format(self.shortname, self.proc_value)
+        self.output_name = '{}.{}'.format(self.shortname, self.proc_value)
         self.output_dir = Paths.join(test_case.config.test_results, self.output_name)
 
         self.ndiff_log = Paths.join(self.output_dir, 'ndiff.log')
         self.pbs_script = Paths.join(self.output_dir, 'pbs_script.qsub')
         self.pbs_output = Paths.join(self.output_dir, 'pbs_output.log')
         self.job_output = Paths.join(self.output_dir, 'job_output.log')
+        self.json_output = Paths.join(self.output_dir, 'result.json')
 
     def _get_command(self):
         return [
@@ -103,6 +105,8 @@ class TestPrescription(object):
                     command = module.get_command(*pair, **comp_data)
                     pm = PyPy(BinExecutor(command), progress=True)
 
+                    # if we fail, set error to 13
+                    pm.custom_error = 13
                     pm.info_monitor.active = False
                     pm.limit_monitor.active = False
                     pm.progress_monitor.active = False
@@ -115,6 +119,18 @@ class TestPrescription(object):
                     pm.name = '{}: {} ({})'.format(test_name, path, size)
                     compares.add(pm)
         return compares
+
+    def to_string(self):
+        return '{} x {}'.format(
+            self.proc_value,
+            Paths.path_end(self.test_case.files[0])
+        )
+
+    def to_json(self):
+        return dict(
+            cpu=self.proc_value,
+            test_case=Paths.path_end(self.test_case.files[0])
+        )
 
 
 class MPIPrescription(TestPrescription):

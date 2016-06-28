@@ -7,7 +7,7 @@ import pathfix; pathfix.init()
 # ----------------------------------------------
 import sys
 # ----------------------------------------------
-from scripts.core.base import Paths
+from scripts.core.base import Paths, GlobalResult
 from utils.argparser import ArgParser
 from utils.duration import Duration
 # ----------------------------------------------
@@ -84,6 +84,9 @@ parser.add('-m', '--limit-memory', type=float, name='memory_limit', placeholder=
 parser.add('', '--root', hidden=True, type=str, name='root', placeholder='<ROOT>', docs=[
     'Path to base dir of flow123d'
 ])
+parser.add('', '--json', hidden=True, type=str, name='json', placeholder='<JSON>', docs=[
+    'Output result to json file'
+])
 # ----------------------------------------------
 
 if __name__ == '__main__':
@@ -101,4 +104,9 @@ if __name__ == '__main__':
 
     # run work
     BinExecutor.register_sigint()
-    do_work(parser)
+    try:
+        do_work(parser)
+    except SystemExit as se:
+        if parser.simple_options.json:
+            GlobalResult.to_json(parser.simple_options.json)
+        sys.exit(se)

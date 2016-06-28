@@ -10,14 +10,42 @@ import platform
 import datetime
 import math
 import time
+import json
 # ----------------------------------------------
-
+from simplejson import JSONEncoder
 
 is_linux = platform.system().lower().startswith('linux')
 
 flow123d_name = "flow123d" if is_linux else "flow123d.exe"
 mpiexec_name = "mpiexec" if is_linux else "mpiexec.hydra"
 
+
+class GlobalResult(object):
+    items = []
+    returncode = None
+    error = None
+    add = items.append
+
+    @classmethod
+    def to_json(cls, f=None):
+        obj = dict(
+            tests=cls.items,
+            returncode=cls.returncode,
+            error=cls.error
+        )
+        content = json.dumps(obj, indent=4, cls=MyEncoder)
+        if f:
+            with open(f, 'w') as fp:
+                fp.write(content)
+        return content
+
+
+class MyEncoder(JSONEncoder):
+    def default(self, o):
+        try:
+            return o.to_json()
+        except:
+            return str(o)
 
 class Printer(object):
     indent = 0
@@ -49,7 +77,10 @@ class Printer(object):
     def out(cls, msg='', *args, **kwargs):
         if cls.indent:
             sys.stdout.write('    ' * cls.indent)
-        sys.stdout.write(msg.format(*args, **kwargs))
+        if not args and not kwargs:
+            sys.stdout.write(msg)
+        else:
+            sys.stdout.write(msg.format(*args, **kwargs))
         sys.stdout.write('\n')
 
     @classmethod

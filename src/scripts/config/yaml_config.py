@@ -87,6 +87,7 @@ class YamlConfig(object):
         self.ref_output = Paths.join(self.root, 'ref_output')
         self.input = Paths.join(self.root, 'input')
         self.test_cases = list()
+        self.dummy_case = DummyConfigCase(self, None)
 
         # read config or use default mini config
         if Paths.exists(self.filename):
@@ -110,6 +111,7 @@ class YamlConfig(object):
         """
         for k,v in kwargs.items():
             if v:
+                setattr(self.dummy_case, k, v)
                 for test_case in self.test_cases:
                     setattr(test_case, k, v)
 
@@ -181,11 +183,11 @@ class YamlConfig(object):
         # if no results exists for this particular config
         # we add dummy case which is basically default values
         if not tmp_result:
-            dummy_case = DummyConfigCase(self, yaml_file)
+            self.dummy_case.files = ensure_iterable(yaml_file)
             tmp_result.append(list(itertools.product(
-                ensure_iterable(dummy_case),
-                ensure_iterable(dummy_case.proc),
-                ensure_iterable(dummy_case.files)
+                ensure_iterable(self.dummy_case),
+                ensure_iterable(self.dummy_case.proc),
+                ensure_iterable(self.dummy_case.files)
             )))
 
         result = list()
