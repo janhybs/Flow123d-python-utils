@@ -177,7 +177,7 @@ class ConfigBase(object):
 
             # process rest (dummy case)
             for y in missing:
-                dummy_case = deepcopy(DEFAULTS)
+                dummy_case = deepcopy(self.common_config)
                 dummy_case['file'] = [y]
                 self.cases.append(dummy_case)
 

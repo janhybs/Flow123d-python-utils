@@ -5,7 +5,8 @@
 import shutil
 # ----------------------------------------------
 from scripts.core.base import Paths, Printer, PathFilters
-from scripts.core.threads import BinExecutor, SequentialThreads, ExtendedThread, PyPy
+from scripts.core.threads import SequentialThreads, ExtendedThread, PyPy
+from scripts.core.execution import BinExecutor
 from scripts.comparisons import file_comparison
 # ----------------------------------------------
 

@@ -88,15 +88,9 @@ class InfoMonitor(ThreadMonitor):
 
         if not self.pypy.progress:
             Printer.separator()
-            output = IO.read(self.pypy.output_file)
+            output = self.pypy.executor.output.read()
             if output:
                 Printer.out(output)
-
-
-class Limits(object):
-    def __init__(self, time_limit=None, memory_limit=None):
-        self.time_limit = time_limit
-        self.memory_limit = memory_limit
 
 
 class LimitMonitor(ThreadMonitor):
@@ -138,6 +132,7 @@ class LimitMonitor(ThreadMonitor):
             try:
                 runtime = self.process.runtime()
                 if runtime > self.time_limit:
+                    Printer.out()
                     Printer.err(
                         'Error: Time limit exceeded! {:1.2f}s of runtime, {:1.2f}s allowed'.format(
                             runtime, self.time_limit
@@ -154,6 +149,7 @@ class LimitMonitor(ThreadMonitor):
             try:
                 memory_usage = self.process.memory_usage()
                 if memory_usage > self.memory_limit:
+                    Printer.out()
                     Printer.err('Error: Memory limit exceeded! {:1.2f}MB used, {:1.2f}MB allowed'.format(
                         memory_usage, self.memory_limit
                         )
@@ -179,10 +175,14 @@ class ErrorMonitor(ThreadMonitor):
         if self.pypy.returncode > 0:
             if self.message:
                 Printer.separator()
+                Printer.open()
                 Printer.out(self.message)
+            else:
+                Printer.open()
 
             # if file pointer exist try to read errors and outputs
-            if self.pypy.output_file:
-                output = IO.read(self.pypy.output_file)
-                Printer.out('Output (last {} lines, rest in {}): ', self.tail, Paths.abspath(self.pypy.output_file))
+            output = self.pypy.executor.output.read()
+            if output:
+                Printer.out('Output (last {} lines, rest in {}): ', self.tail, Paths.abspath(self.pypy.full_output))
                 Printer.err(format_n_lines(output, -self.tail, indent=Printer.indent * '    '))
+            Printer.close()

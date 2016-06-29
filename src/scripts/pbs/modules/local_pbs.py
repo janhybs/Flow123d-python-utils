@@ -33,8 +33,8 @@ class ModuleJob(Job):
         return ['ps', '-a']
 
     def parse_status(self, output=""):
-        if random.random() > 0.5:
-            return 'Q'
+        # if random.random() > 0.5:
+        #     return 'Q'
         if output.find(str(self.id)) == -1:
             return 'C'
         return 'R'

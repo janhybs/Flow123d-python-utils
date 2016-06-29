@@ -8,6 +8,7 @@ import time
 import datetime
 # ----------------------------------------------
 from scripts.core.base import Printer, IO
+from scripts.core.threads import PyPy
 from scripts.pbs.common import job_ok_string
 from utils.strings import format_n_lines
 # ----------------------------------------------
@@ -223,11 +224,34 @@ class MultiJob(object):
         )
 
 
+def print_log_file(f, n_lines):
+    log_file = IO.read(f)
+    if log_file:
+        Printer.open()
+        if n_lines == 0:
+            Printer.out('Full log from file {}:', f)
+        else:
+            Printer.out('Last {} lines from file {}:', abs(n_lines), f)
+        Printer.close()
+
+        Printer.close()
+        Printer.out(format_n_lines(log_file.rstrip(), -n_lines, indent=2 * '    '))
+        Printer.open()
+
+
+def get_status_line(o, map=False):
+    if not map:
+        return '[{:^6}]:{o[returncode]:3} |'.format('ERROR', o=o)
+    return '[{:^6}]:{o[returncode]:3} |'.format(
+        PyPy.returncode_map.get(str(o['returncode']), 'ERROR'), o=o)
+
+
 def finish_pbs_job(job, batch):
     """
     :type job: scripts.pbs.job.Job
     """
     # try to get more detailed job status
+    n_lines = 0 if batch else 15
     job.is_active = False
     job_output = IO.read(job.case.fs.json_output)
 
@@ -237,19 +261,41 @@ def finish_pbs_job(job, batch):
         if result == 0:
             job.status = JobState.EXIT_OK
             Printer.out('OK:    Job {} ended. {}', job, job.full_name)
+
+            # in batch mode print all logs
+            if batch:
+                Printer.open()
+                for clean, pypy, comp in job_json.get('tests'):
+                    print_log_file(pypy.get('log', None), n_lines)
+                    print_log_file(comp.get('log', None), n_lines)
+                Printer.close()
         else:
             job.status = JobState.EXIT_ERROR
             Printer.out('ERROR: Job {} ended. {}', job, job.full_name)
+            Printer.open()
+            for clean, pypy, comp in job_json.get('tests'):
+                if clean['returncode'] != 0:
+                    Printer.out("{} Could not clean directory '{c[dir]}': {c[error]}", get_status_line(clean), c=clean)
+                    continue
 
-        # in batch mode print job output
-        # otherwise print output on error only
-        if batch or job.status == JobState.EXIT_ERROR:
-            if batch:
-                Printer.out('       output: ')
-                Printer.out(format_n_lines(job_output, 0))
-            else:
-                Printer.out('       output (last 20 lines): ')
-                Printer.out(format_n_lines(job_output, -20))
+                if pypy['returncode'] != 0:
+                    Printer.out("{} Run error, case: {p[name]}", get_status_line(pypy), p=pypy)
+                    print_log_file(pypy.get('log', None), n_lines)
+                    continue
+
+                if comp['returncode'] not in (0, None):
+                    Printer.out("{} | Compare error, case: {p[name]}, Details: ", get_status_line(comp), p=pypy)
+                    print_log_file(pypy.get('log', None), n_lines)
+                    Printer.open(2)
+                    for c in comp['items']:
+                        rc = c['returncode']
+                        if rc == 0:
+                            Printer.out('[{:^6}]: {}', 'OK', c['name'])
+                        else:
+                            Printer.out('[{:^6}]: {}', 'FAILED', c['name'])
+                    Printer.close(2)
+                    continue
+            Printer.close()
     else:
         # no output file was generated assuming it went wrong
         job.status = JobState.EXIT_ERROR

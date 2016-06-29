@@ -2,11 +2,9 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 # ----------------------------------------------
-import shutil
-# ----------------------------------------------
 from scripts.core.base import Paths, PathFilters
-from scripts.core.threads import ExtendedThread
 # ----------------------------------------------
+
 
 class AbstractRun(object):
     """
@@ -73,22 +71,3 @@ class AbstractRun(object):
             Paths.join(self.case.fs.output, Paths.relpath(p, self.case.fs.ref_output))
             for p in paths
         ]
-
-    def create_clean_thread(self):
-        return CleanThread("cleaner", self.case.fs.output)
-
-
-class CleanThread(ExtendedThread):
-    def __init__(self, name, dir):
-        super(CleanThread, self).__init__(name)
-        self.dir = dir
-        self.error = None
-
-    def _run(self):
-        if Paths.exists(self.dir):
-            try:
-                shutil.rmtree(self.dir)
-                self.returncode = 0
-            except OSError as e:
-                self.returncode = 4
-                self.error = str(e)

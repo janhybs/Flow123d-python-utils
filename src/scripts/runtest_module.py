@@ -11,7 +11,8 @@ from scripts.config.yaml_config import ConfigPool
 from scripts.core import prescriptions
 from scripts.core.base import Paths, PathFormat, PathFilters, Printer, Command, IO, GlobalResult
 from scripts.core.prescriptions import PBSModule
-from scripts.core.threads import BinExecutor, ParallelThreads, SequentialThreads, PyPy
+from scripts.core.threads import ParallelThreads, SequentialThreads, PyPy
+from scripts.core.execution import BinExecutor
 from scripts.pbs.common import get_pbs_module, job_ok_string
 from scripts.pbs.job import JobState, MultiJob, finish_pbs_job
 # ----------------------------------------------
@@ -210,18 +211,19 @@ def run_local_mode(configs, debug=False):
         returncode = max([clean, pypy, comp])
         GlobalResult.add(multithread.threads)
 
-        if not clean:
-            Printer.out("[{:^6}]:{:3}| Could not clean directory '{}': {}",
+        if clean.with_error():
+            Printer.out("[{:^6}]:{:3} | Could not clean directory '{}': {}",
                         'ERROR', clean.returncode, clean.dir, clean.error)
             continue
 
-        if not pypy:
-            Printer.out("[{:^6}]:{:3}| Run error, case: {}",
-                        'ERROR', pypy.returncode, pypy.case.to_string())
+        if not pypy.with_success():
+            Printer.out("[{:^6}]:{:3} | Run error, case: {}",
+                        pypy.returncode_map.get(str(pypy.returncode), 'ERROR'),
+                        pypy.returncode, pypy.case.to_string())
             continue
 
-        if not comp:
-            Printer.out("[{:^6}]:{:3}| Compare error, case: {}, Details: ",
+        if comp.with_error():
+            Printer.out("[{:^6}]:{:3} | Compare error, case: {}, Details: ",
                         'FAILED', comp.returncode, pypy.case.to_string())
             Printer.open(2)
             for t in comp.threads:
@@ -232,7 +234,7 @@ def run_local_mode(configs, debug=False):
             Printer.close(2)
             continue
 
-        Printer.out("[{:^6}]:{:3}| Test passed: {}",
+        Printer.out("[{:^6}]:{:3} | Test passed: {}",
                     'PASSED', pypy.returncode, pypy.case.to_string())
     Printer.close()
 

@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 # ----------------------------------------------
+import shutil
+# ----------------------------------------------
 from scripts.core.base import Paths, Printer
-from scripts.core.threads import BinExecutor, PyPy, SequentialThreads
-from scripts.prescriptions import AbstractRun, CleanThread
+from scripts.core.threads import PyPy, SequentialThreads, ExtendedThread, ComparisonMultiThread
+from scripts.core.execution import BinExecutor, OutputMode
+from scripts.prescriptions import AbstractRun
 from scripts.comparisons import file_comparison
 # ----------------------------------------------
 
@@ -24,11 +27,13 @@ class LocalRun(AbstractRun):
         pypy.info_monitor.start_fmt = 'Running: {}'.format(self.case)
 
         pypy.progress = self.progress
-        pypy.stdout_stderr = Paths.temp_file('runtest-{datetime}.log')
+        # pypy.executor.output = OutputMode.file_write(Paths.temp_file('runtest-{datetime}.log'))
+        pypy.executor.output = OutputMode.file_write(self.case.fs.job_output)
+        pypy.full_output = pypy.executor.output.filename
         return pypy
 
     def create_comparisons(self):
-        comparisons = SequentialThreads(name='Comparison', progress=True, indent=True)
+        comparisons = ComparisonMultiThread(self.case.fs.ndiff_log)
         comparisons.thread_name_property = True
 
         for check_rule in self.case.check_rules:
@@ -51,7 +56,10 @@ class LocalRun(AbstractRun):
                     pm.limit_monitor.active = False
                     pm.progress_monitor.active = False
                     pm.error_monitor.message = 'Error! Comparison using method {} failed!'.format(method)
-                    pm.stdout_stderr = self.case.fs.ndiff_log
+
+                    # catch output
+                    pm.executor.output = OutputMode.variable_output()
+                    pm.full_output = self.case.fs.ndiff_log
 
                     path = Paths.path_end_until(pair[0], 'ref_output')
                     test_name = Paths.basename(Paths.dirname(Paths.dirname(self.case.fs.ref_output)))
@@ -60,3 +68,29 @@ class LocalRun(AbstractRun):
                     comparisons.add(pm)
 
         return comparisons
+
+    def create_clean_thread(self):
+        return CleanThread("cleaner", self.case.fs.output)
+
+
+class CleanThread(ExtendedThread):
+    def __init__(self, name, dir):
+        super(CleanThread, self).__init__(name)
+        self.dir = dir
+        self.error = None
+        self.returncode = 0
+
+    def _run(self):
+        if Paths.exists(self.dir):
+            try:
+                shutil.rmtree(self.dir)
+                self.returncode = 0
+            except OSError as e:
+                self.returncode = 4
+                self.error = str(e)
+
+    def to_json(self):
+        json = super(CleanThread, self).to_json()
+        json['dir'] = self.dir
+        json['error'] = self.error
+        return json

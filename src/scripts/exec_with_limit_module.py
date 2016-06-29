@@ -5,7 +5,10 @@
 import sys
 # ----------------------------------------------
 from scripts.core.base import Printer, Paths
-from scripts.core.threads import BinExecutor, PyPy
+from scripts.core.threads import PyPy
+from scripts.core.execution import BinExecutor
+
+
 # ----------------------------------------------
 
 

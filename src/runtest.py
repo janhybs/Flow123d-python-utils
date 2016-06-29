@@ -96,7 +96,7 @@ if __name__ == '__main__':
     if not check_modules(*required):
         sys.exit(1)
 
-    from scripts.core.threads import BinExecutor
+    from scripts.core.execution import BinExecutor
     from scripts.runtest_module import do_work
     #
     # # for debug only set dir to where script should be

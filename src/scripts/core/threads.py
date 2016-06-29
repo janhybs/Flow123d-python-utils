@@ -2,18 +2,16 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 # ----------------------------------------------
-import threading
-import subprocess
-import sys
-import time
 import math
+import subprocess
+import threading
+
 # ----------------------------------------------
-from scripts import psutils
 from scripts.core import monitors
-from scripts.core.base import Printer, Paths, Command, DynamicSleep
+from scripts.core.base import Printer, Paths, Command, DynamicSleep, IO
 from utils.counter import ProgressCounter
 from utils.events import Event
-from utils.globals import ensure_iterable, wait_for
+from utils.globals import wait_for
 # ----------------------------------------------
 
 
@@ -72,73 +70,21 @@ class ExtendedThread(threading.Thread):
         )
 
     def __nonzero__(self):
+        return not self.with_error()
+
+    def with_success(self):
+        """
+        Return True if and only if returncode is 0
+        :rtype: bool
+        """
         return self.returncode == 0
 
-
-class BinExecutor(ExtendedThread):
-    """
-    :type process: scripts.psutils.Process
-    :type threads: list[scripts.core.threads.BinExecutor]
-    """
-    threads = list()
-    stopped = False
-
-    @staticmethod
-    def register_sigint():
-        import signal
-        signal.signal(signal.SIGINT, BinExecutor.signal_handler)
-
-    @staticmethod
-    def signal_handler(signal, frame):
-        BinExecutor.stopped = True
-
-        if signal:
-            sys.stderr.write("\nError: Caught SIGINT! Terminating application in peaceful manner...\n")
-        else:
-            sys.stderr.write("\nError: Terminating application threads\n")
-        # try to kill all running processes
-        for executor in BinExecutor.threads:
-            try:
-                if executor.process.is_running():
-                    sys.stderr.write('\nTerminating process {}...\n'.format(executor.process.pid))
-                    executor.process.secure_kill()
-            except Exception as e:
-                pass
-        sys.exit(1)
-
-    def __init__(self, command, name='exec-thread'):
-        super(BinExecutor, self).__init__(name)
-        BinExecutor.threads.append(self)
-        self.command = [str(x) for x in ensure_iterable(command)]
-        self.process = None
-        self.broken = False
-        self.stdout = subprocess.PIPE
-        self.stderr = subprocess.PIPE
-
-    def _run(self):
-        if self.stopped:
-            process = BrokenProcess(Exception('Application terminating'))
-            self.returncode = process.returncode
-            self.broken = True
-            self.process = process
-            return
-
-        # run command and block current thread
-        try:
-            self.process = psutils.Process.popen(self.command, stdout=self.stdout, stderr=self.stderr)
-        except Exception as e:
-            # broken process
-            process = BrokenProcess(e)
-            self.returncode = process.returncode
-            self.broken = True
-            self.process = process
-            return
-
-        # process successfully started to wait for result
-        # call wait on Popen process
-        self.broken = False
-        self.process.process.wait()
-        self.returncode = getattr(self.process, 'returncode', None)
+    def with_error(self):
+        """
+        Return True if returncode is not 0 and is not None
+        :rtype: bool
+        """
+        return self.returncode not in (0, None)
 
 
 class BrokenProcess(object):
@@ -303,15 +249,16 @@ class ParallelThreads(MultiThreads):
 
 class PyPy(ExtendedThread):
     """
-    :type executor : scripts.core.threads.BinExecutor
+    :type executor : scripts.core.execution.BinExecutor
     :type case     : scripts.core.prescriptions.TestPrescription
     """
 
     returncode_map = {
         '0': 'SUCCESS',
         '1': 'ERROR',
-        'None': 'SKIPPED',
-        '-1': 'SKIPPED',
+        '5': 'TERM',
+        'None': 'SKIP',
+        '-1': 'SKIP',
     }
 
     def __init__(self, executor, progress=False, period=.5):
@@ -332,18 +279,16 @@ class PyPy(ExtendedThread):
         self.error_monitor = monitors.ErrorMonitor(self)
 
         self.log = False
-        self.output_file = None
-        self.output_fp = None
         self.custom_error = None
-
-        # default value is to "hide" all output
-        self.stdout_stderr = subprocess.PIPE
 
         # different settings in batch mode
         self.progress = progress
 
         # dynamic sleeper
         self.sleeper = DynamicSleep()
+
+        # path to full output
+        self.full_output = None
 
     @property
     def progress(self):
@@ -353,29 +298,16 @@ class PyPy(ExtendedThread):
     def progress(self, value):
         self._progress = value
         self.progress_monitor.active = value
-        self.stdout_stderr = subprocess.PIPE if value else Paths.temp_file()
 
     def _run(self):
-        fp = self.stdout_stderr
-        if self.stdout_stderr not in (subprocess.PIPE, None):
-            self.output_file = self.stdout_stderr
-
-            Paths.ensure_path(self.output_file)
-            self.output_fp = open(self.output_file, 'w')
-            fp = self.output_fp
-
-        # set outputs
-        self.executor.stdout = fp
-        self.executor.stderr = subprocess.STDOUT
-
         # start executor
         self.executor.start()
         wait_for(self.executor, 'process')
 
         if self.executor.broken:
             Printer.err('Could not start command {}: {}',
-                             Command.to_string(self.executor.command),
-                             getattr(self.executor, 'exception', 'Unknown error'))
+                         Command.to_string(self.executor.command),
+                         getattr(self.executor, 'exception', 'Unknown error'))
             self.returncode = self.executor.returncode
 
         # if process is not broken, propagate start event
@@ -398,5 +330,42 @@ class PyPy(ExtendedThread):
                 returncode=self.returncode,
                 name=self.case.to_string(),
                 case=self.case,
+                log=self.full_output
             )
         return super(PyPy, self).to_json()
+
+
+class ComparisonMultiThread(SequentialThreads):
+    def __init__(self, output, name='Comparison', progress=True, indent=True):
+        super(ComparisonMultiThread, self).__init__(name, progress, indent)
+        self.output = output
+
+    def on_thread_complete(self, thread):
+        """
+        :type thread: PyPy
+        """
+        super(ComparisonMultiThread, self).on_thread_complete(thread)
+
+        # append ndiff to file
+        with open(self.output, 'a+') as fp:
+            fp.write('-' * 60 + '\n')
+            fp.write(thread.name + '\n')
+            fp.write('-' * 60 + '\n')
+            fp.write(thread.executor.output.read())
+            fp.write('\n' * 3)
+
+    def to_json(self):
+        items = []
+        for thread in self.threads:
+            items.append(dict(
+                name=thread.name,
+                returncode=thread.returncode,
+                log=self.output,
+            ))
+
+        return dict(
+            returncode=self.returncode,
+            name=self.name,
+            log=self.output,
+            items=items,
+        )

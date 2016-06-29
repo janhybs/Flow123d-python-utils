@@ -9,7 +9,8 @@ import time
 from scripts.core.base import Paths, Printer, Command, IO
 from scripts.core.base import PathFormat
 from scripts.core.prescriptions import PBSModule
-from scripts.core.threads import BinExecutor, PyPy
+from scripts.core.threads import PyPy
+from scripts.core.execution import BinExecutor
 from scripts.pbs.common import get_pbs_module, job_ok_string
 from scripts.pbs.job import JobState, finish_pbs_job, MultiJob
 from utils.dotdict import Map

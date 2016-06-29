@@ -37,6 +37,8 @@ class GlobalResult(object):
         if f:
             with open(f, 'w') as fp:
                 fp.write(content)
+                print '\n' * 10
+                print content
         return content
 
 
@@ -381,7 +383,7 @@ class IO(object):
         """
         :rtype : str or None
         """
-        if Paths.exists(name):
+        if name and Paths.exists(name):
             with open(name, mode) as fp:
                 return fp.read()
 
