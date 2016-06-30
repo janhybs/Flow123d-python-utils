@@ -5,6 +5,7 @@
 
 import sys, os, re
 from scripts.core.base import Printer
+from scripts.core.exceptions import ArgumentException
 from utils.globals import justify
 
 _long_format = re.compile(r'--[a-z0-9_-]+=')
@@ -191,7 +192,7 @@ class ArgParser(object):
         Printer.err(self.usage())
 
         if exit_code is not None:
-            sys.exit(exit_code)
+            raise ArgumentException(exit_code, msg)
 
     def current(self):
         """

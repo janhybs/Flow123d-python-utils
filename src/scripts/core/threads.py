@@ -7,6 +7,7 @@ import subprocess
 import threading
 
 # ----------------------------------------------
+from scripts.config.yaml_config import ConfigCase
 from scripts.core import monitors
 from scripts.core.base import Printer, Paths, Command, DynamicSleep, IO
 from utils.counter import ProgressCounter
@@ -208,7 +209,6 @@ class SequentialThreads(MultiThreads):
         )
 
 
-
 class ParallelThreads(MultiThreads):
     def __init__(self, n=4, name='runner', progress=True):
         super(ParallelThreads, self).__init__(name, progress)
@@ -250,7 +250,7 @@ class ParallelThreads(MultiThreads):
 class PyPy(ExtendedThread):
     """
     :type executor : scripts.core.execution.BinExecutor
-    :type case     : scripts.core.prescriptions.TestPrescription
+    :type case     : ConfigCase
     """
 
     returncode_map = {
@@ -332,7 +332,10 @@ class PyPy(ExtendedThread):
                 case=self.case,
                 log=self.full_output
             )
-        return super(PyPy, self).to_json()
+        json = super(PyPy, self).to_json()
+        json['log'] = self.full_output
+        json['type'] = 'exec'
+        return json
 
 
 class ComparisonMultiThread(SequentialThreads):
@@ -367,5 +370,31 @@ class ComparisonMultiThread(SequentialThreads):
             returncode=self.returncode,
             name=self.name,
             log=self.output,
-            items=items,
+            tests=items,
+        )
+
+
+class RuntestMultiThread(SequentialThreads):
+    """
+    :type clean  : scripts.prescriptions.local_run.CleanThread
+    :type pypy   : PyPy
+    :type comp   : ComparisonMultiThread
+    """
+    def __init__(self, clean, pypy, comp):
+        super(RuntestMultiThread, self).__init__('test-case', progress=False, indent=False)
+        self.clean = clean
+        self.pypy = pypy
+        self.comp = comp
+
+        self.add(clean)
+        self.add(pypy)
+        self.add(comp)
+
+    def to_json(self):
+        return dict(
+            type="test-case",
+            returncode=self.returncode,
+            clean=self.clean,
+            execution=self.pypy,
+            compare=self.comp
         )

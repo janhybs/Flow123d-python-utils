@@ -110,12 +110,14 @@ class ConfigCase(object):
     :type config   : scripts.config.base.ConfigBase
     """
     def __init__(self, o, config):
-        self.file = str(o['file'])
-        self.proc = int(o['proc'])
-        self.time_limit = float(o['time_limit'])
-        self.memory_limit = float(o['memory_limit'])
-        self.tags = set(o['tags'])
-        self.check_rules = o['check_rules']
+        o = ConfigBase.merge(DEFAULTS, deepcopy(o))
+
+        self.file = o.get('file', None)
+        self.proc = int(o.get('proc', None))
+        self.time_limit = float(o.get('time_limit', None))
+        self.memory_limit = float(o.get('memory_limit', None))
+        self.tags = set(o.get('tags', None))
+        self.check_rules = o.get('check_rules', None)
         self.config = config
 
         if self.config:
@@ -131,12 +133,24 @@ class ConfigCase(object):
                     'test_results',
                     self.shortname
                 ))
+        else:
+            # create temp folder where files will be
+            tmp_folder = Paths.temp_file(o.get('tmp') + '-{date}-{time}-{rnd}')
+            Paths.ensure_path(tmp_folder, is_file=False)
+
+            self.fs = ConfigCaseFiles(
+                root=tmp_folder,
+                ref_output=tmp_folder,
+                output=tmp_folder
+            )
 
     def to_string(self):
-        return '{} x {}'.format(
-            self.proc,
-            Paths.path_end(Paths.without_ext(self.file))
-        )
+        if self.file:
+            return '{} x {}'.format(
+                self.proc,
+                Paths.path_end(Paths.without_ext(self.file))
+            )
+        return 'process'
 
     def to_json(self):
         return dict(

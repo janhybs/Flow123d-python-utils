@@ -4,6 +4,15 @@
 from scripts.prescriptions import AbstractRun
 
 
+runtest_command = """
+"$$python$$" "$$script$$" "$$yaml$$" $$limits$$ --json "$$json_output$$" -- $$args$$
+""".strip()
+
+exec_parallel_command = """
+"$$python$$" "$$script$$" $$limits$$ --json "$$json_output$$" -- $$args$$
+""".strip()
+
+
 class PBSModule(AbstractRun):
     def __init__(self, case):
         super(PBSModule, self).__init__(case)
@@ -15,3 +24,10 @@ class PBSModule(AbstractRun):
         :rtype: list[str]
         """
         pass
+
+    @staticmethod
+    def format(template, **kwargs):
+        t = str(template)
+        for k, v in kwargs.items():
+            t = t.replace('$${}$$'.format(k), v)
+        return t

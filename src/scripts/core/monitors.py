@@ -60,6 +60,7 @@ class ProgressMonitor(ThreadMonitor):
 
     @ensure_active
     def on_complete(self, pypy=None):
+        self.timer.format = 'Done    | elapsed time {}'
         self.timer.stop()
 
 
@@ -183,6 +184,9 @@ class ErrorMonitor(ThreadMonitor):
             # if file pointer exist try to read errors and outputs
             output = self.pypy.executor.output.read()
             if output:
-                Printer.out('Output (last {} lines, rest in {}): ', self.tail, Paths.abspath(self.pypy.full_output))
+                if self.pypy.full_output:
+                    Printer.out('Output (last {} lines, rest in {}): ', self.tail, Paths.abspath(self.pypy.full_output))
+                else:
+                    Printer.out('Output (last {} lines): ', self.tail)
                 Printer.err(format_n_lines(output, -self.tail, indent=Printer.indent * '    '))
             Printer.close()

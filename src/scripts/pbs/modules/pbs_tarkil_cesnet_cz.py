@@ -112,6 +112,6 @@ uname -a
 echo JOB START: `date`
 pwd
 
-"$$python$$" "$$runtest$$" "$$yaml$$" $$limits$$ --json "$$json_output$$" -- $$args$$
+$$command$$
 
 """.lstrip()

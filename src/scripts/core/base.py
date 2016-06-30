@@ -49,6 +49,7 @@ class MyEncoder(JSONEncoder):
         except:
             return str(o)
 
+
 class Printer(object):
     indent = 0
     batch_output = True
@@ -70,6 +71,8 @@ class Printer(object):
 
     @classmethod
     def err(cls, msg='', *args, **kwargs):
+        if cls.indent:
+            sys.stdout.write('    ' * cls.indent)
         sys.stdout.write(msg.format(*args, **kwargs))
         sys.stdout.write('\n')
 
@@ -89,7 +92,10 @@ class Printer(object):
     def dyn(cls, msg, *args, **kwargs):
         if cls.dynamic_output:
             sys.stdout.write('\r' + ' ' * 80)
-            sys.stdout.write('\r' + msg.format(*args, **kwargs))
+            if cls.indent:
+                sys.stdout.write('\r' + '    ' * cls.indent + msg.format(*args, **kwargs))
+            else:
+                sys.stdout.write('\r' + msg.format(*args, **kwargs))
             sys.stdout.flush()
 
     # ----------------------------------------------

@@ -9,6 +9,7 @@ import datetime
 # ----------------------------------------------
 from scripts.core.base import Printer, IO
 from scripts.core.threads import PyPy
+from scripts.parser.json_parser import RuntestParser, JsonParser
 from scripts.pbs.common import job_ok_string
 from utils.strings import format_n_lines
 # ----------------------------------------------
@@ -227,16 +228,12 @@ class MultiJob(object):
 def print_log_file(f, n_lines):
     log_file = IO.read(f)
     if log_file:
-        Printer.open()
         if n_lines == 0:
             Printer.out('Full log from file {}:', f)
         else:
             Printer.out('Last {} lines from file {}:', abs(n_lines), f)
-        Printer.close()
 
-        Printer.close()
-        Printer.out(format_n_lines(log_file.rstrip(), -n_lines, indent=2 * '    '))
-        Printer.open()
+        Printer.wrn(format_n_lines(log_file.rstrip(), -n_lines, indent=Printer.indent * '    '))
 
 
 def get_status_line(o, map=False):
@@ -251,50 +248,30 @@ def finish_pbs_job(job, batch):
     :type job: scripts.pbs.job.Job
     """
     # try to get more detailed job status
-    n_lines = 0 if batch else 15
     job.is_active = False
     job_output = IO.read(job.case.fs.json_output)
 
     if job_output:
-        job_json = json.loads(job_output)
-        result = int(job_json['returncode'])
-        if result == 0:
+        job_json = JsonParser(json.loads(job_output), batch)
+        if job_json.returncode == 0:
             job.status = JobState.EXIT_OK
-            Printer.out('OK:    Job {} ended. {}', job, job.full_name)
-
+            Printer.out('OK:    Job {}({}) ended', job, job.full_name)
+            Printer.open()
             # in batch mode print all logs
             if batch:
                 Printer.open()
-                for clean, pypy, comp in job_json.get('tests'):
-                    print_log_file(pypy.get('log', None), n_lines)
-                    print_log_file(comp.get('log', None), n_lines)
+                for test in job_json.tests:
+                    test.get_result()
                 Printer.close()
+            Printer.close()
         else:
             job.status = JobState.EXIT_ERROR
-            Printer.out('ERROR: Job {} ended. {}', job, job.full_name)
+            Printer.out('ERROR: Job {}({}) ended', job, job.full_name)
+            # in batch mode print all logs
+
             Printer.open()
-            for clean, pypy, comp in job_json.get('tests'):
-                if clean['returncode'] != 0:
-                    Printer.out("{} Could not clean directory '{c[dir]}': {c[error]}", get_status_line(clean), c=clean)
-                    continue
-
-                if pypy['returncode'] != 0:
-                    Printer.out("{} Run error, case: {p[name]}", get_status_line(pypy), p=pypy)
-                    print_log_file(pypy.get('log', None), n_lines)
-                    continue
-
-                if comp['returncode'] not in (0, None):
-                    Printer.out("{} | Compare error, case: {p[name]}, Details: ", get_status_line(comp), p=pypy)
-                    print_log_file(pypy.get('log', None), n_lines)
-                    Printer.open(2)
-                    for c in comp['items']:
-                        rc = c['returncode']
-                        if rc == 0:
-                            Printer.out('[{:^6}]: {}', 'OK', c['name'])
-                        else:
-                            Printer.out('[{:^6}]: {}', 'FAILED', c['name'])
-                    Printer.close(2)
-                    continue
+            for test in job_json.tests:
+                test.get_result()
             Printer.close()
     else:
         # no output file was generated assuming it went wrong

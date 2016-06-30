@@ -19,7 +19,7 @@ def print_test(f):
         sys.stdout.write('-' * 60 + '\n')
         sys.stdout.write('  EXECUTING {:^48s}'.format(f.func_name) + '\n')
         sys.stdout.write('-' * 60 + '\n')
-        # return f(*args, **kwargs)
+        return f(*args, **kwargs)
     return wrapper
 
 

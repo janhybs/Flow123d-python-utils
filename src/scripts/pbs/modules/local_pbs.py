@@ -18,8 +18,8 @@ class Module(PBSModule):
 
 template = """
 #!/bin/bash
-# "$$python$$" "$$runtest$$" "$$yaml$$" $$limits$$ --json "$$json_output$$" -- $$args$$ >/dev/null 2>&1 &
-cp /home/jan-hybs/Dokumenty/projects/Flow123d-python-utils/src/foo.json $$json_output$$
+# $$command$$
+cp /home/jan-hybs/Dokumenty/projects/Flow123d-python-utils/src/foo.json $$json_output$$ > /dev/null 2>&1
 echo 25309
 """.lstrip()
 

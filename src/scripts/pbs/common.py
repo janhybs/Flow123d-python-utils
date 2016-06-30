@@ -23,7 +23,6 @@ class DummyModule(object):
 
     def Module(self, test_case, proc_value, filename):
         """
-        :rtype : scripts.core.prescriptions.PBSModule
         """
         pass
 

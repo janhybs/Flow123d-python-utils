@@ -8,11 +8,8 @@ import time
 import sys
 # ----------------------------------------------
 from scripts.config.yaml_config import ConfigPool
-from scripts.core import prescriptions
 from scripts.core.base import Paths, PathFormat, PathFilters, Printer, Command, IO, GlobalResult
-from scripts.core.prescriptions import PBSModule
-from scripts.core.threads import ParallelThreads, SequentialThreads, PyPy
-from scripts.core.execution import BinExecutor
+from scripts.core.threads import ParallelThreads, SequentialThreads, PyPy, RuntestMultiThread
 from scripts.pbs.common import get_pbs_module, job_ok_string
 from scripts.pbs.job import JobState, MultiJob, finish_pbs_job
 # ----------------------------------------------
@@ -20,22 +17,11 @@ from scripts.pbs.job import JobState, MultiJob, finish_pbs_job
 
 # global arguments
 from scripts.prescriptions.local_run import LocalRun
+from scripts.prescriptions.remote_run import exec_parallel_command, runtest_command, PBSModule
 
 arg_options = None
 arg_others = None
 arg_rest = None
-
-
-def create_process(command, limits=None):
-    """
-    :type command: list[str]
-    :type limits: scripts.config.yaml_config.YamlConfigCase
-    """
-    command.extend(arg_rest)
-    test_executor = BinExecutor(command)
-    process_monitor = PyPy(test_executor)
-    process_monitor.limit_monitor.set_limits(limits)
-    return process_monitor
 
 
 def create_process_from_case(case):
@@ -46,11 +32,11 @@ def create_process_from_case(case):
     local_run.mpi = case.proc > 1
     local_run.progress = not arg_options.batch
 
-    seq = SequentialThreads('test-case', progress=False)
-
-    seq.add(local_run.create_clean_thread())
-    seq.add(local_run.create_pypy(arg_rest))
-    seq.add(local_run.create_comparisons())
+    seq = RuntestMultiThread(
+        local_run.create_clean_thread(),
+        local_run.create_pypy(arg_rest),
+        local_run.create_comparisons()
+    )
 
     seq.stop_on_error = True
     return seq
@@ -64,14 +50,21 @@ def create_pbs_job_content(module, case):
     """
 
     import pkgutil
+
+    command = PBSModule.format(
+        runtest_command,
+
+        python=sys.executable,
+        script=pkgutil.get_loader('runtest').filename,
+        yaml=case.file,
+        limits="-n {case.proc} -m {case.memory_limit} -t {case.time_limit}".format(case=case),
+        args="" if not arg_rest else Command.to_string(arg_rest),
+        json_output=case.fs.json_output
+    )
+
     template = PBSModule.format(
         module.template,
-        python=sys.executable,
-        runtest=pkgutil.get_loader('runtest').filename,
-        yaml=case.file,
-        limits="-n {case.proc} -m {case.memory_limit} -t {case.time_limit}".format(
-                case=case),
-            args="" if not arg_rest else Command.to_string(arg_rest),
+        command=command,
         json_output=case.fs.json_output
     )
 
@@ -85,7 +78,7 @@ def run_pbs_mode(configs, debug=False):
     """
     global arg_options, arg_others, arg_rest
     pbs_module = get_pbs_module(arg_options.host)
-    Printer.dyn_enabled = not arg_options.batch
+    Printer.dynamic_output = not arg_options.batch
     Printer.dyn('Parsing yaml files')
 
     jobs = list()
@@ -110,13 +103,12 @@ def run_pbs_mode(configs, debug=False):
     job_id = 0
     multijob = MultiJob(pbs_module.ModuleJob)
     for qsub_command, pbs_run in jobs:
-        pass
         job_id += 1
 
         Printer.dyn('Starting jobs {:02d} of {:02d}', job_id, total)
 
         output = subprocess.check_output(qsub_command)
-        job = pbs_module.ModuleJob.create(output, case)
+        job = pbs_module.ModuleJob.create(output, pbs_run.case)
         job.full_name = "Case {}".format(pbs_run.case)
         multijob.add(job)
 
@@ -197,36 +189,29 @@ def run_local_mode(configs, debug=False):
 
     for thread in runner.threads:
         multithread = thread
-        """ :type: SequentialThreads """
+        """ :type: RuntestMultiThread """
 
-        clean = multithread.threads[0]
-        """ :type: CleanThread """
+        returncode = multithread.returncode
+        GlobalResult.add(multithread)
 
-        pypy = multithread.threads[1]
-        """ :type: PyPy """
-
-        comp = multithread.threads[2]
-        """ :type: SequentialThreads """
-
-        returncode = max([clean, pypy, comp])
-        GlobalResult.add(multithread.threads)
-
-        if clean.with_error():
-            Printer.out("[{:^6}]:{:3} | Could not clean directory '{}': {}",
-                        'ERROR', clean.returncode, clean.dir, clean.error)
+        if multithread.clean.with_error():
+            Printer.out("[{:^6}]:{:3} | Could not clean directory '{}': {}", 'ERROR',
+                        multithread.clean.returncode,
+                        multithread.clean.dir,
+                        multithread.clean.error)
             continue
 
-        if not pypy.with_success():
+        if not multithread.pypy.with_success():
             Printer.out("[{:^6}]:{:3} | Run error, case: {}",
-                        pypy.returncode_map.get(str(pypy.returncode), 'ERROR'),
-                        pypy.returncode, pypy.case.to_string())
+                        multithread.pypy.returncode_map.get(str(multithread.pypy.returncode), 'ERROR'),
+                        multithread.pypy.returncode, multithread.pypy.case.to_string())
             continue
 
-        if comp.with_error():
+        if multithread.comp.with_error():
             Printer.out("[{:^6}]:{:3} | Compare error, case: {}, Details: ",
-                        'FAILED', comp.returncode, pypy.case.to_string())
+                        'FAILED', multithread.comp.returncode, multithread.pypy.case.to_string())
             Printer.open(2)
-            for t in comp.threads:
+            for t in multithread.comp.threads:
                 if t:
                     Printer.out('[{:^6}]: {}', 'OK', t.name)
                 else:
@@ -235,7 +220,7 @@ def run_local_mode(configs, debug=False):
             continue
 
         Printer.out("[{:^6}]:{:3} | Test passed: {}",
-                    'PASSED', pypy.returncode, pypy.case.to_string())
+                    'PASSED', multithread.pypy.returncode, multithread.pypy.case.to_string())
     Printer.close()
 
     # exit with runner's exit code
@@ -263,8 +248,7 @@ def do_work(parser, args=None, debug=False):
     global arg_options, arg_others, arg_rest
     arg_options, arg_others, arg_rest = parser.parse(args)
     Paths.format = PathFormat.ABSOLUTE
-    if arg_options.root:
-        Paths.base_dir(arg_options.root)
+    Paths.base_dir('' if not arg_options.root else arg_options.root)
 
     # configure printer
     Printer.batch_output = arg_options.batch
