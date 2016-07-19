@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 # Flow123d mock file
+# ----------------------------------------------
 import os
 import random
 import shutil
 from optparse import OptionParser
-
+# ----------------------------------------------
 import time
 import sys
+# ----------------------------------------------
 
 parser = OptionParser()
 parser.add_option('-e', '--error',  dest="error",  help="Raise error", action='store_true')

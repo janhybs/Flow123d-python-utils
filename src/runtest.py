@@ -7,7 +7,7 @@ import pathfix; pathfix.init()
 # ----------------------------------------------
 import sys
 # ----------------------------------------------
-from scripts.core.base import Paths, GlobalResult
+from scripts.core.base import GlobalResult
 from utils.argparser import ArgParser
 from utils.duration import Duration
 # ----------------------------------------------
@@ -98,9 +98,6 @@ if __name__ == '__main__':
 
     from scripts.core.execution import BinExecutor
     from scripts.runtest_module import do_work
-    #
-    # # for debug only set dir to where script should be
-    Paths.base_dir(__file__)
 
     # run work
     BinExecutor.register_sigint()

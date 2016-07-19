@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 # ----------------------------------------------
-from scripts.core.base import Printer, Command, Paths, IO
+from scripts.core.base import Printer, Command, Paths
 from utils.counter import ProgressTime
 # ----------------------------------------------
 from utils.strings import format_n_lines
-
+# ----------------------------------------------
 
 def ensure_active(f):
     def wrapper(self, *args, **kwargs):
@@ -188,5 +188,5 @@ class ErrorMonitor(ThreadMonitor):
                     Printer.out('Output (last {} lines, rest in {}): ', self.tail, Paths.abspath(self.pypy.full_output))
                 else:
                     Printer.out('Output (last {} lines): ', self.tail)
-                Printer.err(format_n_lines(output, -self.tail, indent=Printer.indent * '    '))
+                Printer.wrn(format_n_lines(output, -self.tail, indent=Printer.indent * '    '))
             Printer.close()

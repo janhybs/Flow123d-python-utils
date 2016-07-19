@@ -20,6 +20,13 @@ flow123d_name = "flow123d" if is_linux else "flow123d.exe"
 mpiexec_name = "mpiexec" if is_linux else "mpiexec.hydra"
 
 
+def find_base_dir():
+    import os
+    import pathfix
+    path = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(pathfix.__file__)), '..', '..'))
+    return path
+
+
 class GlobalResult(object):
     items = []
     returncode = None
@@ -113,7 +120,7 @@ def make_relative(f):
     def wrapper(*args, **kwargs):
         path = f(*args, **kwargs)
         if Paths.format == PathFormat.RELATIVE:
-            return os.path.relpath(os.path.abspath(path), Paths.base_dir())
+            return os.path.relpath(os.path.abspath(path), Paths.flow123d_root())
         elif Paths.format == PathFormat.ABSOLUTE:
             return os.path.abspath(path)
         return path
@@ -166,12 +173,13 @@ class PathFormat(object):
 
 
 class Paths(object):
-    _base_dir = ''
+    _base_dir = find_base_dir()
     format = PathFormat.ABSOLUTE
+    cur_dir = os.getcwd()
 
     @classmethod
-    def base_dir(cls, v=None):
-        if v is None:
+    def init(cls, v=None):
+        if not v:
             return cls._base_dir
 
         if os.path.isfile(v):
@@ -183,8 +191,18 @@ class Paths(object):
         return cls._base_dir
 
     @classmethod
-    def source_dir(cls):
-        return cls.join(cls.dirname(__file__), '..', '..')
+    def current_dir(cls):
+        """
+        Returns path to current dir, where python was executed
+        """
+        return cls.cur_dir
+
+    @classmethod
+    def flow123d_root(cls):
+        """
+        Returns path to flow123d root
+        """
+        return cls._base_dir
 
     @classmethod
     def test_paths(cls, *paths):
@@ -217,7 +235,7 @@ class Paths(object):
     @classmethod
     @make_relative
     def bin_dir(cls):
-        return cls.join(cls.base_dir(), 'bin')
+        return cls.join(cls.flow123d_root(), 'bin')
 
     @classmethod
     @make_relative
@@ -239,7 +257,7 @@ class Paths(object):
     @classmethod
     @make_relative
     def path_to(cls, *args):
-        return os.path.join(cls.base_dir(), *args)
+        return os.path.join(cls.current_dir(), *args)
 
     @classmethod
     @make_relative
