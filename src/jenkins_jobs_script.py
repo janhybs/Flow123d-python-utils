@@ -6,12 +6,24 @@ from optparse import OptionParser
 
 
 def get_replacement_key(l, placeholders):
+    """
+    Return replacement if present
+    :param l:
+    :param placeholders:
+    :return:
+    """
     ll = l[1:].strip()
     if l.startswith('#') and ll in placeholders:
         return ll
 
 
 def replace_multiline(lines, placeholders):
+    """
+    Replace multiple line placeholder
+    :param lines:
+    :param placeholders:
+    :return:
+    """
     result = list()
     opened = False
     opened_content = list()
@@ -37,6 +49,12 @@ def replace_multiline(lines, placeholders):
 
 
 def replace_singleline(lines, placeholders):
+    """
+    Replace single line placeholder
+    :param lines:
+    :param placeholders:
+    :return:
+    """
     result = list()
     for line in lines:
         found = False
@@ -52,6 +70,11 @@ def replace_singleline(lines, placeholders):
 
 
 def load(f):
+    """
+    Loads a file
+    :param f:
+    :return:
+    """
     with open(f, 'r') as fp:
         return fp.read().splitlines()
 
