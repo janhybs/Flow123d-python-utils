@@ -92,7 +92,7 @@ args = args[1:]
 placeholders = {}
 for i in range(0, len(args), 2):
     placeholder_name = values.prefix + args[i] + values.suffix
-    placeholder_values = [x.strip() for x in load(args[i + 1]) if not x.startswith('#') and x.strip()]
+    placeholder_values = [x.strip() for x in load(args[i+1]) if not x.startswith('#') and x.strip()]
 
     placeholders[placeholder_name] = placeholder_values
 

@@ -383,7 +383,7 @@ class LatexArray(LatexUniversal):
         subtype = self_array.subtype.get_reference()
         tex = texlist()
         with tex:
-            if isinstance(subtype, TypeInteger):
+            if type(subtype) == TypeInteger:
                 tex.append('Array of {subtype} {subrange}'.format(
                     range=self_array.range, subtype=subtype.input_type,
                     subrange=subtype.range))
@@ -392,7 +392,7 @@ class LatexArray(LatexUniversal):
                     range=' ' + str(self_array.range) if not self_array.range.is_pointless() else '',
                     subtype=subtype.input_type))
 
-            if isinstance(subtype, TypeString):
+            if type(subtype) == TypeString:
                 tex.append(' (generic)')
 
             if subtype.input_type == InputType.MAIN_TYPE:

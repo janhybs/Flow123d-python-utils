@@ -3,9 +3,7 @@
 # author:   Jan Hybs
 
 from __future__ import absolute_import
-import os
-import re
-import datetime
+import os, re, datetime
 from subprocess import CalledProcessError
 from utils.logger import Logger
 

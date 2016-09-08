@@ -3,9 +3,7 @@
 # author:   Jan Hybs
 
 from __future__ import absolute_import
-import re
-import json
-import datetime
+import re, json, datetime
 from ist.formatters.extensions.json2latex2 import LatexFormatter
 from ist.formatters.json2html import HTMLFormatter
 from ist.globals import FormatMode
@@ -40,6 +38,7 @@ class ISTFormatter(object):
         latex_result = LatexFormatter.format(items).to_string()
         with open(output_file, 'w') as fp:
             fp.write(latex_result)
+
 
     @staticmethod
     def json2html(items, output_file, focus_element_id='root', skip_block_creation=[],

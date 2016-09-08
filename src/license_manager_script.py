@@ -64,13 +64,13 @@ In order to work user needs to specify files or locations which will be processe
 
 * Flag -f or --file (can be used multiple times)
   Value should be absolute or relative path to file which will be processed
-
+  
 * Flag -d or --dir (can be used multiple times)
   Value should be absolute or relative path to dir which will be recursively processed.
-
+  
 ### What files will be processed?
 All recursively search dirs will process only files with extensions: '.hh', '.cc', '.h', '.c', '.cpp', '.hpp'.
-Exception is flag -f or --file which will process given file always.
+Exception is flag -f or --file which will process given file always. 
 
 ### Finding license
 User can specify which old license looked like: how it stared and how it ended.
@@ -78,17 +78,17 @@ Old license will be regonized as license if it starts at the beginning of the fi
 
 * Flag -s or --start (default is /*!)
   Value should be start sequence of the old license
-
+  
 * Flag -e or --end (default is */)
   Value should be end sequence of the old license.
-
+  
 
 ### New license
 User can specify new license which will replace old one. If no license is specified old license will be removed.
 
 * Flag -l or --license default None
   Absolute or relative path to file containing new license
-
+  
 ### Placeholders
 User can specify in license files placeholders which will be processed and replaced. Some placeholders are present by default:
 
@@ -124,29 +124,29 @@ file new_license.txt contains following:
 /*!
  *
  * Copyright (C) 2007-{datetime:%Y} Technical University of Liberec.  All rights reserved.
- *
+ * 
  * @file {filename:>20s} "{filepath}"
  */
-
-
+ 
+ 
  When called with
  bash
  python license_manager_script.py -f "./path/to/file/main.cc" -l new_license.txt
-
-
+ 
+ 
  will generate something like this:
-
+ 
  /*!
  *
  * Copyright (C) 2007-2015 Technical University of Liberec.  All rights reserved.
- *
+ * 
  * @file              main.cc "/usr/jan-hybs/flow123d/path/to/file/main.cc"
  */
-
+ 
  ... file content goes here
-
-
-
+ 
+ 
+ 
 ##### Example 2
 
 file new_license.txt contains following:
@@ -155,31 +155,31 @@ file new_license.txt contains following:
 /*!
  *
  * Copyright (C) 2007-{datetime:%Y} Technical University of Liberec.  All rights reserved.
- *
+ * 
  * @author '{last_author:~>40s} ({last_email})'
  * @file   '{filename:~^40s}'
  * @branch '{branch:~<40s}'
  */
-
-
+ 
+ 
  When called with
  bash
  python license_manager_script.py -f "./path/to/git/src/main.cc" -l new_license.txt -g "./path/to/git/"
-
-
+ 
+ 
  will generate something like this:
-
+ 
 /*!
  *
  * Copyright (C) 2007-2015 Technical University of Liberec.  All rights reserved.
- *
+ * 
  * @author '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Jan Hybs (jan.hybs@tul.cz)'
  * @file   '~~~~~~~~~~~~~~~~main.cc~~~~~~~~~~~~~~~~~'
  * @branch 'JHy_ist_formatter~~~~~~~~~~~~~~~~~~~~~~~'
  */
-
+ 
  ... file content goes here
-
+ 
 
 """
 
@@ -277,7 +277,7 @@ def main():
     parser = create_parser()
     (options, args) = parse_args(parser)
 
-    variables = {}
+    variables = { }
     for name_value in options.variables:
         name, value = name_value.split(':', 1)
         variables[name] = value

@@ -40,7 +40,7 @@ class OutputMode(object):
     def close(self):
         if self.mode in {self.WRITE, self.APPEND, self.VARIABLE}:
             if self.fp is not None:
-                if isinstance(self.fp, int):
+                if type(self.fp) is int:
                     os.close(self.fp)
                 else:
                     self.fp.close()

@@ -165,7 +165,7 @@ class CoverageMerge (object):
     def get_attributes_chain(self, obj, attrs):
         """Return a joined arguments of object based on given arguments"""
 
-        if isinstance(attrs, list):
+        if type(attrs) is list:
             result = ''
             for attr in attrs:
                 result += obj.attrib[attr]

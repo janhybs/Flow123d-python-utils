@@ -11,7 +11,7 @@ class Globals(object):
     Global class object which stores references and all objects on memory for later use
     :type items             : dict[ist.base.Parsable]
     """
-    items = {}
+    items = { }
     names = {
         'record': 'type_name',
         'r': 'type_name',
@@ -32,14 +32,11 @@ class Globals(object):
         if not type:
             return Globals.items.values()
         elif type.lower() in ('r', 'record'):
-            return [x for x in Globals.items.itervalues() if getattr(
-                x, 'input_type', InputType.UNKNOWN) == InputType.RECORD]
+            return [x for x in Globals.items.itervalues() if getattr(x, 'input_type', InputType.UNKNOWN) == InputType.RECORD]
         elif type.lower() in ('s', 'selection'):
-            return [x for x in Globals.items.itervalues() if getattr(
-                x, 'input_type', InputType.UNKNOWN) == InputType.SELECTION]
+            return [x for x in Globals.items.itervalues() if getattr(x, 'input_type', InputType.UNKNOWN) == InputType.SELECTION]
         elif type.lower() in ('a', 'ar', 'abstract'):
-            return [x for x in Globals.items.itervalues() if getattr(
-                x, 'input_type', InputType.UNKNOWN) == InputType.ABSTRACT_RECORD]
+            return [x for x in Globals.items.itervalues() if getattr(x, 'input_type', InputType.UNKNOWN) == InputType.ABSTRACT_RECORD]
 
     @staticmethod
     def get_url_by_name(label, item_type=''):

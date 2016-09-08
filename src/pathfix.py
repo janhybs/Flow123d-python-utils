@@ -11,8 +11,7 @@ Situation is following:
 So to sys.path is appended ../../src/python path
 """
 
-import sys
-import os
+import sys, os
 
 
 def print_debug():

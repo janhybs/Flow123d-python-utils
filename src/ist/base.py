@@ -30,10 +30,10 @@ class InputType(object):
     MAIN_TYPE = SELECTION | RECORD | ABSTRACT
 
     def __eq__(self, other):
-        if isinstance(other, int):
+        if type(other) is int:
             return bool(self.value & other)
 
-        if isinstance(other, str):
+        if type(other) is str:
             return bool(self.value & getattr(self, other.upper(), 0))
 
         raise Exception('Unsupported comparison with type %s' % str(type(other)))
@@ -58,12 +58,11 @@ class Field(object):
     Class Field registers new field on class
     """
 
-    def __init__(self, names, t=str, index=False, subtype=None, save_as=None,
-                 required=False, link_to_parent=False, default=None):
+    def __init__(self, names, t=str, index=False, subtype=None, save_as=None, required=False, link_to_parent=False, default=None):
         """
         :type subtype: class
         """
-        self.names = names if isinstance(names, list) else [names]
+        self.names = names if type(names) is list else [names]
         self.type = t
         self.index = index
         self.required = required
@@ -146,6 +145,7 @@ class Parsable(object):
         input_type = getattr(self, 'input_type', None)
         return input_type is not None and input_type == InputType.MAIN_TYPE
 
+
     @property
     def href_name(self):
         """
@@ -161,6 +161,7 @@ class Parsable(object):
 
         if getattr(self, 'name', None):
             return self.name
+
 
     @property
     def href_id(self):
@@ -267,7 +268,7 @@ class SmartList(List):
     """
 
     def parse(self, json_data):
-        if isinstance(json_data, dict):
+        if type(json_data) is dict:
             return super(SmartList, self).parse([dict([x]) for x in json_data.items()])
         return super(SmartList, self).parse(json_data)
 

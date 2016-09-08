@@ -12,7 +12,6 @@ class try_catch(object):
     """
     Decorator which uses cache for certain amount of time
     """
-
     def __init__(self, default=0):
         self.default = default
 
@@ -137,6 +136,5 @@ class Process(psutil.Process):
         for child in children:
             try:
                 result.append(getattr(child, prop)(*args, **kwargs))
-            except psutil.NoSuchProcess as e:
-                pass
+            except psutil.NoSuchProcess as e: pass
         return result

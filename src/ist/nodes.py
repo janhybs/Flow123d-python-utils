@@ -111,6 +111,7 @@ class TypeParameters(Parsable):
     pass
 
 
+
 class TypeAbstract(Parsable):
     """
     Class defining "Abstract" type in IST

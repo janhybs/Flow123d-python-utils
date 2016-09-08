@@ -39,18 +39,18 @@ class JobState(object):
         self.value = str(value).upper()
 
     def __eq__(self, other):
-        if isinstance(other, JobState):
+        if type(other) is JobState:
             return self.value == other.value
         return self.value == str(other).upper()
 
     def __ne__(self, other):
-        if isinstance(other, JobState):
+        if type(other) is JobState:
             return self.value != other.value
         return self.value != str(other).upper()
 
     def __bool__(self):
         return self.value == self.COMPLETED
-    __nonzero__ = __bool__
+    __nonzero__=__bool__
 
     def __hash__(self):
         return hash(self.value)
@@ -67,7 +67,6 @@ class Job(object):
     Class Job represents single PBS job
     :type case : scripts.config.yaml_config.ConfigCase
     """
-
     def __init__(self, job_id, case):
         self.id = job_id
         self.case = case
@@ -88,13 +87,13 @@ class Job(object):
         :rtype : scripts.pbs.job.JobState
         """
         return self._status
-
+    
     @status.setter
     def status(self, value):
         """
         :type value: scripts.pbs.job.JobState or str
         """
-        if not isinstance(value, JobState):
+        if type(value) is not JobState:
             value = JobState(value)
 
         # set state
@@ -155,7 +154,6 @@ class MultiJob(object):
     :type items : list[scripts.pbs.job.Job]
     :type cls   : class
     """
-
     def __init__(self, cls):
         self.items = list()
         self.cls = cls
@@ -207,7 +205,7 @@ class MultiJob(object):
             return [item for item in self.items if item.status_changed]
 
         # otherwise just desired status
-        if not isinstance(desired, set):
+        if type(desired) is not set:
             desired = set(desired)
 
         return [item for item in self.items if item.status_changed and item.status in desired]
@@ -217,7 +215,7 @@ class MultiJob(object):
             return [item for item in self.items]
 
         # return all jobs having certain status
-        status = set(status) if isinstance(status, str) else status
+        status = set(status) if type(status) is str else status
         return [item for item in self.items if item.status in status]
 
     def get_status_line(self):
