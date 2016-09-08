@@ -52,4 +52,17 @@ def check_docs(files, types=('def', 'class')):
         print('')
 
 
-check_docs(src_files, types=['class', 'def'])
+# check_docs(src_files, types=['class', 'def'])
+
+def pep_files(files):
+    for f in files:
+        print ('pepping {f}'.format(**locals()))
+        check_output(['autopep8',
+                            '--in-place',
+                            '--max-line-length', '120',
+                            # '--aggressive',
+                            f])
+
+
+pep_files(tests_files)
+pep_files(src_files)
