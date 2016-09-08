@@ -62,12 +62,12 @@ def qsub(pbs_file, queue=0, delay=1, rnd=0, output=None):
     # insert into queue
     output = os.path.abspath(output) if output else output
     qstat_file = os.path.abspath(prefix + str(qid))
-    time.sleep(0.001 + queue + random.random()*rnd)
+    time.sleep(0.001 + queue + random.random() * rnd)
     write_all(qstat_file, 'q')
     print ('Job inserted into queue (ID={qid}, queue=default)'.format(**locals()))
 
     # run
-    time.sleep(0.001 + delay + random.random()*rnd)
+    time.sleep(0.001 + delay + random.random() * rnd)
     write_all(qstat_file, 'r')
     pbs_file_copy = pbs_file + '.copy'
     content = read_all(pbs_file)

@@ -8,6 +8,7 @@ from ist.base import Unicode
 from ist.formatters.html2latex import Html2Latex
 from ist.formatters.markdown2html import markdown2html
 
+
 class texlist(list):
     """
     Helper class for creating latex document
@@ -248,7 +249,6 @@ class texlist(list):
                 desc_result.append(self.plain_mode(r))
         return ''.join(desc_result)
 
-
     @staticmethod
     def equation_mode(value):
         """
@@ -257,7 +257,7 @@ class texlist(list):
         :param value: value tu be secured
         :return:
         """
-        return value if type(value) is str else ''.join(value)
+        return value if isinstance(value, str) else ''.join(value)
 
     @staticmethod
     def plain_mode(value):
@@ -268,7 +268,7 @@ class texlist(list):
         :param value: value tu be secured
         :return:
         """
-        value = value if type(value) is str else ''.join(value)
+        value = value if isinstance(value, str) else ''.join(value)
         value = value \
             .replace('_', '\\_') \
             .replace("'", "'") \
@@ -286,5 +286,5 @@ class texlist(list):
         :param value: value tu be secured
         :return:
         """
-        value = value if type(value) is str else ''.join(value)
+        value = value if isinstance(value, str) else ''.join(value)
         return re.sub('[^a-zA-Z0-9-]', '', value)

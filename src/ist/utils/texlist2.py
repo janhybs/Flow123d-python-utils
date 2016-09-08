@@ -68,10 +68,10 @@ class TexList(list):
             self.slash(func)
 
         # secure arguments
-        args = args if type(args) is list else [args]
+        args = args if isinstance(args, list) else [args]
         if mode is None:
             mode = [None] * len(args)
-        mode = mode if type(mode) is list else [mode]
+        mode = mode if isinstance(mode, list) else [mode]
 
         for i in range(len(args)):
             self.add(str(args[i]), mode[i])
@@ -206,7 +206,7 @@ class TexList(list):
         :param value: value tu be secured
         :return:
         """
-        return value if type(value) is str else ''.join(value)
+        return value if isinstance(value, str) else ''.join(value)
 
     @staticmethod
     def plain_mode(value):
@@ -217,7 +217,7 @@ class TexList(list):
         :param value: value tu be secured
         :return:
         """
-        value = value if type(value) is str else ''.join(value)
+        value = value if isinstance(value, str) else ''.join(value)
         value = re.sub(r'\$ElementData', r'\$ElementData', value)
         value = value \
             .replace('_', '\\_') \
@@ -236,7 +236,7 @@ class TexList(list):
         :param value: value tu be secured
         :return:
         """
-        value = value if type(value) is str else ''.join(value)
+        value = value if isinstance(value, str) else ''.join(value)
         return re.sub('[^a-zA-Z0-9-]+', '-', value)
 
     @staticmethod
@@ -253,7 +253,7 @@ class TexList(list):
 
     @staticmethod
     def none_mode(values):
-        if type(values) is str:
+        if isinstance(values, str):
             return values
         return ''.join(values)
 

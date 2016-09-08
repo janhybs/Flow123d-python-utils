@@ -38,12 +38,12 @@ class Module(PBSModule):
         # get queue, if only -q is set, 'default' queue will be set
         # otherwise given string value will be used
         queue = self.queue
-        queue = 'default' if type(queue) is not str else queue
+        queue = 'default' if not isinstance(queue, str) else queue
 
         # command
         command = [
             'qsub',
-            '-l', 'nodes={nodes}:ppn={ppn}'.format(**locals()), # :nfs4 option may be set
+            '-l', 'nodes={nodes}:ppn={ppn}'.format(**locals()),  # :nfs4 option may be set
             '-l', 'mem={mem}mb'.format(**locals()),
             '-l', 'walltime={walltime}'.format(**locals()),
             '-l', 'place=infiniband',
