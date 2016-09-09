@@ -10,7 +10,7 @@ from scripts.config.yaml_config import ConfigPool
 from scripts.core.base import Paths, PathFilters, Printer, Command, IO, GlobalResult
 from scripts.core.threads import ParallelThreads, RuntestMultiThread
 from scripts.pbs.common import get_pbs_module
-from scripts.pbs.job import JobState, MultiJob, finish_pbs_job
+from scripts.pbs.job import JobState, MultiJob, finish_pbs_exec
 from scripts.prescriptions.local_run import LocalRun
 from scripts.prescriptions.remote_run import runtest_command, PBSModule
 from scripts.script_module import ScriptModule
@@ -161,7 +161,7 @@ class ModuleRuntest(ScriptModule):
 
             # get all jobs where was status update to COMPLETE state
             for job in jobs_changed:
-                returncodes[job] = finish_pbs_job(job, self.arg_options.batch)
+                returncodes[job] = finish_pbs_exec(job, self.arg_options.batch)
 
             if jobs_changed:
                 Printer.separator()
@@ -318,4 +318,11 @@ def do_work(parser, args=None, debug=False):
     :type parser: utils.argparser.ArgParser
     """
     module = ModuleRuntest()
-    return module.run(parser, args, debug)
+    result = module.run(parser, args, debug)
+
+    # pickle out result on demand
+    if parser.simple_options.dump:
+        import pickle
+
+        pickle.dump(result.dump(), open(parser.simple_options.dump, 'wb'))
+    return result
