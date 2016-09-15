@@ -3,14 +3,14 @@
 # author:   Jan Hybs
 # ----------------------------------------------
 import math
-import subprocess
+import time
 import threading
 
 # ----------------------------------------------
 from scripts.config.yaml_config import ConfigCase
 from scripts.core import monitors
 from scripts.core.base import Printer, Paths, Command, DynamicSleep, IO
-from scripts.serialization import PyPyResult, ResultHolderResult
+from scripts.serialization import PyPyResult, ResultHolderResult, RuntestTripletResult, ResultParallelThreads
 from utils.counter import ProgressCounter
 from utils.events import Event
 from utils.globals import wait_for
@@ -30,6 +30,9 @@ class ExtendedThread(threading.Thread):
         self._is_over = True
         self._returncode = None
 
+        self.start_time = None
+        self.end_time = None
+
         # create event objects
         self.on_start = Event()
         self.on_complete = Event()
@@ -44,6 +47,15 @@ class ExtendedThread(threading.Thread):
     def returncode(self):
         return self._returncode
 
+    @property
+    def duration(self):
+        if self.start_time is None:
+            return 0.0
+        if self.end_time is None:
+            return time.time() - self.start_time
+
+        return self.end_time - self.start_time
+
     @returncode.setter
     def returncode(self, value):
         self._returncode = value
@@ -55,7 +67,9 @@ class ExtendedThread(threading.Thread):
     def run(self):
         self._is_over = False
         self.on_start(self)
+        self.start_time = time.time()
         self._run()
+        self.end_time = time.time()
         self._is_over = True
         self.on_complete(self)
 
@@ -149,8 +163,10 @@ class MultiThreads(ExtendedThread):
         """
         self.threads.append(thread)
         self.returncodes[thread] = None
-        thread.on_start += self.on_thread_start
-        thread.on_complete += self.on_thread_complete
+        try:
+            thread.on_start += self.on_thread_start
+            thread.on_complete += self.on_thread_complete
+        except: pass
 
     @property
     def current_thread(self):
@@ -265,6 +281,9 @@ class ParallelThreads(MultiThreads):
                 # no need to stop processes, just break
                 break
 
+    def dump(self):
+        return ResultParallelThreads(self)
+
 
 class PyPy(ExtendedThread):
     """
@@ -350,7 +369,7 @@ class PyPy(ExtendedThread):
         if self.case:
             return dict(
                 returncode=self.returncode,
-                name=self.case.to_string(),
+                name=self.case.as_string,
                 case=self.case,
                 log=self.full_output
             )
@@ -431,6 +450,9 @@ class RuntestMultiThread(SequentialThreads):
             execution=self.pypy,
             compare=self.comp
         )
+
+    def dump(self):
+        return RuntestTripletResult(self)
 
 
 class ResultHolder(object):

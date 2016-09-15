@@ -126,7 +126,7 @@ class limit_test(object):
     certain platform
     """
 
-    verbose = True
+    verbose = False
 
     def __init__(self, hostname=None):
         self.limiters = list()
@@ -135,8 +135,9 @@ class limit_test(object):
 
     def __call__(self, f):
         if self.limiters:
-            print('=' * 80)
-            print('{:-^80}'.format(' checking test compatibility '))
+            if self.verbose:
+                print('=' * 80)
+                print('{:-^80}'.format(' checking test compatibility '))
 
             for limiter in self.limiters:
                 if not limiter.test():
@@ -144,7 +145,8 @@ class limit_test(object):
                     print('{:-^80s}'.format(' skipping test "{f.func_name}" '.format(**locals())))
                     print('=' * 80)
                     return
-            print('=' * 80)
+            if self.verbose:
+                print('=' * 80)
 
         def wrapper(other, *args, **kwargs):
             return f(other, *args, **kwargs)
@@ -171,7 +173,6 @@ class HostnameLimiter(object):
             if limit_test.verbose:
                 print("Test allowed: found '{self.node}' in {self.hostname}".format(self=self))
             return True
-
         if limit_test.verbose:
             print("Test denied: '{self.node}' not found in {self.hostname}".format(self=self))
         return False

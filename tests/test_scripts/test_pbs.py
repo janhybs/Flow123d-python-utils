@@ -4,15 +4,15 @@
 # ----------------------------------------------
 import os
 import sys
-# ----------------------------------------------
-from scripts.core.base import Paths
-from scripts.core.threads import ResultHolder
-from scripts.pbs.modules.local_pbs import Module
+import shutil
 # ----------------------------------------------
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 # ----------------------------------------------
 import test_scripts
 test_scripts.fix_paths()
+# ----------------------------------------------
+from scripts.core.threads import ResultHolder
+from scripts.pbs.modules.local_pbs import Module
 # ----------------------------------------------
 
 
@@ -34,12 +34,9 @@ extras = os.path.join(__dir__, 'extras')
 Module.mock = os.path.join(extras, 'pbs_mock.py')
 
 # set exit codes
-root = r'/home/jan-hybs/Dokumenty/projects/Flow123d/flow123d'
 EXIT_OK = 0
 EXIT_ERROR = 1
 EXIT_COMPARE_ERROR = 13
-
-Paths.init(root)
 
 
 class TestDoWork(test_scripts.UnitTest):
@@ -66,15 +63,6 @@ class TestDoWork(test_scripts.UnitTest):
         self.assertEqual(pypy.command[0], 'mpirun')
         self.assertEqual(pypy.command[2], '1')
 
-    @test_scripts.limit_test(hostname='*')
-    def test_parallel_job(self):
-        """
-        Run exec parallel with CPU = 2
-        """
-        pypy = exec_call(*'-n 2 -q -- mpirun uname -a'.split())
-        self.assertEqual(pypy.returncode, EXIT_OK)
-        self.assertEqual(pypy.command[0], 'mpirun')
-        self.assertEqual(pypy.command[2], '2')
 
     @test_scripts.limit_test(hostname='*')
     def test_parallel_multijob(self):

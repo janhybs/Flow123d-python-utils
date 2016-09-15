@@ -292,6 +292,9 @@ def do_work(parser, args=None, debug=False):
 
     # pickle out result on demand
     if parser.simple_options.dump:
-        import pickle
-        pickle.dump(result.dump(), open(parser.simple_options.dump, 'wb'))
+        try:
+            import pickle
+            pickle.dump(result.dump(), open(parser.simple_options.dump, 'wb'))
+        except:
+            pass # TODO implement dump in pbs mode
     return result
