@@ -1,0 +1,9 @@
+config:
+ # no global config
+
+collectors:
+  - !Collector
+      source: ./
+      target: ./bar/foo/bar
+      flat: true
+      includes: "**/*.py"
