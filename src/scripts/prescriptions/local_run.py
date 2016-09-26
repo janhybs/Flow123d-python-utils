@@ -9,9 +9,8 @@ from scripts.core.threads import PyPy, ExtendedThread, ComparisonMultiThread
 from scripts.core.execution import BinExecutor, OutputMode
 from scripts.prescriptions import AbstractRun
 from scripts.comparisons import file_comparison
+from scripts.yamlc import REF_OUTPUT_DIR
 # ----------------------------------------------
-
-REF_OUTPUT_DIR = 'ref_out'
 
 
 class LocalRun(AbstractRun):
@@ -29,11 +28,10 @@ class LocalRun(AbstractRun):
         pypy.case = self.case
 
         pypy.limit_monitor.set_limits(self.case)
-        pypy.info_monitor.end_fmt = ''
-        pypy.info_monitor.start_fmt = 'Running: {}'.format(self.case)
+        pypy.end_monitor.deactivate()
+        pypy.start_monitor.format = 'Running: {}'.format(self.case)
 
         pypy.progress = self.progress
-        # pypy.executor.output = OutputMode.file_write(Paths.temp_file('runtest-{datetime}.log'))
         pypy.executor.output = OutputMode.file_write(self.case.fs.job_output)
         pypy.full_output = pypy.executor.output.filename
         return pypy
@@ -47,7 +45,7 @@ class LocalRun(AbstractRun):
             module = getattr(file_comparison, 'Compare{}'.format(method.capitalize()), None)
             comp_data = check_rule[method]
             if not module:
-                Printer.err('Warning! No module for check_rule method "{}"', method)
+                Printer.all.err('Warning! No module for check_rule method "{}"', method)
                 continue
 
             pairs = self._get_ref_output_files(comp_data)
@@ -58,10 +56,14 @@ class LocalRun(AbstractRun):
 
                     # if we fail, set error to 13
                     pm.custom_error = 13
-                    pm.info_monitor.active = False
-                    pm.limit_monitor.active = False
-                    pm.progress_monitor.active = False
-                    pm.error_monitor.message = 'Error! Comparison using method {} failed!'.format(method)
+                    pm.start_monitor.deactivate()
+                    pm.end_monitor.deactivate()
+                    pm.progress_monitor.deactivate()
+                    pm.limit_monitor.deactivate() # TODO: maybe some time limit would be useful
+                    pm.output_monitor.policy = pm.output_monitor.POLICY_ERROR_ONLY
+
+                    pm.error_monitor.message = 'Comparison using method {} failed!'.format(method)
+                    pm.error_monitor.indent = 1
 
                     # catch output
                     pm.executor.output = OutputMode.variable_output()

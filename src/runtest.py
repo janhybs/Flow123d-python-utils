@@ -8,6 +8,7 @@ pathfix.init()
 # ----------------------------------------------
 import sys
 # ----------------------------------------------
+from scripts.core.base import Paths
 from utils.argparser import ArgParser
 from utils.duration import Duration
 # ----------------------------------------------
@@ -39,7 +40,8 @@ parser.add('', '--include', type=list, subtype=str, name='include', docs=[
 ])
 parser.add('', '--exclude', type=list, subtype=str, name='exclude', docs=[
     'Filter tags which should be processed.',
-    'See --include for more information.'
+    'See --include for more information. By default tag "disabled" is set if no',
+    'other --exclude flag is set'
 ])
 # ----------------------------------------------
 parser.add_section('Passable arguments to run_parallel.py')
@@ -93,6 +95,9 @@ parser.add('', '--list', type=True, name='list', docs=[
 parser.add('', '--dump', hidden=True, type=str, name='dump', placeholder='<FILE>', docs=[
     'If set will pickle result to given file'
 ])
+parser.add('', '--log', type=str, name='log', placeholder='<FILE>', docs=[
+    'Will also redirect output to file'
+])
 # ----------------------------------------------
 
 if __name__ == '__main__':
@@ -104,6 +109,13 @@ if __name__ == '__main__':
 
     from scripts.core.execution import BinExecutor
     from scripts.runtest_module import do_work
+
+    # determine batched mode after parsing
+    from scripts.core.base import Printer
+    parser.on_parse += Printer.setup_printer
+
+    import os
+    Paths.init(os.getcwd())
 
     # run work
     BinExecutor.register_sigint()

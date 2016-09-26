@@ -7,7 +7,7 @@ import time
 import threading
 
 # ----------------------------------------------
-from scripts.config.yaml_config import ConfigCase
+from scripts.yamlc.yaml_config import ConfigCase
 from scripts.core import monitors
 from scripts.core.base import Printer, Paths, Command, DynamicSleep, IO
 from scripts.serialization import PyPyResult, ResultHolderResult, RuntestTripletResult, ResultParallelThreads
@@ -15,6 +15,12 @@ from utils.counter import ProgressCounter
 from utils.events import Event
 from utils.globals import wait_for
 # ----------------------------------------------
+
+
+class ProcessState(object):
+    NOT_STARTED = 0
+    STARTED = 1
+    FINISHED = 2
 
 
 class ExtendedThread(threading.Thread):
@@ -27,7 +33,7 @@ class ExtendedThread(threading.Thread):
         self.started = None
         self.target = target
 
-        self._is_over = True
+        self.state = ProcessState.NOT_STARTED
         self._returncode = None
 
         self.start_time = None
@@ -61,23 +67,23 @@ class ExtendedThread(threading.Thread):
         self._returncode = value
 
     def start(self):
-        self._is_over = False
+        self.state = ProcessState.STARTED
         super(ExtendedThread, self).start()
 
     def run(self):
-        self._is_over = False
+        self.state = ProcessState.STARTED
         self.on_start(self)
         self.start_time = time.time()
         self._run()
         self.end_time = time.time()
-        self._is_over = True
         self.on_complete(self)
+        self.state = ProcessState.FINISHED
 
     def is_over(self):
-        return self._is_over
+        return self.state == ProcessState.FINISHED
 
     def is_running(self):
-        return not self._is_over
+        return self.state == ProcessState.STARTED
 
     def __repr__(self):
         return "<{self.__class__.__name__}:{running} E:{self.returncode}>".format(
@@ -92,7 +98,7 @@ class ExtendedThread(threading.Thread):
     def __nonzero__(self):
         return not self.with_error()
 
-    def with_success(self):
+    def was_successful(self):
         """
         Return True if and only if returncode is 0
         :rtype: bool
@@ -151,7 +157,7 @@ class MultiThreads(ExtendedThread):
 
         if self.counter:
             if self.separate:
-                Printer.separator()
+                Printer.all.sep()
             self.counter.next(locals())
 
         self.threads[self.index - 1].start()
@@ -213,20 +219,15 @@ class SequentialThreads(MultiThreads):
             else:
                 self.counter = ProgressCounter('{self.name}: {:02d} of {self.total:02d}')
 
-        if self.indent:
-            Printer.open()
+        with Printer.all.with_level(1 if self.indent else 0):
+            while True:
+                if not self.run_next():
+                    break
+                self.current_thread.join()
 
-        while True:
-            if not self.run_next():
-                break
-            self.current_thread.join()
-
-            if self.stop_on_error and self.current_thread.returncode > 0:
-                self.stopped = True
-                break
-
-        if self.indent:
-            Printer.close()
+                if self.stop_on_error and self.current_thread.returncode > 0:
+                    self.stopped = True
+                    break
 
     def to_json(self):
         items = []
@@ -267,7 +268,7 @@ class ParallelThreads(MultiThreads):
         # later on take cpu into account
         steps = int(math.ceil(float(self.total) / self.n))
 
-        # run each batch
+        # run each batched
         for i in range(steps):
             batch = [x for x in range(i * self.n, i * self.n + self.n) if x < len(self.threads)]
             for t in batch:
@@ -314,15 +315,19 @@ class PyPy(ExtendedThread):
         self.on_process_update = Event()
 
         # register monitors
-        self.info_monitor = monitors.InfoMonitor(self)
         self.limit_monitor = monitors.LimitMonitor(self)
+        self.start_monitor = monitors.StartInfoMonitor(self)
+        self.end_monitor = monitors.EndInfoMonitor(self)
         self.progress_monitor = monitors.ProgressMonitor(self)
+        self.output_monitor = monitors.OutputMonitor(self)
         self.error_monitor = monitors.ErrorMonitor(self)
+
+        self.end_monitor.deactivate()
 
         self.log = False
         self.custom_error = None
 
-        # different settings in batch mode
+        # different settings in batched mode
         self.progress = progress
 
         # dynamic sleeper
@@ -332,13 +337,16 @@ class PyPy(ExtendedThread):
         self.full_output = None
 
     @property
+    def escaped_command(self):
+        return self.executor.escaped_command
+
+    @property
     def progress(self):
         return self._progress
 
     @progress.setter
     def progress(self, value):
         self._progress = value
-        self.progress_monitor.active = value
 
     def _run(self):
         # start executor
@@ -346,15 +354,15 @@ class PyPy(ExtendedThread):
         wait_for(self.executor, 'process')
 
         if self.executor.broken:
-            Printer.err('Could not start command {}: {}',
+            Printer.all.err('Could not start command "{}": {}',
                         Command.to_string(self.executor.command),
-                        getattr(self.executor, 'exception', 'Unknown error'))
+                        self.executor.exception)
             self.returncode = self.executor.returncode
 
         # if process is not broken, propagate start event
         self.on_process_start(self)
 
-        while self.executor.process.is_running():
+        while self.executor.is_running():
             self.on_process_update(self)
             self.sleeper.sleep()
 
@@ -377,7 +385,6 @@ class PyPy(ExtendedThread):
         json['log'] = self.full_output
         json['type'] = 'exec'
         return json
-
 
     def dump(self):
         return PyPyResult(self)
