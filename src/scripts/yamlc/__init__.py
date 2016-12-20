@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # author:   Jan Hybs
 # ----------------------------------------------
-from scripts.core.base import PathFilters, Paths
+from scripts.core.base import Paths
 # ----------------------------------------------
 
 DEFAULTS = dict(
@@ -27,6 +27,7 @@ TAG_TEST_CASES = 'test_cases'
 TAG_CHECK_RULES = 'check_rules'
 TAG_TAGS = 'tags'
 REF_OUTPUT_DIR = 'ref_out'
+TEST_RESULTS = 'test_results'
 
 YAML = '.yaml'
 CONFIG_YAML = 'config.yaml'
@@ -53,18 +54,21 @@ class ConfigCaseFiles(object):
         self.job_output = self.in_output('job_output.log')
         self.json_output = self.in_output('result.json')
         self.dump_output = self.in_output('result.p')
+        self.status_file = self.in_output('runtest.status.json')
 
         self.input = self.in_root('input')
         self.ref_output = ref_output
 
     def in_root(self, *names):
         """
+        Will return path for file located in root
         :rtype: str
         """
         return Paths.join(self.root, *names)
 
     def in_output(self, *names):
         """
+        Will return path for file located in output
         :rtype: str
         """
         return Paths.join(self.output, *names)

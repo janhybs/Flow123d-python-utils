@@ -232,10 +232,10 @@ class Printer(object):
     @classmethod
     def setup_printer(cls, parser):
         """
-        :type parser: utils.argparser.ArgParser
+        :type parser: utils.argparser.RuntestArgs
         """
         try:
-            if parser.simple_options.batch:
+            if parser.batch:
                 cls.set_level(cls.LEVEL_BATCH)
             else:
                 cls.set_level(cls.LEVEL_CONSOLE)
@@ -243,7 +243,7 @@ class Printer(object):
             cls.set_level(cls.LEVEL_CONSOLE)
 
         try:
-            _Printer.log_file = parser.simple_options.log
+            _Printer.log_file = parser.log
         except: pass
 
 
@@ -336,7 +336,7 @@ class PathFormat(object):
 
 class Paths(object):
     """
-    Class Paths is helper class when dealng with files and folders
+    Class Paths is helper class when dealing with files and folders
     """
 
     _base_dir = find_base_dir()
@@ -740,3 +740,18 @@ class StatusPrinter(object):
         result = 0 if len(returncodes) == passed else 1
         status_name = '[ {} ]'.format(TestPrinterStatus.get(str(result))).upper()
         Printer.all.out(formatter.template.format(**locals()))
+
+
+class System(object):
+    import uuid
+    import time as _time
+
+    time = _time.strftime("%H-%M-%S")
+    date = _time.strftime("%y.%m.%d")
+    datetime = _time.strftime("%y.%m.%d_%H-%M-%S")
+    started = _time.time()
+
+    rnd8 = ''.join(random.choice('0123456789ABCDEF') for i in range(8))
+    rnd16 = ''.join(random.choice('0123456789ABCDEF') for i in range(16))
+    rnd32 = ''.join(random.choice('0123456789ABCDEF') for i in range(32))
+    rnd = str(uuid.uuid4().hex)
